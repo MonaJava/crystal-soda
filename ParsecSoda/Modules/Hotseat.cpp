@@ -22,6 +22,38 @@ void Hotseat::Start() {
 		hotseatThread = std::thread([&] {
 
 			while (running) {
+				if (rewardTimer->isFinished())
+				{
+					rewardTimer->start(1);
+					numUsers = 0;
+					for (size_t i = 0; i < g_hosting.getGamepads().size(); ++i)
+					{
+						if (g_hosting.getGamepads()[i]->isOwned())
+						{
+							numUsers += 1;
+						}
+					}
+					if (numUsers > 1)
+					{
+						for (HotseatUser& user : users) {
+
+							if (numUsers < 5)
+							{
+								bonusMinutes = static_cast<int>(12 * (numUsers - 1) / numUsers);
+							}
+							else
+							{
+								bonusMinutes = 9;
+							}
+							extendUser(user.userId, bonusMinutes);
+							Log("MP Bonus: All users in hotseat have been granted " + to_string(bonusMinutes) + " extra minutes.");
+							
+						}
+					}
+
+				
+				}
+				Log(to_string(rewardTimer->getRemainingSec()));
 
 				// Get current timestamp
 				std::time_t currentTime = getCurrentTimestamp();
@@ -67,6 +99,27 @@ void Hotseat::Start() {
 
 				}
 
+				//check if bonus time should be given
+				/*if (rewardTimer->isFinished())
+				{
+					// Loop through all users
+					for (HotseatUser& user : users) {
+						if (numUsers > 1)
+						{
+							if (numUsers < 5)
+							{
+								bonusMinutes = static_cast<int>(12 * (numUsers - 1) / numUsers);
+							}
+							else
+							{
+								bonusMinutes = 9;
+							}
+							extendUser(user.userId, bonusMinutes);
+							Log("MP Bonus: All users in hotseat have been granted " + to_string(bonusMinutes) + " extra minutes.");
+						}
+					}
+					rewardTimer->start(12);
+				}*/
 				// Sleep for a second
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 			}
@@ -88,6 +141,8 @@ void Hotseat::Stop() {
 	for (HotseatUser& user : users) {
 		user.inSeat = false;
 		user.stopwatch->stop();
+		rewardTimer->start(0);
+		rewardTimer->stop();
 	}
 
 }
@@ -142,7 +197,7 @@ bool Hotseat::checkUser(int id, string name) {
 			//check if the cooldown time would zero out before play time runs out
 			if (getCoolDownTime(id) < (user->stopwatch->getRemainingSec() + Config::cfg.hotseat.minResetTime * 60 + 60))
 			{
-				user->timeLastPlayed = currentTime - Config::cfg.hotseat.resetTime + user->stopwatch->getRemainingSec() + Config::cfg.hotseat.minResetTime * 60;
+				user->timeLastPlayed = currentTime - Config::cfg.hotseat.resetTime * 60 + user->stopwatch->getRemainingSec() + Config::cfg.hotseat.minResetTime * 60;
 			}
 			// Start the stopwatch
 			//Sloppy fix for reseating glitch from DIO. Just checks if its paused first
