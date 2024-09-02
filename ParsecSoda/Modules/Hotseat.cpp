@@ -22,9 +22,9 @@ void Hotseat::Start() {
 		hotseatThread = std::thread([&] {
 
 			while (running) {
-				if (rewardTimer->isFinished())
+				if (rewardTimer->isFinished() && Config::cfg.hotseat.multiBonus)
 				{
-					rewardTimer->start(1);
+					rewardTimer->start(12);
 					numUsers = 0;
 					for (size_t i = 0; i < g_hosting.getGamepads().size(); ++i)
 					{
