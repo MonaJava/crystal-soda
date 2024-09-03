@@ -195,7 +195,7 @@ public:
 
 	class Socket {
 		public:
-		bool enabled = true;
+		bool enabled = false;
 		int port = 9002;
 	};
 
