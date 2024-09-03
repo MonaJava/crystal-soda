@@ -84,7 +84,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE hPrevInstance, _In
     wc.hIconSm = NULL;
     ::RegisterClassEx(&wc);
     HWND hwnd = ::CreateWindow(
-        wc.lpszClassName, _T("Smash Soda"), WS_OVERLAPPEDWINDOW,
+        wc.lpszClassName, _T("Purple Flurp"), WS_OVERLAPPEDWINDOW,
         Config::cfg.video.windowX, Config::cfg.video.windowY,
         Config::cfg.video.windowW, Config::cfg.video.windowH,
         NULL, NULL, wc.hInstance, NULL
