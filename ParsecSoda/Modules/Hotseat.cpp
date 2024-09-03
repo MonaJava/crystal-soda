@@ -53,7 +53,6 @@ void Hotseat::Start() {
 
 				
 				}
-				Log(to_string(rewardTimer->getRemainingSec()));
 
 				// Get current timestamp
 				std::time_t currentTime = getCurrentTimestamp();
