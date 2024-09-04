@@ -46,7 +46,7 @@ void Hotseat::Start() {
 							{
 								bonusMinutes = 9;
 							}
-							extendUser(user.userId, bonusMinutes);
+							if (user.inSeat)	extendUser(user.userId, bonusMinutes);
 							
 							
 						}
