@@ -81,6 +81,13 @@ void Hotseat::Start() {
 							// Strip pads
 							g_hosting.getGamepadClient().strip(user.userId);
 
+							//check if the cooldown time would zero out before play time runs out
+							int minutesSinceLastPlayed = getMinutesDifference(user.timeLastPlayed, currentTime);
+							if ((Config::cfg.hotseat.resetTime - minutesSinceLastPlayed) < Config::cfg.hotseat.minResetTime)
+							{
+								user.timeLastPlayed = currentTime - (Config::cfg.hotseat.resetTime + Config::cfg.hotseat.minResetTime) * 60;
+							}
+
 							// Log user removed
 							int minutesSinceLastPlayed = getMinutesDifference(user.timeLastPlayed, currentTime);
 							Log("User " + user.userName + " has been removed from the hotseat. They must wait " + to_string(Config::cfg.hotseat.resetTime - minutesSinceLastPlayed) + " minutes.");
