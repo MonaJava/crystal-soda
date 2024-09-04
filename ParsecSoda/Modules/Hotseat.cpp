@@ -47,9 +47,10 @@ void Hotseat::Start() {
 								bonusMinutes = 9;
 							}
 							extendUser(user.userId, bonusMinutes);
-							Log("MP Bonus: All users in hotseat have been granted " + to_string(bonusMinutes) + " extra minutes.");
+							
 							
 						}
+						Log("MP Bonus: All users in hotseat have been granted " + to_string(bonusMinutes) + " extra minutes.");
 					}
 
 				
