@@ -52,9 +52,9 @@ void Hotseat::Start() {
 						}
 						Log("MP Bonus: All users in hotseat have been granted " + to_string(bonusMinutes) + " extra minutes.");
 					}
-
-				
 				}
+				rewardTimer->getRemainingSec();
+
 
 
 				// Get current timestamp
