@@ -85,7 +85,7 @@ void Hotseat::Start() {
 							int minutesSinceLastPlayed = getMinutesDifference(user.timeLastPlayed, currentTime);
 							if ((Config::cfg.hotseat.resetTime - minutesSinceLastPlayed) < Config::cfg.hotseat.minResetTime)
 							{
-								user.timeLastPlayed = currentTime - (Config::cfg.hotseat.resetTime + Config::cfg.hotseat.minResetTime) * 60;
+								user.timeLastPlayed = currentTime - (Config::cfg.hotseat.resetTime - Config::cfg.hotseat.minResetTime) * 60;
 							}
 
 							// Log user removed
