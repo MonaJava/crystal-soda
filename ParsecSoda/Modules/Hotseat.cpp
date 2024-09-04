@@ -89,7 +89,7 @@ void Hotseat::Start() {
 							}
 
 							// Log user removed
-							int minutesSinceLastPlayed = getMinutesDifference(user.timeLastPlayed, currentTime);
+							minutesSinceLastPlayed = getMinutesDifference(user.timeLastPlayed, currentTime);
 							Log("User " + user.userName + " has been removed from the hotseat. They must wait " + to_string(Config::cfg.hotseat.resetTime - minutesSinceLastPlayed) + " minutes.");
 
 							user.checkThisOnce = false;
