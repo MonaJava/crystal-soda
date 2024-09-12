@@ -69,6 +69,10 @@ private:
 	bool _vipControls = false;
 	bool _modControls = false;
 
+	int _noobNum = 156;
+	bool _kickNoob = false;
+	bool _limitNoob = true;
+
 	string themes[5] = { "Midnight", "Parsec Soda", "Parsec Soda V", "Mini", "Arcade" };
 	Countries _countries;
 };

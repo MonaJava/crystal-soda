@@ -138,16 +138,28 @@ void Config::Load() {
 			cfg.overlay.guests.position = setValue(cfg.overlay.guests.position, j["Overlay"]["guests"]["position"].get<string>());
 			cfg.overlay.guests.showLatency = setValue(cfg.overlay.guests.showLatency, j["Overlay"]["guests"]["showLatency"].get<bool>());
 
-			// Set Permissions properties
+			// Set Permissions properties --DIO question: uhhh is there anyway to implement get<permissionGroup> or something?
 			cfg.permissions.guest.useBB = setValue(cfg.permissions.guest.useBB, j["Permissions"]["guest"]["useBB"].get<bool>());
 			cfg.permissions.guest.useSFX = setValue(cfg.permissions.guest.useSFX, j["Permissions"]["guest"]["useSFX"].get<bool>());
 			cfg.permissions.guest.changeControls = setValue(cfg.permissions.guest.changeControls, j["Permissions"]["guest"]["changeControls"].get<bool>());
+			cfg.permissions.guest.kick = setValue(cfg.permissions.guest.kick, j["Permissions"]["guest"]["kick"].get<bool>());
+			cfg.permissions.guest.limit = setValue(cfg.permissions.guest.limit, j["Permissions"]["guest"]["limit"].get<bool>());
 			cfg.permissions.vip.useBB = setValue(cfg.permissions.vip.useBB, j["Permissions"]["vip"]["useBB"].get<bool>());
 			cfg.permissions.vip.useSFX = setValue(cfg.permissions.vip.useSFX, j["Permissions"]["vip"]["useSFX"].get<bool>());
 			cfg.permissions.vip.changeControls = setValue(cfg.permissions.vip.changeControls, j["Permissions"]["vip"]["changeControls"].get<bool>());
+			cfg.permissions.vip.kick = setValue(cfg.permissions.vip.kick, j["Permissions"]["vip"]["kick"].get<bool>());
+			cfg.permissions.vip.limit = setValue(cfg.permissions.vip.limit, j["Permissions"]["vip"]["limit"].get<bool>());
 			cfg.permissions.moderator.useBB = setValue(cfg.permissions.moderator.useBB, j["Permissions"]["moderator"]["useBB"].get<bool>());
 			cfg.permissions.moderator.useSFX = setValue(cfg.permissions.moderator.useSFX, j["Permissions"]["moderator"]["useSFX"].get<bool>());
 			cfg.permissions.moderator.changeControls = setValue(cfg.permissions.moderator.changeControls, j["Permissions"]["moderator"]["changeControls"].get<bool>());
+			cfg.permissions.moderator.kick = setValue(cfg.permissions.moderator.kick, j["Permissions"]["moderator"]["kick"].get<bool>());
+			cfg.permissions.moderator.limit = setValue(cfg.permissions.moderator.limit, j["Permissions"]["moderator"]["limit"].get<bool>());
+			cfg.permissions.noob.useBB = setValue(cfg.permissions.noob.useBB, j["Permissions"]["noob"]["useBB"].get<bool>());
+			cfg.permissions.noob.useSFX = setValue(cfg.permissions.noob.useSFX, j["Permissions"]["noob"]["useSFX"].get<bool>());
+			cfg.permissions.noob.changeControls = setValue(cfg.permissions.noob.changeControls, j["Permissions"]["noob"]["changeControls"].get<bool>());
+			cfg.permissions.noob.kick = setValue(cfg.permissions.noob.kick, j["Permissions"]["noob"]["kick"].get<bool>());
+			cfg.permissions.noob.limit = setValue(cfg.permissions.noob.limit, j["Permissions"]["noob"]["limit"].get<bool>());
+			cfg.permissions.noobNum = setValue(cfg.permissions.noobNum, j["Permissions"]["noobNum"].get<int>());
 
 			// Set Arcade properties
 			cfg.arcade.token = setValue(cfg.arcade.token, j["Arcade"]["token"].get<string>());
@@ -319,18 +331,32 @@ void Config::Save() {
 		{"guest", {
 			{"useBB", cfg.permissions.guest.useBB},
 			{"useSFX", cfg.permissions.guest.useSFX},
-			{"changeControls", cfg.permissions.guest.changeControls}
+			{"changeControls", cfg.permissions.guest.changeControls},
+			{"kick", cfg.permissions.guest.kick },
+			{"limit", cfg.permissions.guest.limit }
 		}},
 		{"vip", {
 			{"useBB", cfg.permissions.vip.useBB},
 			{"useSFX", cfg.permissions.vip.useSFX},
-			{"changeControls", cfg.permissions.vip.changeControls}
+			{"changeControls", cfg.permissions.vip.changeControls},
+			{"kick", cfg.permissions.vip.kick },
+			{"limit", cfg.permissions.vip.limit }
 		}},
 		{"moderator", {
 			{"useBB", cfg.permissions.moderator.useBB},
 			{"useSFX", cfg.permissions.moderator.useSFX},
-			{"changeControls", cfg.permissions.moderator.changeControls}
-		}}
+			{"changeControls", cfg.permissions.moderator.changeControls},
+			{"kick", cfg.permissions.moderator.kick},
+			{"limit", cfg.permissions.moderator.limit }
+		}},
+		{"noob", {
+			{"useBB", cfg.permissions.noob.useBB},
+			{"useSFX", cfg.permissions.noob.useSFX},
+			{"changeControls", cfg.permissions.noob.changeControls},
+			{"kick", cfg.permissions.noob.kick},
+			{"limit", cfg.permissions.noob.limit }
+		}},
+		{"noobNum", cfg.permissions.noobNum}
 	};
 
 	// Arcade

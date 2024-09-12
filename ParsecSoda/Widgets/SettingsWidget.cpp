@@ -38,6 +38,10 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
     _modBB = Config::cfg.permissions.moderator.useBB;
     _modControls = Config::cfg.permissions.moderator.changeControls;
 
+    _noobNum = Config::cfg.permissions.noobNum;
+    _kickNoob = !Config::cfg.permissions.noob.kick;
+    _limitNoob = !Config::cfg.permissions.noob.limit;
+
     _prependPingLimit = false;
 
     _countries = Countries();
@@ -389,5 +393,27 @@ void SettingsWidget::renderPermissions() {
         Config::cfg.permissions.moderator.changeControls = _modControls;
         Config::cfg.Save();
     }
+
+    AppStyle::pushTitle();
+    ImGui::Text("Noobs");
+    AppStyle::pop();
+
+    if (ImForm::InputNumber("Noob number (in hundreds of thousands)", _noobNum, 1, 999,
+        "Any one with an id higher than this is considered a noob")) {
+        Config::cfg.permissions.noobNum = _noobNum;
+        _noobNum = Config::cfg.permissions.noobNum;
+        Config::cfg.Save();
+    }
+
+    if (ImForm::InputCheckbox("Can join room", _kickNoob)) {
+        Config::cfg.permissions.noob.kick = !_kickNoob;
+        Config::cfg.Save();
+    }
+
+    if (ImForm::InputCheckbox("Can grab pads", _limitNoob)) {
+        Config::cfg.permissions.noob.limit = !_limitNoob;
+        Config::cfg.Save();
+    }
+
 
 }

@@ -172,17 +172,29 @@ public:
 			bool useBB = false;
 			bool useSFX = false;
 			bool changeControls = false;
+			bool kick = false;
+			bool limit = false;
 
 			PermissionGroup(bool useBB, bool useSFX, bool changeControls) {
 				this->useBB = useBB;
 				this->useSFX = useSFX;
 				this->changeControls = useBB;
 			};
+
+			PermissionGroup(bool useBB, bool useSFX, bool changeControls, bool kick, bool limit) {
+				this->useBB = useBB;
+				this->useSFX = useSFX;
+				this->changeControls = useBB;
+				this->kick = kick;
+				this->limit = limit;
+			};
 		};
 
 		PermissionGroup guest = PermissionGroup(false, false, true);
 		PermissionGroup vip = PermissionGroup(true, true, true);
 		PermissionGroup moderator = PermissionGroup(true, true, true);
+		PermissionGroup noob = PermissionGroup(false , false, true, false, true);
+		int noobNum = 156;
 	};
 
 	class Arcade {

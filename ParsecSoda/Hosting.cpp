@@ -967,9 +967,11 @@ void Hosting::handleNewGuests() {
 
 		// Ready to process
 		if (newGuestList.front().timer.isFinished()) {
-
+			Tier tier = Cache::cache.tierList.getTier(newGuest.guest.userID);
 			// Welcome message
 			string msg = Config::cfg.chat.welcomeMessage;
+			if(tier == Tier::NOOB && Config::cfg.permissions.noob.limit)
+				msg = msg + "\n[NEWBIE] This room does not allow accounts made recently to play. Feel free to spectate and chat!";
 			msg = regex_replace(msg, regex("_PLAYER_"), newGuest.guest.name);
 			ParsecHostSendUserData(_parsec, newGuestList.front().guest.id, HOSTING_CHAT_MSG_ID, msg.c_str());
 
@@ -1166,7 +1168,30 @@ void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecSt
 				ParsecHostKickGuest(_parsec, guest.id);
 				broadcastChatMessage(Config::cfg.chatbotName + "Kicked a fake guest: " + guest.name);
 				_chatLog.logCommand(Config::cfg.chatbotName + "Kicked a fake guest: " + guest.name);
-			} else {
+			} else 	
+				// Is this a noob?
+				if ((state == GUEST_CONNECTED || state == GUEST_CONNECTING) && (guest.userID > Config::cfg.permissions.noobNum)) {
+					_tierList.setTier(guest.userID, Tier::NOOB);
+					//Do we want to ban noobs?
+					if (Config::cfg.permissions.noob.kick)
+					{
+						ParsecHostKickGuest(_parsec, guest.id);
+						broadcastChatMessage(Config::cfg.chatbotName + "Kicked a noob: " + guest.name);
+						_chatLog.logMessage(Config::cfg.chatbotName + "Kicked a noob: " + guest.name);
+					}
+
+					_guestHistory.add(data);
+					MetadataCache::addActiveGuest(guest);
+
+					addNewGuest(guest);
+
+					//Do we want to limit noobs?
+					if (Config::cfg.permissions.noob.limit)
+					{
+						_gamepadClient.setLimit(guest.userID, 0);
+					}
+				}
+				else {
 
 				// Add to guest history
 				_guestHistory.add(data);
