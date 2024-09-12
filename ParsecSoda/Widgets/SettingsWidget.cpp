@@ -398,7 +398,7 @@ void SettingsWidget::renderPermissions() {
     ImGui::Text("Noobs");
     AppStyle::pop();
 
-    if (ImForm::InputNumber("Noob number (in hundreds of thousands)", _noobNum, 1, 999,
+    if (ImForm::InputNumber("Noob number (in tens of thousands)", _noobNum, 1, 9999,
         "Any one with an id higher than this is considered a noob")) {
         Config::cfg.permissions.noobNum = _noobNum;
         _noobNum = Config::cfg.permissions.noobNum;
