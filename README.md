@@ -9,9 +9,9 @@
     <br />
     <a href="https://github.com/MonaJava/crystal-soda/releases">Latest Release</a>
     ·
-    <a href="https://github.com/MickeyUK/SmashSoda/issues">Report Bug</a>
+    
     ·
-    <a href="https://github.com/MickeyUK/SmashSoda/issues">Request Feature</a>
+    
   </p>
 </p>
 
