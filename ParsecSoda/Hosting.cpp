@@ -945,7 +945,7 @@ void Hosting::addNewGuest(Guest guest) {
 
 	NewGuest newGuest;
 	newGuest.guest = guest;
-	newGuest.timer.setDuration(newGuestList.size() * 2000);
+	newGuest.timer.setDuration(newGuestList.size() * 2000 + 500);
 	newGuest.timer.start();
 	newGuestList.push_back(newGuest);
 
@@ -1192,13 +1192,13 @@ void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecSt
 					}
 				}
 				else {
+					_tierList.setTier(guest.userID, Tier::PLEB);
+					// Add to guest history
+					_guestHistory.add(data);
+					MetadataCache::addActiveGuest(guest);
 
-				// Add to guest history
-				_guestHistory.add(data);
-				MetadataCache::addActiveGuest(guest);
-
-				// Show welcome message
-				addNewGuest(guest);
+					// Show welcome message
+					addNewGuest(guest);
 
 			}
 
