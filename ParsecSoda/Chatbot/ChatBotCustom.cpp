@@ -9,6 +9,7 @@
 */
 
 //#include "Commands/Custom/YourCommandClass.h"
+#include "Commands/Custom/EmptyTime.h"
 
 /**
 * This function is where you check to see if the
@@ -17,6 +18,8 @@
 ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool isHost, Tier tier, uint32_t previous) {
 
 	//if (msgIsEqual(msg, YourCommandClass::prefixes()))	return new YourCommandClass(sender, _gamepadClient, _macro);
+	if (msgIsEqual(msg, EmptyTime::prefixes()))	return new EmptyTime(sender);
+	
 
 	// Returns a default message if no custom command is found, so the bot can still respond.
 	return new CommandDefaultMessage(msg, sender, previous, tier, isHost);

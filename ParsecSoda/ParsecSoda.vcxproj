@@ -179,6 +179,7 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Chatbot\ChatBotCustom.cpp" />
+    <ClCompile Include="Chatbot\Commands\Custom\EmptyTime.h" />
     <ClCompile Include="Chatbot\Commands\Guest\CommandBonk.cpp" />
     <ClCompile Include="Chatbot\Commands\Mod\CommandDecreaseCD.h" />
     <ClCompile Include="Core\Cache.cpp" />

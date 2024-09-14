@@ -307,7 +307,12 @@ void Hotseat::pauseUser(int id) {
 
 			// Did the user have time remaining?
 			if (user->stopwatch->getRemainingMs() > 0) {
-
+				// Set cooldown to minimum if its below it
+				int minutesSinceLastPlayed = getMinutesDifference(user->timeLastPlayed, currentTime);
+				if ((Config::cfg.hotseat.resetTime - minutesSinceLastPlayed) < Config::cfg.hotseat.minResetTime)
+				{
+					user->timeLastPlayed = currentTime - Config::cfg.hotseat.resetTime * 60 + user->stopwatch->getRemainingSec() + Config::cfg.hotseat.minResetTime * 60;
+				}
 				// Log user paused
 				Log("User " + user->userName + " left the seat with " + user->stopwatch->getRemainingTime() + " remaining.");
 
