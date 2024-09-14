@@ -1059,6 +1059,40 @@ bool Hosting::isFilteredCommand(ACommand* command) {
 	return false;
 }
 
+uint32_t Hosting::ipToUint(const std::string& ip) {
+	uint32_t result = 0;
+	std::istringstream iss(ip);
+	std::string token;
+	while (std::getline(iss, token, '.')) {
+		result = (result << 8) + std::stoi(token);
+	}
+	return result;
+}
+
+bool Hosting::isIPInRange(const std::string& ip, const std::string& cidr) {
+	size_t pos = cidr.find('/');
+	std::string base_ip = cidr.substr(0, pos);
+	int prefix_len = std::stoi(cidr.substr(pos + 1));
+
+	uint32_t ip_addr = ipToUint(ip);
+	uint32_t net_addr = ipToUint(base_ip);
+
+	uint32_t mask = (prefix_len == 0) ? 0 : ~((1 << (32 - prefix_len)) - 1);
+
+	return (ip_addr & mask) == (net_addr & mask);
+}
+
+// Function to check if an IP address is a VPN
+bool Hosting::isVPN(const std::string& ip) {
+	for (const auto& range : Cache::cache.cidrRanges) {
+		if (isIPInRange(ip, range)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecStatus& status) {
 
 	static string logMessage;
@@ -1087,6 +1121,15 @@ void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecSt
 			_chatLog.logMessage(Config::cfg.chatbotName + "Kicked a guest for using a banned IP address.");
 			ParsecHostKickGuest(_parsec, guest.id);
 		} else {
+			// Is the user behind a VPN?
+			if (isVPN(Cache::cache.pendingIpAddress)) {
+				broadcastChatMessage(Config::cfg.chatbotName + " " + guest.name + " is behind a VPN.");
+				_chatLog.logMessage(Config::cfg.chatbotName + " " + guest.name + " is behind a VPN.");
+				if (Config::cfg.general.blockVPN) {
+					ParsecHostKickGuest(_parsec, guest.id);
+				}
+			}
+
 			Cache::cache.userIpMap[guest.userID] = Cache::cache.pendingIpAddress;
 		}
 		Cache::cache.pendingIpAddress.clear();
