@@ -23,6 +23,7 @@ void Hotseat::Start() {
 
 			while (running) {
 				//check if bonus time should be awarded for multiplayer
+				if (!(rewardTimer->isRunning()))	rewardTimer->start(12);
 				if (rewardTimer->isFinished() && Config::cfg.hotseat.multiBonus)
 				{
 					rewardTimer->start(12);
@@ -128,8 +129,7 @@ void Hotseat::Stop() {
 	// Stop all active users
 	for (HotseatUser& user : users) {
 		user.inSeat = false;
-		user.stopwatch->stop();
-		rewardTimer->start(0);
+		user.stopwatch->pause();
 		rewardTimer->stop();
 	}
 
@@ -190,8 +190,7 @@ bool Hotseat::checkUser(int id, string name) {
 				user->timeLastPlayed = currentTime - Config::cfg.hotseat.resetTime * 60 + user->stopwatch->getRemainingSec() + Config::cfg.hotseat.minResetTime * 60;
 			}
 			// Start the stopwatch
-			//Sloppy fix for reseating glitch from DIO. Just checks if its paused first
-			if (user->stopwatch->isRunning() == false)
+			if (user->stopwatch->isPaused())
 			{
 				user->stopwatch->resume();
 			}
@@ -229,11 +228,8 @@ bool Hotseat::checkUser(int id, string name) {
 					Log("User " + user->userName + " is now in the seat. They have " + user->stopwatch->getRemainingTime() + " left.");
 
 					// Start the stopwatch
-					//DIO Note: Scroll up
-					if (user->stopwatch->isRunning() == false)
-					{
-						user->stopwatch->resume();
-					}
+					user->stopwatch->resume();
+					
 
 				} else {
 

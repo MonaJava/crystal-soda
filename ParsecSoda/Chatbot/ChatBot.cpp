@@ -55,7 +55,7 @@ ACommand * ChatBot::identifyUserDataMessage(const char* msg, Guest &sender, bool
 	if (tier >= Tier::ADMIN || isHost) {
 
 		if (msgStartsWith(msg, CommandBan::prefixes()))			return new CommandBan(msg, sender, _parsec, _guests, _guestHistory);
-		if (msgStartsWith(msg, CommandHotseat::prefixes()))		return new CommandHotseat(sender, _hotseat);
+		if (msgStartsWith(msg, CommandHotseat::prefixes()))		return new CommandHotseat(sender, _hotseat, _gamepadClient);
 		if (msgIsEqual(msg, CommandDC::prefixes()))				return new CommandDC(msg, _gamepadClient);
 		if (msgStartsWith(msg, CommandDecrease::prefixes()))	return new CommandDecrease(msg, sender, _guests, _host);
 		if (msgStartsWith(msg, CommandDecreaseCD::prefixes()))	return new CommandDecreaseCD(msg, sender, _guests, _host);
