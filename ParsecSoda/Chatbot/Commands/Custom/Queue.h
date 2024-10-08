@@ -84,13 +84,13 @@ public:
 		case GamepadClient::PICK_REQUEST::RESERVED:
 			reply
 				<< Config::cfg.chatbotName << _sender.name << " has been added to the queue for pad #" << _intArg << "\n"
-				<< Config::cfg.chatbotName << "Waiting list:\n";
+				<< Config::cfg.chatbotName << " Waiting list:\n";
 			_gamepadClient.gamepads[_intArg - 1]->addToQueue(_sender);
 			
 			
 			for (size_t i = 0; i < queue.size(); i++)
 			{
-				reply << i + 1 << ": " << queue[i].name << "  (#" << queue[i].userID << ")";
+				reply << i + 1 << ": " << queue[i].name << "  (#" << queue[i].userID << ")\n";
 			}
 				reply << "\t\tType !pads to see the gamepad list.\0";
 

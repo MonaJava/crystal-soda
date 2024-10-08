@@ -150,7 +150,10 @@ vector<Guest>& AGamepad::getQueue()
 
 Guest AGamepad::getReserveOwner()
 {
-	return _queue.front();
+	if (isReserved)
+		return _queue.front();
+	else
+		return Guest();
 }
 
 void AGamepad::copyOwner(AGamepad* pad)

@@ -788,7 +788,9 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 					if (gamepad->isReserved)
 					{
 						gamepad->removeFirstInQueue();
-						if (gamepad->getQueue().size() <= 0)	gamepad->isReserved == false;
+						gamepad->reserveTime->stop();
+						if (gamepad->getQueue().size() <= 0)	gamepad->isReserved = false;
+						
 					}
 				}
 				else
@@ -798,9 +800,10 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 					{
 						gamepad->setOwner(guest, deviceID, isKeyboard);
 						gamepad->removeFirstInQueue();
-						if (gamepad->getQueue().size() <= 0)	gamepad->isReserved == false;
+						gamepad->reserveTime->stop();
+						if (gamepad->getQueue().size() <= 0)	gamepad->isReserved = false;
 					}
-					else
+					else if (!gamepad->reserveTime->isRunning())
 					{
 						int time = 5;
 						gamepad->reserveTime->start(time);

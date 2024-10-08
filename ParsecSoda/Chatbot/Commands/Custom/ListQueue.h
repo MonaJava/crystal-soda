@@ -35,13 +35,13 @@ public:
 		std::ostringstream reply;
 
 			reply
-				<< Config::cfg.chatbotName << "Pad #" << _intArg << "Waiting list : \n";
+				<< Config::cfg.chatbotName << "Pad #" << _intArg << " Waiting list : \n";
 
 			vector<Guest>& queue = _gamepadClient.gamepads[_intArg - 1]->getQueue();
 
 			for (size_t i = 0; i < queue.size(); i++)
 			{
-				reply << i + 1 << ": " << queue[i].name << "  (#" << queue[i].userID << ")";
+				reply << i + 1 << ": " << queue[i].name << "  (#" << queue[i].userID << ")\n";
 			}
 			reply << "\t\tType !pads to see the gamepad list.\0";
 
