@@ -27,13 +27,15 @@ public:
 	bool run() override {
 
 		if (!ACommandIntegerArg::run()) {
-			SetReply("Usage: !listqueue <integer in range [1, 4]>\nExample: !queue 4\0");
+			SetReply("Usage: /listqueue <integer in range [1, 4]>\nExample: /listqueue 4\0");
 			return false;
 		}
 
 		bool rv = false;
 		std::ostringstream reply;
 
+		if (_intArg > 0 && _intArg < _gamepadClient.gamepads.size())
+		{
 			reply
 				<< Config::cfg.chatbotName << "Pad #" << _intArg << " Waiting list : \n";
 
@@ -44,6 +46,13 @@ public:
 				reply << i + 1 << ": " << queue[i].name << "  (#" << queue[i].userID << ")\n";
 			}
 			reply << "\t\tType !pads to see the gamepad list.\0";
+		}
+		else
+		{
+			reply
+				<< Config::cfg.chatbotName << _sender.name << ", your gamepad index is wrong (valid range is [1, 4]).\n"
+				<< "\t\tType !pads to see the gamepad list.\0";
+		}
 
 		_replyMessage = reply.str();
 		return rv;

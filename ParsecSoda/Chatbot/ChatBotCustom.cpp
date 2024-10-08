@@ -13,6 +13,8 @@
 #include "Commands/Custom/TTS.h"
 #include "Commands/Custom/Queue.h"
 #include "Commands/Custom/ListQueue.h"
+#include "Commands/Custom/EmptyQueue.h"
+#include "Commands/Custom/ExitQueue.h"
 
 /**
 * This function is where you check to see if the
@@ -25,6 +27,17 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	if (msgStartsWith(msg, TTS::prefixes()))		return new TTS(msg, sender);
 	if (msgStartsWith(msg, Queue::prefixes()))		return new Queue(msg, sender, _gamepadClient);
 	if (msgStartsWith(msg, ListQueue::prefixes()))	return new ListQueue(msg, sender, _gamepadClient);
+	if (msgIsEqual(msg, EmptyQueue::prefixes()))	return new EmptyQueue(msg, sender, _gamepadClient);
+
+	/*
+	ADMIN COMMANDS
+	The host and moderators can use these commands. Moderators have the
+	"ADMIN" tier. The host has the "GOD" tier.
+	*/
+	if (tier >= Tier::ADMIN || isHost) {
+		if (msgStartsWith(msg, EmptyQueue::prefixes()))	return new EmptyQueue(msg, sender, _gamepadClient);
+	}
+
 	
 
 	// Returns a default message if no custom command is found, so the bot can still respond.

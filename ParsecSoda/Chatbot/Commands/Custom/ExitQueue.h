@@ -35,7 +35,7 @@ public:
 		{
 			SetReply(_sender.name + ", you are not in a queue.");
 		}
-
+		return true;
 	}
 	/**
 	 * @brief Get the prefixes
