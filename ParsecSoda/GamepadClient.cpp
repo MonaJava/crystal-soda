@@ -782,8 +782,33 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 	return reduceUntilFirst([&](AGamepad* gamepad) {
 		if (!(isPuppetMaster && gamepad->isPuppet) && (!gamepad->isLocked() && gamepad->isAttached() && !gamepad->owner.guest.isValid())) {
 			if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
-				if(!gamepad->isReserved || guest.userID == gamepad->getReserveOwner().userID)
+				if (!gamepad->isReserved || guest.userID == gamepad->getReserveOwner().userID)
+				{
 					gamepad->setOwner(guest, deviceID, isKeyboard);
+					if (gamepad->isReserved)
+					{
+						gamepad->removeFirstInQueue();
+						if (gamepad->getQueue().size() <= 0)	gamepad->isReserved == false;
+					}
+				}
+				else
+				{
+					if (gamepad->reserveTime->isRunning() && gamepad->reserveTime->isFinished())
+					{
+						gamepad->setOwner(guest, deviceID, isKeyboard);
+						gamepad->removeFirstInQueue();
+						if (gamepad->getQueue().size() <= 0)	gamepad->isReserved == false;
+					}
+					else
+					{
+						int time = 5;
+						gamepad->reserveTime->start(time);
+						g_hosting.logMessage("[QUEUE] Pad #" + to_string(i + 1) + " is currently reserved for " + gamepad->getReserveOwner().name +
+						".\nThe reservation will last for " + to_string(time) + " before the pad is free to be claim by anyone.");
+						g_hosting.broadcastChatMessage("[QUEUE] Pad #" + to_string(i + 1) + " is currently reserved for " + gamepad->getReserveOwner().name +
+							".\nThe reservation will last for " + to_string(time) + " before the pad is free to be claim by anyone.");
+					}
+				}
 			}
 			return true;
 		}

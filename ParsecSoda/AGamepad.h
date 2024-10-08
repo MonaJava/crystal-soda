@@ -13,6 +13,7 @@
 #include "KeyboardMaps.h"
 #include "GuestDevice.h"
 #include "Helpers/Dice.h"
+#include "Helpers/StopwatchTimer.h"
 
 using namespace std;
 
@@ -92,9 +93,11 @@ public:
 
 	GuestDevice owner = GuestDevice();
 	//int reserveOwnerID = 0;
+	StopwatchTimer* reserveTime = new StopwatchTimer();
 	bool isReserved = false;
 	bool isPuppet = false;
 	ParsecDSO * parsec;
+	
 
 protected:
 	vector<Guest> _queue;
