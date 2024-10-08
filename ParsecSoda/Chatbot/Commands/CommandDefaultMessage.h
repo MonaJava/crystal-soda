@@ -36,14 +36,14 @@ public:
 		if (_sender.userID != _lastUserID)
 		{
 			static string role = "";
-			if (_isHost || _tier == Tier::GOD) role = "#  ";
-			else if (_tier == Tier::ADMIN || _tier == Tier::MOD) role = "$  ";
-			else if (_tier == Tier::NOOB) role = ".  ";
-			else role = ">  ";
+			if (_isHost || _tier == Tier::GOD) role = "HOST  ";
+			else if (_tier == Tier::ADMIN || _tier == Tier::MOD) role = "MOD  ";
+			else if (_tier == Tier::NOOB) role = "NOOB  ";
+			else role = "";
 
 			if (_sender.isValid())
 			{
-				reply << role << _sender.name << " \t (#" << _sender.userID << ")";
+				reply << role << _sender.name;
 			}
 			else if (_isHost)
 			{
@@ -54,10 +54,10 @@ public:
 				reply << role << "Unkown Guest";
 			}
 
-			reply << ":\n";
+			reply << ": ";
 		}
-
-		reply << "\t\t " << _msg << "\0";
+		else reply << "\t";
+		reply << _msg << "\0";
 
 		_replyMessage = reply.str();
 		reply.clear();
