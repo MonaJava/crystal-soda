@@ -130,7 +130,7 @@ void AGamepad::addToQueue(Guest& guest)
 	{
 		if (guest.userID == _queue[i].userID) notInQueue = false;
 	}
-	if (guest.isValid() and notInQueue)
+	if (guest.isValid() and notInQueue and guest.queuedPad > 0)
 	{
 		_queue.push_back(guest);
 		isReserved = true;
@@ -140,6 +140,25 @@ void AGamepad::addToQueue(Guest& guest)
 void AGamepad::removeFirstInQueue()
 {
 	_queue.erase(_queue.begin());
+}
+
+void AGamepad::removeFromQueue(Guest& guest)
+{
+	for (size_t i = 0; i < _queue.size(); ++i)
+	{
+		if (guest.userID == _queue[i].userID)
+		{
+			_queue.erase(_queue.begin() + i);
+			guest.queuedPad = 0;
+			if (_queue.size() <= 0) isReserved = false;
+		}
+	}
+	
+}
+
+void AGamepad::eraseQueue()
+{
+	_queue.clear();
 }
 
 

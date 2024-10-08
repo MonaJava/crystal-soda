@@ -27,7 +27,7 @@ public:
 	bool run() override {
 
 		if (!ACommandIntegerArg::run()) {
-			SetReply("Usage: !queue <integer in range [1, 4]>\nExample: !queue 4\0");
+			SetReply("Usage: /queue <integer in range [1, 4]>\nExample: /queue 4\0");
 			return false;
 		}
 
@@ -35,7 +35,8 @@ public:
 
 		bool rv = false;
 		std::ostringstream reply;
-		vector<Guest>& queue = _gamepadClient.gamepads[_intArg - 1]->getQueue();
+		AGamepad* pad = nullptr;
+		
 
 		switch (result)
 		{
@@ -56,10 +57,21 @@ public:
 				<< "\t\tType !pads to see the gamepad list.\0";
 			break;
 		case GamepadClient::PICK_REQUEST::TAKEN:
-			reply
-				<< Config::cfg.chatbotName << "Gamepad " << _intArg << " has been reserved by " << _sender.name << "\n"
-				<< "\t\tType !pads to see the gamepad list.\0";
-				_gamepadClient.gamepads[_intArg-1]->addToQueue(_sender);
+			if (_sender.queuedPad > 0)
+			{
+				reply
+					<< Config::cfg.chatbotName << _sender.name << ", you've already queued for pad #" << _sender.queuedPad << "\n"
+					<< "Type /exitqueue to leave the queue.\n"
+					<< "\t\tType !pads to see the gamepad list.\0";
+			}
+			else
+			{
+				reply
+					<< Config::cfg.chatbotName << "Gamepad " << _intArg << " has been reserved by " << _sender.name << "\n"
+					<< "\t\tType !pads to see the gamepad list.\0";
+				_gamepadClient.gamepads[_intArg - 1]->addToQueue(_sender);
+				_sender.queuedPad = _intArg;
+			}
 			break;
 		case GamepadClient::PICK_REQUEST::EMPTY_HANDS:
 			reply
@@ -82,17 +94,29 @@ public:
 				<< "\t\tType !pads to see the gamepad list.\0";
 			break;
 		case GamepadClient::PICK_REQUEST::RESERVED:
-			reply
-				<< Config::cfg.chatbotName << _sender.name << " has been added to the queue for pad #" << _intArg << "\n"
-				<< Config::cfg.chatbotName << " Waiting list:\n";
-			_gamepadClient.gamepads[_intArg - 1]->addToQueue(_sender);
-			
-			
-			for (size_t i = 0; i < queue.size(); i++)
+			if (_sender.queuedPad > 0)
 			{
-				reply << i + 1 << ": " << queue[i].name << "  (#" << queue[i].userID << ")\n";
+				reply
+					<< Config::cfg.chatbotName << _sender.name << ", you've already queued for pad #" << _sender.queuedPad << "\n"
+					<< "Type /exitqueue to leave the queue.\n"
+					<< "\t\tType !pads to see the gamepad list.\0";
 			}
+			else
+			{
+				pad = _gamepadClient.gamepads[_intArg - 1];
+				reply
+					<< Config::cfg.chatbotName << _sender.name << " has been added to the queue for pad #" << _intArg << "\n"
+					<< Config::cfg.chatbotName << " Waiting list:\n";
+				_gamepadClient.gamepads[_intArg - 1]->addToQueue(_sender);
+				_sender.queuedPad = _intArg;
+
+
+				for (size_t i = 0; i < pad->getQueue().size(); i++)
+				{
+					reply << i + 1 << ": " << pad->getQueue()[i].name << "  (#" << pad->getQueue()[i].userID << ")\n";
+				}
 				reply << "\t\tType !pads to see the gamepad list.\0";
+			}
 
 				 
 			break;

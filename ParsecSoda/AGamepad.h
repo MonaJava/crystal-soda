@@ -70,6 +70,8 @@ public:
 	//void setReserveOwner(int userid);
 	void addToQueue(Guest& guest);
 	void removeFirstInQueue();
+	void removeFromQueue(Guest& guest);
+	void eraseQueue();
 	vector<Guest>& getQueue();
 	Guest getReserveOwner();
 	void copyOwner(AGamepad* pad);
