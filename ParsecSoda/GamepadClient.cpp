@@ -793,6 +793,7 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 				}
 				else
 				{
+					gamepad->reserveTime->getRemainingMs();
 					if (gamepad->reserveTime->isRunning() && gamepad->reserveTime->isFinished())
 					{
 						gamepad->setOwner(guest, deviceID, isKeyboard);

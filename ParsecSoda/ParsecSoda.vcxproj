@@ -290,7 +290,9 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="Chatbot\ChatBotCustom.h" />
     <ClInclude Include="Chatbot\Commands\CommandBotMessage.h" />
     <ClInclude Include="Chatbot\Commands\CommandDefaultMessage.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\ListQueue.h" />
     <ClInclude Include="Chatbot\Commands\Custom\Queue.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\TTS.h" />
     <ClInclude Include="Chatbot\Commands\God\CommandVersion.h" />
     <ClInclude Include="Chatbot\Commands\Guest\Command8Ball.h" />
     <ClInclude Include="Chatbot\Commands\God\CommandAddPS.h" />

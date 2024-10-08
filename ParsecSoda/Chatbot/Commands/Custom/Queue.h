@@ -35,6 +35,7 @@ public:
 
 		bool rv = false;
 		std::ostringstream reply;
+		vector<Guest>& queue = _gamepadClient.gamepads[_intArg - 1]->getQueue();
 
 		switch (result)
 		{
@@ -85,7 +86,7 @@ public:
 				<< Config::cfg.chatbotName << _sender.name << " has been added to the queue for pad #" << _intArg << "\n"
 				<< Config::cfg.chatbotName << "Waiting list:\n";
 			_gamepadClient.gamepads[_intArg - 1]->addToQueue(_sender);
-			vector<Guest>& queue = _gamepadClient.gamepads[_intArg - 1]->getQueue();
+			
 			
 			for (size_t i = 0; i < queue.size(); i++)
 			{
