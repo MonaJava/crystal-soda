@@ -516,12 +516,22 @@ const GamepadClient::PICK_REQUEST GamepadClient::pick(Guest guest, int gamepadIn
 		return PICK_REQUEST::LIMIT_BLOCK;
 	}
 
+	if (pad->isReserved && guest.userID != pad->getReserveOwner().userID)
+	{
+		return PICK_REQUEST::RESERVED;
+	}
+
 	bool success = reduceUntilFirst([&](AGamepad* gamepad) {
 		if (gamepad->owner.guest.userID == guest.userID) {
 			if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
 				pad->clearState();
 				pad->copyOwner(gamepad);
 				gamepad->clearOwner();
+				if (pad->isReserved)
+				{
+					pad->removeFirstInQueue();
+					if (pad->getQueue().size() <= 0)	pad->isReserved == false;
+				}
 			}
 			return true;
 		}
@@ -772,7 +782,8 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 	return reduceUntilFirst([&](AGamepad* gamepad) {
 		if (!(isPuppetMaster && gamepad->isPuppet) && (!gamepad->isLocked() && gamepad->isAttached() && !gamepad->owner.guest.isValid())) {
 			if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
-				gamepad->setOwner(guest, deviceID, isKeyboard);
+				if(!gamepad->isReserved || guest.userID == gamepad->getReserveOwner().userID)
+					gamepad->setOwner(guest, deviceID, isKeyboard);
 			}
 			return true;
 		}

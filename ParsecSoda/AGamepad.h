@@ -66,6 +66,11 @@ public:
 	Keyboard& getKeyboard();
 
 	void setOwner(Guest& guest, uint32_t deviceID, bool isKeyboard);
+	//void setReserveOwner(int userid);
+	void addToQueue(Guest& guest);
+	void removeFirstInQueue();
+	vector<Guest>& getQueue();
+	Guest getReserveOwner();
 	void copyOwner(AGamepad* pad);
 	const bool isOwned();
 	bool isConnected() const;
@@ -86,10 +91,14 @@ public:
 	virtual void setStateSafe(XINPUT_STATE state) = 0;
 
 	GuestDevice owner = GuestDevice();
+	//int reserveOwnerID = 0;
+	bool isReserved = false;
 	bool isPuppet = false;
 	ParsecDSO * parsec;
 
 protected:
+	vector<Guest> _queue;
+	Guest _reserveOwner = Guest();
 	Keyboard _keyboard;
 	PVIGEM_CLIENT _client;
 	PVIGEM_TARGET _pad;

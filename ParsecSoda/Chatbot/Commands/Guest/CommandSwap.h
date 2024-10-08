@@ -79,6 +79,11 @@ public:
 				<< Config::cfg.chatbotName << _sender.name << ", puppet master is handling that gamepad.\n"
 				<< "\t\tType !pads to see the gamepad list.\0";
 			break;
+		case GamepadClient::PICK_REQUEST::RESERVED:
+			reply
+				<< Config::cfg.chatbotName << _sender.name << ", That gamepad is reserved by someone else.\n"
+				<< "\t\tType !pads to see the gamepad list.\0";
+			break;
 		default:
 			break;
 		}

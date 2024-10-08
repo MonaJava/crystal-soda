@@ -117,6 +117,42 @@ void AGamepad::setOwner(Guest& guest, uint32_t deviceID, bool isKeyboard)
 	owner.isKeyboard = isKeyboard;
 }
 
+/*void AGamepad::setReserveOwner(int userid)
+{
+	reserveOwnerID = userid;
+	isReserved = true;
+}*/
+
+void AGamepad::addToQueue(Guest& guest)
+{
+	bool notInQueue = true;
+	for (size_t i = 0; i < _queue.size(); ++i)
+	{
+		if (guest.userID == _queue[i].userID) notInQueue = false;
+	}
+	if (guest.isValid() and notInQueue)
+	{
+		_queue.push_back(guest);
+		isReserved = true;
+	}
+}
+
+void AGamepad::removeFirstInQueue()
+{
+	_queue.erase(_queue.begin());
+}
+
+
+vector<Guest>& AGamepad::getQueue()
+{
+	return _queue;
+}
+
+Guest AGamepad::getReserveOwner()
+{
+	return _queue.front();
+}
+
 void AGamepad::copyOwner(AGamepad* pad)
 {
 	if (pad != nullptr) owner.copy(pad->owner);

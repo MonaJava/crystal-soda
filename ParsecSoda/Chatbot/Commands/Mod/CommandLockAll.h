@@ -51,7 +51,7 @@ public:
 	}
 
 	static vector<const char*> prefixes() {
-		return vector<const char*> { "!lockall", "!unlockall", "!lockpads", "!unlockpads" };
+		return vector<const char*> { "!lockall", "!unlockall", "!lockpads", "!unlockpads", "!megalock" };
 	}
 
 protected:

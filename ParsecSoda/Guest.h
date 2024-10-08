@@ -26,7 +26,7 @@ public:
 	 * @param userId Unique user ID.
 	 * @param id Internal id for specific methods.
 	 */
-	Guest(string name, uint32_t userID, uint32_t id, Status status = Status::OK, bool fake = false, bool spectator = false);
+	Guest(string name, uint32_t userID, uint32_t id, Status status = Status::OK, bool fake = false, bool spectator = false, int queuedPad = 0);
 	
 	/**
 	 * Compatibility constructor.
@@ -46,4 +46,5 @@ public:
 	Status status;
 	bool spectator;
 	bool fake;
+	int queuedPad;
 };
