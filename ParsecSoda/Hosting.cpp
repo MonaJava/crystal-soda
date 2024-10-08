@@ -970,7 +970,7 @@ void Hosting::handleNewGuests() {
 			Tier tier = Cache::cache.tierList.getTier(newGuest.guest.userID);
 			// Welcome message
 			string msg = Config::cfg.chat.welcomeMessage;
-			if(tier == Tier::NOOB && Config::cfg.permissions.noob.limit)
+			if((newGuest.guest.userID > Config::cfg.permissions.noobNum * 10000) && Config::cfg.permissions.noob.limit)
 				msg = msg + "\n[NEWBIE] This room does not allow accounts made recently to play. Feel free to spectate and chat!";
 			msg = regex_replace(msg, regex("_PLAYER_"), newGuest.guest.name);
 			ParsecHostSendUserData(_parsec, newGuestList.front().guest.id, HOSTING_CHAT_MSG_ID, msg.c_str());
