@@ -781,17 +781,19 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 	int i = 0;
 	return reduceUntilFirst([&](AGamepad* gamepad) {
 		if (!(isPuppetMaster && gamepad->isPuppet) && (!gamepad->isLocked() && gamepad->isAttached() && !gamepad->owner.guest.isValid())) {
-			if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
+			
 				if (!gamepad->isReserved || guest.userID == gamepad->getReserveOwner().userID)
 				{
-					gamepad->setOwner(guest, deviceID, isKeyboard);
-					if (gamepad->isReserved)
-					{
-						guest.queuedPad = 0;
-						gamepad->removeFirstInQueue();
-						gamepad->reserveTime->stop();
-						if (gamepad->getQueue().size() <= 0)	gamepad->isReserved = false;
-						
+					if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
+						gamepad->setOwner(guest, deviceID, isKeyboard);
+						if (gamepad->isReserved)
+						{
+							guest.queuedPad = 0;
+							gamepad->removeFirstInQueue();
+							gamepad->reserveTime->stop();
+							if (gamepad->getQueue().size() <= 0)	gamepad->isReserved = false;
+
+						}
 					}
 				}
 				else
@@ -799,10 +801,12 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 					gamepad->reserveTime->getRemainingMs();
 					if (gamepad->reserveTime->isRunning() && gamepad->reserveTime->isFinished())
 					{
-						gamepad->setOwner(guest, deviceID, isKeyboard);
-						gamepad->removeFirstInQueue();
-						gamepad->reserveTime->stop();
-						if (gamepad->getQueue().size() <= 0)	gamepad->isReserved = false;
+						if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
+							gamepad->setOwner(guest, deviceID, isKeyboard);
+							gamepad->removeFirstInQueue();
+							gamepad->reserveTime->stop();
+							if (gamepad->getQueue().size() <= 0)	gamepad->isReserved = false;
+						}
 					}
 					else if (!gamepad->reserveTime->isRunning())
 					{
@@ -814,7 +818,7 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 							".\nThe reservation will last for " + to_string(time) + " before the pad is free to be claim by anyone.");
 					}
 				}
-			}
+			
 			return true;
 		}
 		++i;
