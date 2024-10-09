@@ -1263,6 +1263,13 @@ void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecSt
 				Hotseat::instance.pauseUser(guest.userID);
 			}
 
+			if (guest.queuedPad > 0)
+			{
+				_gamepadClient.gamepads[guest.queuedPad - 1]->removeFromQueue(guest);
+				guest.queuedPad = 0;
+			}
+				
+
 			_guestList.deleteMetrics(guest.id);
 			int droppedPads = 0;
 			CommandFF command(guest, _gamepadClient, _hotseat);
