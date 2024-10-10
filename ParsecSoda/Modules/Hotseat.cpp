@@ -23,7 +23,6 @@ void Hotseat::Start() {
 
 			while (running) {
 				//check if bonus time should be awarded for multiplayer
-				if (!(rewardTimer->isRunning()))	rewardTimer->start(12);
 				if (rewardTimer->isFinished() && Config::cfg.hotseat.multiBonus)
 				{
 					rewardTimer->start(12);
@@ -54,7 +53,7 @@ void Hotseat::Start() {
 						Log("MP Bonus: All users in hotseat have been granted " + to_string(bonusMinutes) + " extra minutes.");
 					}
 				}
-				rewardTimer->getRemainingSec();
+				rewardTimer->getRemainingMs();
 
 
 
@@ -130,6 +129,7 @@ void Hotseat::Stop() {
 	for (HotseatUser& user : users) {
 		user.inSeat = false;
 		user.stopwatch->pause();
+		rewardTimer->start(0);
 		rewardTimer->stop();
 	}
 
