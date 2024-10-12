@@ -28,6 +28,7 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	if (msgStartsWith(msg, Queue::prefixes()))		return new Queue(msg, sender, _gamepadClient);
 	if (msgStartsWith(msg, ListQueue::prefixes()))	return new ListQueue(msg, sender, _gamepadClient);
 	if (msgIsEqual(msg, EmptyQueue::prefixes()))	return new EmptyQueue(msg, sender, _gamepadClient);
+	if (msgIsEqual(msg, ExitQueue::prefixes()))	return new ExitQueue(sender, _gamepadClient);
 
 	/*
 	ADMIN COMMANDS

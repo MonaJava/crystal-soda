@@ -130,7 +130,7 @@ void AGamepad::addToQueue(Guest& guest)
 	{
 		if (guest.userID == _queue[i].userID) notInQueue = false;
 	}
-	if (guest.isValid() and notInQueue and guest.queuedPad > 0)
+	if (guest.isValid() and notInQueue and guest.queuedPad == 0)
 	{
 		_queue.push_back(guest);
 		isReserved = true;

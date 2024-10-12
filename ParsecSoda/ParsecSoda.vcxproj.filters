@@ -330,6 +330,9 @@
     <ClCompile Include="Chatbot\ChatBotCustom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Chatbot\Commands\Custom\EmptyTime.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioIn.h">
@@ -876,6 +879,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Chatbot\Commands\Mod\CommandUnbanLastIP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\ListQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\Queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\TTS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\ExitQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\pm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\EmptyQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
