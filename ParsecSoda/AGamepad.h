@@ -14,6 +14,7 @@
 #include "GuestDevice.h"
 #include "Helpers/Dice.h"
 #include "Helpers/StopwatchTimer.h"
+#include "Core/Cache.h"
 
 using namespace std;
 
@@ -68,7 +69,7 @@ public:
 
 	void setOwner(Guest& guest, uint32_t deviceID, bool isKeyboard);
 	//void setReserveOwner(int userid);
-	void addToQueue(Guest& guest);
+	void addToQueue(Guest& guest, int padIndex);
 	void removeFirstInQueue();
 	void removeFromQueue(Guest& guest);
 	void eraseQueue();

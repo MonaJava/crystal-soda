@@ -123,15 +123,16 @@ void AGamepad::setOwner(Guest& guest, uint32_t deviceID, bool isKeyboard)
 	isReserved = true;
 }*/
 
-void AGamepad::addToQueue(Guest& guest)
+void AGamepad::addToQueue(Guest& guest, int padIndex)
 {
 	bool notInQueue = true;
 	for (size_t i = 0; i < _queue.size(); ++i)
 	{
 		if (guest.userID == _queue[i].userID) notInQueue = false;
 	}
-	if (guest.isValid() and notInQueue and guest.queuedPad == 0)
+	if (guest.isValid() and notInQueue and MetadataCache::getGuestQueueNum(guest.userID) == 0)
 	{
+		MetadataCache::giveGuestQueueNum(guest.userID, padIndex);
 		_queue.push_back(guest);
 		isReserved = true;
 	}
@@ -139,6 +140,7 @@ void AGamepad::addToQueue(Guest& guest)
 
 void AGamepad::removeFirstInQueue()
 {
+	MetadataCache::giveGuestQueueNum(_queue.front().userID, 0);
 	_queue.erase(_queue.begin());
 }
 
@@ -149,7 +151,7 @@ void AGamepad::removeFromQueue(Guest& guest)
 		if (guest.userID == _queue[i].userID)
 		{
 			_queue.erase(_queue.begin() + i);
-			guest.queuedPad = 0;
+			MetadataCache::giveGuestQueueNum(guest.userID, 0);
 			if (_queue.size() <= 0) isReserved = false;
 		}
 	}
@@ -158,7 +160,12 @@ void AGamepad::removeFromQueue(Guest& guest)
 
 void AGamepad::eraseQueue()
 {
+	for (size_t i = 0; i < _queue.size(); ++i)
+	{
+		MetadataCache::giveGuestQueueNum(_queue[i].userID, 0);
+	}
 	_queue.clear();
+	isReserved = false;
 }
 
 

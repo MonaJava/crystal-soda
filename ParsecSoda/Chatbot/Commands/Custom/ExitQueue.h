@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../../Core/Cache.h"
 #include "../Base/ACommand.h"
 #include "../../../GamepadClient.h"
 #include "../../../Guest.h"
@@ -24,12 +25,11 @@ public:
 	 * @return true if the command was successful
 	 */
 	bool run() override {
-		if (_sender.queuedPad > 0)
+		int queueNum = MetadataCache::getGuestQueueNum(_sender.userID);
+		if (queueNum > 0)
 		{
-			SetReply(_sender.name + " has left the queue for pad #" + to_string(_sender.queuedPad));
-			_gamepadClient.gamepads[_sender.queuedPad - 1]->removeFromQueue(_sender);
-			_sender.queuedPad = 0;
-			
+			SetReply(_sender.name + " has left the queue for pad #" + to_string(queueNum));
+			_gamepadClient.gamepads[queueNum - 1]->removeFromQueue(_sender);
 		}
 		else
 		{

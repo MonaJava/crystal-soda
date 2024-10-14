@@ -257,6 +257,8 @@ public:
 
 	static bool addActiveGuest(Guest guest);
 	static bool removeActiveGuest(Guest guest);
+	static bool giveGuestQueueNum(uint32_t guestID, int padIndex);
+	static int getGuestQueueNum(uint32_t guestID);
 
 	static Preferences preferences;
 	static Kiosk kiosk;

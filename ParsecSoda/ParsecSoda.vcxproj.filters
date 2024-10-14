@@ -713,9 +713,6 @@
     <ClInclude Include="Chatbot\Commands\God\CommandUnmod.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Chatbot\Commands\Guest\CommandSpectate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Chatbot\Commands\Mod\CommandRestart.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -897,6 +894,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Chatbot\Commands\Custom\EmptyQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Guest\CommandStopSFX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Guest\CommandSpectate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

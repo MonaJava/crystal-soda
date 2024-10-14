@@ -608,3 +608,27 @@ bool MetadataCache::removeActiveGuest(Guest guest) {
     }
 
 }
+
+bool MetadataCache::giveGuestQueueNum(uint32_t guestID, int padIndex)
+{
+    if (MetadataCache::preferences.activeGuests.empty() == false) {
+        for (int i = MetadataCache::preferences.activeGuests.size() - 1; i >= 0; i--) {
+            if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
+                preferences.activeGuests[i].queuedPad = padIndex;
+            }
+        }
+    }
+    return true;
+}
+
+int MetadataCache::getGuestQueueNum(uint32_t guestID)
+{
+    if (MetadataCache::preferences.activeGuests.empty() == false) {
+        for (int i = MetadataCache::preferences.activeGuests.size() - 1; i >= 0; i--) {
+            if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
+                return MetadataCache::preferences.activeGuests[i].queuedPad;
+            }
+        }
+    }
+    return 0;
+}

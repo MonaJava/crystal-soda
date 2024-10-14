@@ -1255,6 +1255,13 @@ void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecSt
 				ParsecHostSetConfig(_parsec, &_hostConfig, _parsecSession.sessionId.c_str());
 			}
 
+			//remove from queue
+			int queueNum = MetadataCache::getGuestQueueNum(guest.userID);
+			if (queueNum > 0)
+			{
+				_gamepadClient.gamepads[queueNum - 1]->removeFromQueue(guest);
+			}
+
 			// Remove from active guests list
 			MetadataCache::removeActiveGuest(guest);
 
@@ -1262,13 +1269,6 @@ void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecSt
 			if (Config::cfg.hotseat.enabled) {
 				Hotseat::instance.pauseUser(guest.userID);
 			}
-
-			if (guest.queuedPad > 0)
-			{
-				_gamepadClient.gamepads[guest.queuedPad - 1]->removeFromQueue(guest);
-				guest.queuedPad = 0;
-			}
-				
 
 			_guestList.deleteMetrics(guest.id);
 			int droppedPads = 0;

@@ -301,6 +301,8 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="Chatbot\Commands\God\CommandAddPS.h" />
     <ClInclude Include="Chatbot\Commands\God\CommandAddXbox.h" />
     <ClInclude Include="Chatbot\Commands\Guest\CommandBB.h" />
+    <ClInclude Include="Chatbot\Commands\Guest\CommandSpectate.h" />
+    <ClInclude Include="Chatbot\Commands\Guest\CommandStopSFX.h" />
     <ClInclude Include="Chatbot\Commands\Mod\CommandDCAll.h" />
     <ClInclude Include="Chatbot\Commands\Mod\CommandDecrease.h" />
     <ClInclude Include="Chatbot\Commands\Guest\CommandDiscord.h" />
@@ -319,7 +321,6 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="Chatbot\Commands\Mod\CommandRC.h" />
     <ClInclude Include="Chatbot\Commands\Mod\CommandRestart.h" />
     <ClInclude Include="Chatbot\Commands\Guest\CommandRPG.h" />
-    <ClInclude Include="Chatbot\Commands\Guest\CommandSpectate.h" />
     <ClInclude Include="Chatbot\Commands\Mod\CommandSpot.h" />
     <ClInclude Include="Chatbot\Commands\Mod\CommandStripAll.h" />
     <ClInclude Include="Chatbot\Commands\CommandTemplate.h" />

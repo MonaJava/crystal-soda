@@ -72,14 +72,16 @@ public:
 		GuestData guestData = GuestData(guest.name, guest.userID);
 
 		if (MetadataCache::isSpectating(guest.userID)) {
-
 			MetadataCache::addActiveGuest(guest);
 			GuestData guestData = GuestData(guest.name, guest.userID);
 			_replyMessage = Config::cfg.chatbotName + guest.name + " is no longer spectating.\0";
-			
 		}
 		else {
-
+			int queueNum = MetadataCache::getGuestQueueNum(guest.userID);
+			if (queueNum > 0)
+			{
+				_gamepadClient.gamepads[queueNum - 1]->removeFromQueue(guest);
+			}
 			MetadataCache::removeActiveGuest(guest);
 			_replyMessage = Config::cfg.chatbotName + guest.name + " is now spectating.\0";
 			_gamepadClient.onQuit(guest);

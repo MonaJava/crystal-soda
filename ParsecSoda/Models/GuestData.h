@@ -18,6 +18,7 @@ public:
 		name = "";
 		userID = 0;
 		reason = "";
+		queuedPad = 0;
 	}
 
 	/**
@@ -44,5 +45,6 @@ public:
 	std::string name;
 	uint32_t userID;
 	std::string reason;
+	int queuedPad;
 };
 

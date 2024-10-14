@@ -495,21 +495,13 @@ const GamepadClient::PICK_REQUEST GamepadClient::pick(Guest guest, int gamepadIn
 		return PICK_REQUEST::SAME_USER;
 	}
 
-	if (pad->isOwned())
-	{
-		return PICK_REQUEST::TAKEN;
-	}
 
-	if (isPuppetMaster && pad->isPuppet)
-	{
-		return PICK_REQUEST::PUPPET;
-	}
 
 	GuestPreferences prefs = GuestPreferences(guest.userID);
 	int limit = 1;
 	bool found = findPreferences(guest.userID, [&limit](GuestPreferences& prefs) {
 		limit = prefs.padLimit;
-	});
+		});
 
 	if (limit <= 0)
 	{
@@ -519,6 +511,16 @@ const GamepadClient::PICK_REQUEST GamepadClient::pick(Guest guest, int gamepadIn
 	if (pad->isReserved && guest.userID != pad->getReserveOwner().userID)
 	{
 		return PICK_REQUEST::RESERVED;
+	}
+
+	if (pad->isOwned())
+	{
+		return PICK_REQUEST::TAKEN;
+	}
+
+	if (isPuppetMaster && pad->isPuppet)
+	{
+		return PICK_REQUEST::PUPPET;
 	}
 
 	bool success = reduceUntilFirst([&](AGamepad* gamepad) {
@@ -788,7 +790,6 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 						gamepad->setOwner(guest, deviceID, isKeyboard);
 						if (gamepad->isReserved)
 						{
-							guest.queuedPad = 0;
 							gamepad->removeFirstInQueue();
 							gamepad->reserveTime->stop();
 							if (gamepad->getQueue().size() <= 0)	gamepad->isReserved = false;
