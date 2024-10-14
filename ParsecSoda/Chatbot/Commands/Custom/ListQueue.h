@@ -34,7 +34,7 @@ public:
 		bool rv = false;
 		std::ostringstream reply;
 
-		if (_intArg > 0 && _intArg < _gamepadClient.gamepads.size())
+		if (_intArg > 0 && _intArg <= _gamepadClient.gamepads.size())
 		{
 			reply
 				<< Config::cfg.chatbotName << "Pad #" << _intArg << " Waiting list : \n";
