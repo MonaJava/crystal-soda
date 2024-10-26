@@ -192,6 +192,7 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClCompile Include="Lists\ModList.cpp" />
     <ClCompile Include="DualshockGamepad.cpp" />
     <ClCompile Include="GamepadState.cpp" />
+    <ClCompile Include="Lists\NoobExemptList.cpp" />
     <ClCompile Include="Modules\Arcade.cpp" />
     <ClCompile Include="Modules\AutoMod.cpp" />
     <ClCompile Include="Modules\Hotseat.cpp" />
@@ -290,6 +291,8 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="Chatbot\ChatBotCustom.h" />
     <ClInclude Include="Chatbot\Commands\CommandBotMessage.h" />
     <ClInclude Include="Chatbot\Commands\CommandDefaultMessage.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\DioHelp.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\Pleb.h" />
     <ClInclude Include="Chatbot\Commands\Custom\EmptyQueue.h" />
     <ClInclude Include="Chatbot\Commands\Custom\ExitQueue.h" />
     <ClInclude Include="Chatbot\Commands\Custom\ListQueue.h" />
@@ -340,6 +343,7 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="ImGui\imform.h" />
     <ClInclude Include="KeyboardMapsUtil.h" />
     <ClInclude Include="Core\Config.h" />
+    <ClInclude Include="Lists\NoobExemptList.h" />
     <ClInclude Include="Modules\Arcade.h" />
     <ClInclude Include="Modules\AutoMod.h" />
     <ClInclude Include="Modules\Hotseat.h" />

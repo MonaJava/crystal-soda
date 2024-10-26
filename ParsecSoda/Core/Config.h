@@ -202,7 +202,7 @@ public:
 		PermissionGroup vip = PermissionGroup(true, true, true);
 		PermissionGroup moderator = PermissionGroup(true, true, true);
 		PermissionGroup noob = PermissionGroup(false , false, true, false, true);
-		int noobNum = 1560;
+		int noobNum = 1580;
 	};
 
 	class Arcade {

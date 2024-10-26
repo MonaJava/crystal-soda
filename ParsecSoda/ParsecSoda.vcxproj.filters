@@ -333,6 +333,9 @@
     <ClCompile Include="Chatbot\Commands\Custom\EmptyTime.h">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="Lists\NoobExemptList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioIn.h">
@@ -900,6 +903,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Chatbot\Commands\Guest\CommandSpectate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Lists\NoobExemptList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\Pleb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\DioHelp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

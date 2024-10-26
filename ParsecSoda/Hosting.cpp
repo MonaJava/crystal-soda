@@ -1213,7 +1213,9 @@ void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecSt
 				_chatLog.logCommand(Config::cfg.chatbotName + "Kicked a fake guest: " + guest.name);
 			} else 	
 				// Is this a noob?
-				if ((state == GUEST_CONNECTED || state == GUEST_CONNECTING) && (guest.userID > Config::cfg.permissions.noobNum * 10000)) {
+				if ((state == GUEST_CONNECTED || state == GUEST_CONNECTING) && (guest.userID > Config::cfg.permissions.noobNum * 10000)
+					and !Cache::cache.noobExemptList.inList(guest.userID)) 
+				{
 					_tierList.setTier(guest.userID, Tier::NOOB);
 					//Do we want to ban noobs?
 					if (Config::cfg.permissions.noob.kick)

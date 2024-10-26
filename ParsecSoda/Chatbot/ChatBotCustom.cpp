@@ -15,6 +15,8 @@
 #include "Commands/Custom/ListQueue.h"
 #include "Commands/Custom/EmptyQueue.h"
 #include "Commands/Custom/ExitQueue.h"
+#include "Commands/Custom/Pleb.h"
+#include "Commands/Custom/DioHelp.h"
 
 /**
 * This function is where you check to see if the
@@ -28,7 +30,8 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	if (msgStartsWith(msg, Queue::prefixes()))		return new Queue(msg, sender, _gamepadClient);
 	if (msgStartsWith(msg, ListQueue::prefixes()))	return new ListQueue(msg, sender, _gamepadClient);
 	if (msgIsEqual(msg, EmptyQueue::prefixes()))	return new EmptyQueue(msg, sender, _gamepadClient);
-	if (msgIsEqual(msg, ExitQueue::prefixes()))	return new ExitQueue(sender, _gamepadClient);
+	if (msgIsEqual(msg, ExitQueue::prefixes()))		return new ExitQueue(sender, _gamepadClient);
+	if (msgIsEqual(msg, DioHelp::prefixes()))		return new DioHelp();
 
 	/*
 	ADMIN COMMANDS
@@ -36,7 +39,8 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	"ADMIN" tier. The host has the "GOD" tier.
 	*/
 	if (tier >= Tier::ADMIN || isHost) {
-		if (msgStartsWith(msg, EmptyQueue::prefixes()))	return new EmptyQueue(msg, sender, _gamepadClient);
+		if (msgStartsWith(msg, EmptyQueue::prefixes()))		return new EmptyQueue(msg, sender, _gamepadClient);
+		if (msgStartsWith(msg, Pleb::prefixes()))			return new Pleb(msg, sender, _parsec, _guests, _guestHistory, _gamepadClient);
 	}
 
 	

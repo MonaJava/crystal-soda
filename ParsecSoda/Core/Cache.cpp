@@ -32,6 +32,10 @@ Cache::Cache() {
     vector<GuestData> vips = VIPList::LoadFromFile();
     vipList = VIPList(vips);
 
+	// Load Exempt noobs users
+	vector<GuestData> exemptNoobs = NoobExemptList::LoadFromFile();
+	noobExemptList = NoobExemptList(exemptNoobs);
+
 	// Load SFX
 	sfxList.init("./SFX/custom/_sfx.json");
 

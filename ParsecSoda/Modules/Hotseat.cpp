@@ -241,7 +241,8 @@ bool Hotseat::checkUser(int id, string name) {
 					Log("User " + user->userName + " has been reseated. They have " + to_string(Config::cfg.hotseat.playTime) + " minutes.");
 
 					// Set the stopwatch time
-					user->stopwatch->start(Config::cfg.hotseat.playTime);
+					if (Cache::cache.vipList.isVIP(user->userId)) { user->stopwatch->start(Config::cfg.hotseat.playTime + 10); }
+					else { user->stopwatch->start(Config::cfg.hotseat.playTime); }
 
 				}
 
@@ -274,7 +275,8 @@ void Hotseat::_createUser(int id, std::string name) {
     user.stopwatch = new StopwatchTimer();
 
 	// Set the stopwatch time
-	user.stopwatch->start(Config::cfg.hotseat.playTime);
+	if (Cache::cache.vipList.isVIP(user.userId)) { user.stopwatch->start(Config::cfg.hotseat.playTime + 10); }
+	else { user.stopwatch->start(Config::cfg.hotseat.playTime); }
 
     // Add the user to the list
     users.push_back(user);
