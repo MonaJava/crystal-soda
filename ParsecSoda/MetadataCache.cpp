@@ -507,6 +507,87 @@ bool MetadataCache::saveGuestTiers(vector<GuestTier> guestTiers)
     return false;
 }
 
+vector<GuestRole> MetadataCache::loadGuestRoles()
+{
+    vector<GuestRole> result;
+
+    string dirPath = getUserDir();
+    if (!dirPath.empty())
+    {
+        string filepath = dirPath + "guestroles.json";
+
+        if (MTY_FileExists(filepath.c_str()))
+        {
+            MTY_JSON* json = MTY_JSONReadFile(filepath.c_str());
+            uint32_t size = MTY_JSONGetLength(json);
+
+            for (size_t i = 0; i < size; i++)
+            {
+                const MTY_JSON* guest = MTY_JSONArrayGetItem(json, (uint32_t)i);
+
+                char name[128] = "";
+                uint32_t userID, tier = 0;
+                char key[128] = "";
+                char rolename[128] = "";
+                char messageStarter[128] = "";
+                char command[128] = "";
+
+                bool keySuccess = MTY_JSONObjGetString(guest, "key", key, 128);
+                bool rolenameSuccess = MTY_JSONObjGetString(guest, "name", rolename, 128);
+                bool messageStarterSuccess = MTY_JSONObjGetString(guest, "message starter", messageStarter, 128);
+                bool commandSuccess = MTY_JSONObjGetString(guest, "command", command, 128);
+                bool userIDSuccess = MTY_JSONObjGetUInt(guest, "userID", &userID);
+
+
+                if (keySuccess && userIDSuccess)
+                {
+                    result.push_back(GuestRole(userID, Role(name, messageStarter, command, key)));
+                }
+            }
+
+            std::sort(result.begin(), result.end(), [](const GuestRole a, const GuestRole b) {
+                return a.userID < b.userID;
+                });
+
+            MTY_JSONDestroy(&json);
+        }
+    }
+
+    return result;
+}
+
+
+bool MetadataCache::saveGuestRoles(vector<GuestRole> guestRoles)
+{
+    string dirPath = getUserDir();
+
+    if (!dirPath.empty())
+    {
+        string filepath = dirPath + "guestroles.json";
+
+        MTY_JSON* json = MTY_JSONArrayCreate();
+
+        vector<GuestRole>::iterator gi = guestRoles.begin();
+        for (; gi != guestRoles.end(); ++gi)
+        {
+            MTY_JSON* guest = MTY_JSONObjCreate();
+            MTY_JSONObjSetString(guest, "name", (*gi).role.name.c_str());
+            MTY_JSONObjSetString(guest, "key", (*gi).role.key.c_str());
+            MTY_JSONObjSetString(guest, "message starter", (*gi).role.messageStarter.c_str());
+            MTY_JSONObjSetString(guest, "command", (*gi).role.commandPrefix.c_str());
+            MTY_JSONObjSetUInt(guest, "userID", (*gi).userID);
+            MTY_JSONArrayAppendItem(json, guest);
+        }
+
+        MTY_JSONWriteFile(filepath.c_str(), json);
+        MTY_JSONDestroy(&json);
+
+        return true;
+    }
+
+    return false;
+}
+
 bool MetadataCache::saveTheme(int theme) {
 
     return true;

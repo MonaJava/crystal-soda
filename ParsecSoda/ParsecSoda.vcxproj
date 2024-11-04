@@ -193,6 +193,8 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClCompile Include="DualshockGamepad.cpp" />
     <ClCompile Include="GamepadState.cpp" />
     <ClCompile Include="Lists\NoobExemptList.cpp" />
+    <ClCompile Include="Lists\Roles.cpp" />
+    <ClCompile Include="Models\Role.cpp" />
     <ClCompile Include="Modules\Arcade.cpp" />
     <ClCompile Include="Modules\AutoMod.cpp" />
     <ClCompile Include="Modules\Hotseat.cpp" />
@@ -292,12 +294,14 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="Chatbot\Commands\CommandBotMessage.h" />
     <ClInclude Include="Chatbot\Commands\CommandDefaultMessage.h" />
     <ClInclude Include="Chatbot\Commands\Custom\DioHelp.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\DioVersion.h" />
     <ClInclude Include="Chatbot\Commands\Custom\Pleb.h" />
     <ClInclude Include="Chatbot\Commands\Custom\EmptyQueue.h" />
     <ClInclude Include="Chatbot\Commands\Custom\ExitQueue.h" />
     <ClInclude Include="Chatbot\Commands\Custom\ListQueue.h" />
     <ClInclude Include="Chatbot\Commands\Custom\pm.h" />
     <ClInclude Include="Chatbot\Commands\Custom\Queue.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\SetRole.h" />
     <ClInclude Include="Chatbot\Commands\Custom\TTS.h" />
     <ClInclude Include="Chatbot\Commands\God\CommandVersion.h" />
     <ClInclude Include="Chatbot\Commands\Guest\Command8Ball.h" />
@@ -344,6 +348,8 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="KeyboardMapsUtil.h" />
     <ClInclude Include="Core\Config.h" />
     <ClInclude Include="Lists\NoobExemptList.h" />
+    <ClInclude Include="Lists\Roles.h" />
+    <ClInclude Include="Models\Role.h" />
     <ClInclude Include="Modules\Arcade.h" />
     <ClInclude Include="Modules\AutoMod.h" />
     <ClInclude Include="Modules\Hotseat.h" />

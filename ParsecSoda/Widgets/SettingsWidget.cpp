@@ -17,6 +17,8 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
     _parsecLogs = Config::cfg.general.parsecLogs;
     _blockVPN = Config::cfg.general.blockVPN;
 
+    
+
     _microphoneEnabled = Config::cfg.audio.micEnabled;
 
     _muteTime = Config::cfg.chat.muteTime;
@@ -26,6 +28,9 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
 
     _hotkeyBB = Config::cfg.general.hotkeyBB;
     _hotkeyLock = Config::cfg.general.hotkeyLock;
+
+
+
 
     _guestSFX = Config::cfg.permissions.guest.useSFX;
     _guestBB = Config::cfg.permissions.guest.useBB;
@@ -42,6 +47,38 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
     _noobNum = Config::cfg.permissions.noobNum;
     _kickNoob = !Config::cfg.permissions.noob.kick;
     _limitNoob = !Config::cfg.permissions.noob.limit;
+
+    
+    
+    GuestRoles::instance.loadRoles();
+    Roles::r.list = Roles::r.LoadFromFile();
+    for (map<string, Role>::iterator it = Roles::r.list.begin(); it != Roles::r.list.end(); it++)
+    {
+        bool inVec = false;
+        for (auto i : rolelist) {
+            if (i.name == it->second.name) {
+                inVec = true;
+                break;
+            }
+        }
+        if (!inVec)
+        {
+            rolelist.push_back(it->second);
+            if (rolelist.size() == testNum + 1)
+            {  
+                strcpy_s(_roleName, it->second.name.c_str());
+                strcpy_s(_messageStarter, it->second.messageStarter.c_str());
+                strcpy_s(_commandPrefix, it->second.commandPrefix.c_str());
+                //cfg.permissions.role["guest"]
+                _SFX = Config::cfg.permissions.role[it->first].useSFX;
+                _BB = Config::cfg.permissions.role[it->first].useBB;
+                _controls = Config::cfg.permissions.role[it->first].changeControls;
+                _kick = !Config::cfg.permissions.role[it->first].kick;
+                _limit = !Config::cfg.permissions.role[it->first].limit;
+            }
+        }
+    }
+
 
     _prependPingLimit = false;
 
@@ -110,7 +147,7 @@ bool SettingsWidget::render()
             renderChatbot();
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Permissions")) {
+        if (ImGui::BeginTabItem("Roles")) {
             renderPermissions();
             ImGui::EndTabItem();
         }
@@ -348,7 +385,100 @@ void SettingsWidget::renderPermissions() {
 
     ImGui::Dummy(ImVec2(0, 10.0f));
 
-    AppStyle::pushTitle();
+    ImVec2 size = ImGui::GetContentRegionAvail();
+    ImGui::SetNextItemWidth(size.x);
+
+    
+    if (ImGui::BeginCombo("### Role Picker", rolelist[testNum].name.c_str(), ImGuiComboFlags_HeightLarge)) {
+
+        for(size_t i = 0; i < rolelist.size(); ++ i)
+        {
+            bool isSelected = (i == testNum);
+            if (ImGui::Selectable(rolelist[i].name.c_str(), isSelected)) {
+                testNum = i;
+                testWord = rolelist[i].key.c_str();
+                strcpy_s(_roleName, Roles::r.list[testWord].name.c_str());
+                strcpy_s(_messageStarter, Roles::r.list[testWord].messageStarter.c_str());
+                strcpy_s(_commandPrefix, Roles::r.list[testWord].commandPrefix.c_str());
+
+                _SFX = Config::cfg.permissions.role[testWord].useSFX;
+                _BB = Config::cfg.permissions.role[testWord].useBB;
+                _controls = Config::cfg.permissions.role[testWord].changeControls;
+                _kick = !Config::cfg.permissions.role[testWord].kick;
+                _limit = !Config::cfg.permissions.role[testWord].limit;
+            }
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        
+        
+        ImGui::EndCombo();
+    }
+    if (testWord == "z")
+    {
+
+        if (ImForm::InputText("ROLE NAME", _roleName)) {
+            string key = _roleName;
+            transform(key.begin(), key.end(), key.begin(), ::tolower);
+            Roles::r.list[key] = Roles::r.list[testWord];
+            Roles::r.list[key].key = _roleName;
+            Roles::r.list[key].name = _roleName;
+
+            if (testWord == "z")
+            {
+
+                rolelist.insert(rolelist.end() - 1, Roles::r.list[key]);
+            }
+            else
+            {
+                Roles::r.list.erase(testWord);
+                rolelist[testNum].name = _roleName;
+            }
+
+            testWord = key;
+
+            Roles::r.SaveToFile();
+
+        }
+    }
+
+    if (ImForm::InputText("CHAT IDENTIFIER", _messageStarter, "This will come before the username for every post made with the role")) {
+        Roles::r.list[testWord].messageStarter = _messageStarter;
+        Roles::r.SaveToFile();
+    }
+
+    if (ImForm::InputText("COMMAND", _commandPrefix, "The chat command to give someone this role. Must be 4+ characters long!")) {
+        Roles::r.list[testWord].commandPrefix = _commandPrefix;
+        Roles::r.SaveToFile();
+    }
+
+
+    if (ImForm::InputCheckbox("Can use !sfx command", _SFX)) {
+        Config::cfg.permissions.role[testWord].useSFX = _SFX;
+        Config::cfg.Save();
+    }
+
+    if (ImForm::InputCheckbox("Can use !bb command", _BB)) {
+        Config::cfg.permissions.role[testWord].useBB = _BB;
+        Config::cfg.Save();
+    }
+
+    if (ImForm::InputCheckbox("Can change keyboard controls", _controls)) {
+        Config::cfg.permissions.role[testWord].changeControls = _controls;
+        Config::cfg.Save();
+    }
+
+    if (ImForm::InputCheckbox("Can join room", _kick)) {
+        Config::cfg.permissions.role[testWord].kick = !_kick;
+        Config::cfg.Save();
+    }
+
+    if (ImForm::InputCheckbox("Can grab pads", _limit)) {
+        Config::cfg.permissions.role[testWord].limit = !_limit;
+        Config::cfg.Save();
+    }
+    /*AppStyle::pushTitle();
     ImGui::Text("Regular Guest");
     AppStyle::pop();
 
@@ -409,12 +539,7 @@ void SettingsWidget::renderPermissions() {
     ImGui::Text("Noobs");
     AppStyle::pop();
 
-    if (ImForm::InputNumber("Noob number (in tens of thousands)", _noobNum, 1, 9999,
-        "Any one with an id higher than this is considered a noob")) {
-        Config::cfg.permissions.noobNum = _noobNum;
-        _noobNum = Config::cfg.permissions.noobNum;
-        Config::cfg.Save();
-    }
+
 
     if (ImForm::InputCheckbox("Can join room", _kickNoob)) {
         Config::cfg.permissions.noob.kick = !_kickNoob;
@@ -424,9 +549,18 @@ void SettingsWidget::renderPermissions() {
     if (ImForm::InputCheckbox("Can grab pads", _limitNoob)) {
         Config::cfg.permissions.noob.limit = !_limitNoob;
         Config::cfg.Save();
+    }*/
+
+    AppStyle::pushTitle();
+    ImGui::Text("MISC");
+    AppStyle::pop();
+
+    if (ImForm::InputNumber("Noob number (in tens of thousands)", _noobNum, 1, 9999,
+        "Any one with an id higher than this is considered a noob")) {
+        Config::cfg.permissions.noobNum = _noobNum;
+        _noobNum = Config::cfg.permissions.noobNum;
+        Config::cfg.Save();
     }
-
-
 }
 
 /// <summary>

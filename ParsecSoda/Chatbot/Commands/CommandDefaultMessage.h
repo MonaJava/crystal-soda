@@ -4,6 +4,7 @@
 #include "../../Guest.h"
 #include "../../Tier.h"
 #include "../../Helpers/Stringer.h"
+#include "../../Lists/Roles.h"
 #include <sstream>
 
 class CommandDefaultMessage : public ACommand
@@ -40,6 +41,9 @@ public:
 			else if (_tier == Tier::ADMIN || _tier == Tier::MOD) role = "MOD  ";
 			else if (_tier == Tier::NOOB) role = "NOOB  ";
 			else role = "";
+
+			Role r = GuestRoles::instance.getRole(_sender.userID);
+			role = r.messageStarter;
 
 			if (_sender.isValid())
 			{

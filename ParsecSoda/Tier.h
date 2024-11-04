@@ -1,5 +1,5 @@
 #pragma once
-enum class Tier
+enum Tier
 {
 	NOOB,
 	PLEB,

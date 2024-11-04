@@ -183,10 +183,19 @@ public:
 			bool kick = false;
 			bool limit = false;
 
+			PermissionGroup() {
+				this->useBB = false;
+				this->useSFX = false;
+				this->changeControls = true;
+				this->kick = false;
+				this->limit = false;
+			};
 			PermissionGroup(bool useBB, bool useSFX, bool changeControls) {
 				this->useBB = useBB;
 				this->useSFX = useSFX;
 				this->changeControls = useBB;
+				this->kick = false;
+				this->limit = false;
 			};
 
 			PermissionGroup(bool useBB, bool useSFX, bool changeControls, bool kick, bool limit) {
@@ -197,12 +206,16 @@ public:
 				this->limit = limit;
 			};
 		};
-
 		PermissionGroup guest = PermissionGroup(false, false, true);
 		PermissionGroup vip = PermissionGroup(true, true, true);
 		PermissionGroup moderator = PermissionGroup(true, true, true);
-		PermissionGroup noob = PermissionGroup(false , false, true, false, true);
-		int noobNum = 1580;
+		PermissionGroup noob = PermissionGroup(false, false, true, false, true);
+		map<string, PermissionGroup> role = { 
+			{"guest", PermissionGroup(false, false, true) },
+			{"noob", PermissionGroup(false, false, true, false, true)},
+			{"mod", PermissionGroup(true, true, true)},
+		};
+		int noobNum = 1600;
 	};
 
 	class Arcade {

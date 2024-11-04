@@ -9,6 +9,7 @@
 #include "../globals/AppFonts.h"
 #include "../globals/AppColors.h"
 #include "../globals/AppStyle.h"
+#include "../Lists/Roles.h"
 #include "TitleTooltipWidget.h"
 #include "TooltipWidget.h"
 #include "IntRangeWidget.h"
@@ -73,10 +74,24 @@ private:
 	bool _vipControls = false;
 	bool _modControls = false;
 
-	int _noobNum = 156;
+	int _noobNum = 160;
 	bool _kickNoob = false;
 	bool _limitNoob = true;
 
+	bool _BB = false;
+	bool _SFX = false;
+	bool _controls = false;
+	bool _kick = false;
+	bool _limit = false;
+
 	string themes[5] = { "Midnight", "Parsec Soda", "Parsec Soda V", "Mini", "Arcade" };
+	vector<Role> rolelist = vector<Role>();
+	Role _displayRole = Role();
+	char _roleName[128] = "";
+	char _messageStarter[128] = "";
+	char _commandPrefix[128] = "";
 	Countries _countries;
+
+	int testNum = 1;
+	string testWord = "noob";
 };

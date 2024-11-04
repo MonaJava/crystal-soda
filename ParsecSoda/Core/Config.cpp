@@ -141,7 +141,7 @@ void Config::Load() {
 			cfg.overlay.guests.position = setValue(cfg.overlay.guests.position, j["Overlay"]["guests"]["position"].get<string>());
 			cfg.overlay.guests.showLatency = setValue(cfg.overlay.guests.showLatency, j["Overlay"]["guests"]["showLatency"].get<bool>());
 
-			// Set Permissions properties --DIO question: uhhh is there anyway to implement get<permissionGroup> or something?
+			// Set Permissions properties
 			cfg.permissions.guest.useBB = setValue(cfg.permissions.guest.useBB, j["Permissions"]["guest"]["useBB"].get<bool>());
 			cfg.permissions.guest.useSFX = setValue(cfg.permissions.guest.useSFX, j["Permissions"]["guest"]["useSFX"].get<bool>());
 			cfg.permissions.guest.changeControls = setValue(cfg.permissions.guest.changeControls, j["Permissions"]["guest"]["changeControls"].get<bool>());
@@ -163,6 +163,19 @@ void Config::Load() {
 			cfg.permissions.noob.kick = setValue(cfg.permissions.noob.kick, j["Permissions"]["noob"]["kick"].get<bool>());
 			cfg.permissions.noob.limit = setValue(cfg.permissions.noob.limit, j["Permissions"]["noob"]["limit"].get<bool>());
 			cfg.permissions.noobNum = setValue(cfg.permissions.noobNum, j["Permissions"]["noobNum"].get<int>());
+
+			json permissions = j["Permissions"]["roles"];
+			for (json::iterator it = permissions.begin(); it != permissions.end(); ++it) {
+				Permissions::PermissionGroup permission;
+				permission.useBB = it.value()["useBB"].get<bool>();
+				permission.useSFX = it.value()["useSFX"].get<bool>();
+				permission.changeControls = it.value()["changeControls"].get<bool>();
+				permission.kick = it.value()["kick"].get<bool>();
+				permission.limit = it.value()["limit"].get<bool>();
+				cfg.permissions.role[it.value()["role"].get<string>()] = permission;
+			}
+			cfg.permissions.noobNum = setValue(cfg.permissions.noobNum, j["Permissions"]["noobNum"].get<int>());
+
 
 			// Set Arcade properties
 			cfg.arcade.token = setValue(cfg.arcade.token, j["Arcade"]["token"].get<string>());
@@ -342,7 +355,23 @@ void Config::Save() {
 	};
 
 	// Permissions
-	j["Permissions"] = {
+	map<string, json> permissions;
+	for (auto it = cfg.permissions.role.begin(); it != cfg.permissions.role.end(); ++it)
+	{
+		json permissionJson;
+		permissionJson["role"] = it->first;
+		permissionJson["useBB"] = it->second.useBB;
+		permissionJson["useSFX"] = it->second.useSFX;
+		permissionJson["changeControls"] = it->second.changeControls;
+		permissionJson["kick"] = it->second.kick;
+		permissionJson["limit"] = it->second.limit;
+		permissions[it->first] = permissionJson;
+	}
+
+	j["Permissions"] = { 
+		{ "roles", permissions },
+		
+		//redundant, only leaving in so I don't have to change all the code at onceex
 		{"guest", {
 			{"useBB", cfg.permissions.guest.useBB},
 			{"useSFX", cfg.permissions.guest.useSFX},
@@ -371,7 +400,9 @@ void Config::Save() {
 			{"kick", cfg.permissions.noob.kick},
 			{"limit", cfg.permissions.noob.limit }
 		}},
+
 		{"noobNum", cfg.permissions.noobNum}
+	
 	};
 
 	// Arcade

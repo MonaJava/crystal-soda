@@ -5,17 +5,16 @@
 
 using namespace std;
 
-class CommandVersion : public ACommand
+class DioVersion : public ACommand
 {
 public:
 
 	/**
-	 * @brief Construct a new CommandDiscord object
+	 * @brief Construct a new DioVersion object
 	 *
 	 * @param sender
 	 */
-	CommandVersion(Guest& sender)
-		: _sender(sender)
+	DioVersion()
 	{}
 
 	/**
@@ -24,7 +23,7 @@ public:
 	 */
 	bool run() override {
 
-		SetReply(Cache::cache.version.c_str());
+		SetReply("v.1132024");
 
 		return true;
 	}
@@ -34,9 +33,8 @@ public:
 	 * @return vector<const char*>
 	 */
 	static vector<const char*> prefixes() {
-		return vector<const char*> { "/v", "/version" };
+		return vector<const char*> { "/v", "/version", "/latest" };
 	}
 
 protected:
-	Guest& _sender;
 };
