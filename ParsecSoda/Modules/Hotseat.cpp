@@ -23,41 +23,43 @@ void Hotseat::Start() {
 
 			while (running) {
 				//check if bonus time should be awarded for multiplayer
-				if (rewardTimer->isRunning() && rewardTimer->isFinished())
+				if (rewardTimer->isRunning())
 				{
-					rewardTimer->start(12);
-					numUsers = 0;
-					for (size_t i = 0; i < g_hosting.getGamepads().size(); ++i)
+					if(rewardTimer->isFinished())
 					{
-						if (g_hosting.getGamepads()[i]->isOwned())
+						rewardTimer->start(12);
+						numUsers = 0;
+						for (size_t i = 0; i < g_hosting.getGamepads().size(); ++i)
 						{
-							numUsers += 1;
+							if (g_hosting.getGamepads()[i]->isOwned())
+							{
+								numUsers += 1;
+							}
 						}
-					}
-					if (numUsers > 1)
-					{
-						for (HotseatUser& user : users) {
+						if (numUsers > 1)
+						{
+							for (HotseatUser& user : users) {
 
-							if (numUsers < 5)
-							{
-								bonusMinutes = static_cast<int>(12 * (numUsers - 1) / numUsers);
+								if (numUsers < 5)
+								{
+									bonusMinutes = static_cast<int>(12 * (numUsers - 1) / numUsers);
+								}
+								else
+								{
+									bonusMinutes = 9;
+								}
+								if (user.inSeat)	extendUser(user.userId, bonusMinutes);
+
+
 							}
-							else
-							{
-								bonusMinutes = 9;
-							}
-							if (user.inSeat)	extendUser(user.userId, bonusMinutes);
-							
-							
+							Log("MP Bonus: All users in hotseat have been granted " + to_string(bonusMinutes) + " extra minutes.");
 						}
-						Log("MP Bonus: All users in hotseat have been granted " + to_string(bonusMinutes) + " extra minutes.");
 					}
 				}
-				else if (Config::cfg.hotseat.multiBonus && !rewardTimer->isRunning())
+				else if (Config::cfg.hotseat.multiBonus)
 				{
 					rewardTimer->start(12);
-				}
-				rewardTimer->getRemainingMs();
+				}			
 
 
 
@@ -128,12 +130,12 @@ void Hotseat::Stop() {
 
 	// Stop the hotseat thread
 	running = false;
+	rewardTimer->stop();
 
 	// Stop all active users
 	for (HotseatUser& user : users) {
 		user.inSeat = false;
 		user.stopwatch->pause();
-		rewardTimer->stop();
 	}
 
 }
