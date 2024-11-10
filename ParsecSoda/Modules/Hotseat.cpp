@@ -25,6 +25,7 @@ void Hotseat::Start() {
 				//check if bonus time should be awarded for multiplayer
 				if (rewardTimer->isRunning())
 				{
+					rewardTimer->getRemainingMs();
 					if(rewardTimer->isFinished())
 					{
 						rewardTimer->start(12);
@@ -59,8 +60,8 @@ void Hotseat::Start() {
 				else if (Config::cfg.hotseat.multiBonus)
 				{
 					rewardTimer->start(12);
-				}			
-
+				}
+				
 
 
 				// Get current timestamp
