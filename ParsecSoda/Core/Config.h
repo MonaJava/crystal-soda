@@ -228,7 +228,7 @@ public:
 
 	class Socket {
 		public:
-		bool enabled = false;
+		bool enabled = true;
 		int port = 9002;
 	};
 
