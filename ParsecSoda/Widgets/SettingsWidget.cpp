@@ -418,11 +418,11 @@ void SettingsWidget::renderPermissions() {
     if (testWord == "z")
     {
 
-        if (ImForm::InputText("ROLE NAME", _roleName)) {
+        if (ImForm::InputText("ROLE NAME", _roleName, "Paste the rolename from clipboard cause my code is dumb")) {
             string key = _roleName;
             transform(key.begin(), key.end(), key.begin(), ::tolower);
             Roles::r.list[key] = Roles::r.list[testWord];
-            Roles::r.list[key].key = _roleName;
+            Roles::r.list[key].key = key;
             Roles::r.list[key].name = _roleName;
 
             if (testWord == "z")
