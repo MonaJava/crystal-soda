@@ -15,6 +15,7 @@
 #include "Helpers/Dice.h"
 #include "Helpers/StopwatchTimer.h"
 #include "Core/Cache.h"
+#include "Modules/Hotseat.h"
 
 using namespace std;
 

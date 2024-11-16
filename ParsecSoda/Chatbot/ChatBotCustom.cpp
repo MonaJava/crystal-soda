@@ -41,12 +41,17 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 			role = "guest";
 	}
 	//if (msgIsEqual(msg, YourCommandClass::prefixes()))	return new YourCommandClass(sender, _gamepadClient, _macro);
-	if (msgIsEqual(msg, EmptyTime::prefixes()))		return new EmptyTime(sender);
+		
+	/*if (isCommand(msg, YourCommandClass::prefixes())) {
+		return new YourCommandClass(msg, sender, _parsec, _guests, _guestHistory);
+	}*/
+	
+	/*if (msgIsEqual(msg, EmptyTime::prefixes()))		return new EmptyTime(sender);
 	if (msgStartsWith(msg, Queue::prefixes()))		return new Queue(msg, sender, _gamepadClient);
 	if (msgStartsWith(msg, ListQueue::prefixes()))	return new ListQueue(msg, sender, _gamepadClient);
 	if (msgIsEqual(msg, ExitQueue::prefixes()))		return new ExitQueue(sender, _gamepadClient);
 	if (msgIsEqual(msg, DioHelp::prefixes()))		return new DioHelp();
-	if (msgIsEqual(msg, DioVersion::prefixes()))	return new DioVersion();
+	if (msgIsEqual(msg, DioVersion::prefixes()))	return new DioVersion();*/
 
 	/*
 	ADMIN COMMANDS
@@ -54,8 +59,8 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	"ADMIN" tier. The host has the "GOD" tier.
 	*/
 	if (tier >= Tier::ADMIN || isHost) {
-		if (msgStartsWith(msg, EmptyQueue::prefixes()))		return new EmptyQueue(msg, sender, _gamepadClient);
-		if (msgStartsWith(msg, Pleb::prefixes()))			return new Pleb(msg, sender, _parsec, _guests, _guestHistory, _gamepadClient);
+		//if (msgStartsWith(msg, EmptyQueue::prefixes()))		return new EmptyQueue(msg, sender, _gamepadClient);
+		//if (msgStartsWith(msg, Pleb::prefixes()))			return new Pleb(msg, sender, _parsec, _guests, _guestHistory, _gamepadClient);
 
 	}
 
@@ -75,7 +80,7 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 			{
 				if (msgStartsWith(msg, roleprefix)) {
 					it->second.commandPrefix.push_back(' ');
-					return new SetRole(msg, sender, _parsec, _guests, _guestHistory, it->second);
+					//return new SetRole(msg, sender, _parsec, _guests, _guestHistory, it->second);
 				}
 			}
 		}
@@ -87,11 +92,20 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	*/
 	if (Config::cfg.permissions.role[role].useSFX)
 	{
-		if (msgStartsWith(msg, TTS::prefixes()))		return new TTS(msg, sender);
+		//if (msgStartsWith(msg, TTS::prefixes()))		return new TTS(msg, sender);
 	}
 
 	// Returns a default message if no custom command is found, so the bot can still respond.
 	return new CommandDefaultMessage(msg, sender, previous, tier, isHost);
+}
+
+/*
+Add all the help/descriptions for the commands.
+*/
+void ChatBotCustom::addHelp() {
+
+	//addCmdHelp("!yourcommand", "Description", Tier::GUEST);
+
 }
 
 /**
@@ -130,4 +144,46 @@ bool ChatBotCustom::msgIsEqual(const char* msg, vector<const char*> patterns) {
 		}
 	}
 	return false;
+}
+
+std::vector<std::string> ChatBotCustom::split(const std::string& str, char delimiter) {
+	std::vector<std::string> tokens;
+	std::stringstream ss(str);
+	std::string token;
+
+	while (std::getline(ss, token, delimiter)) {
+		tokens.push_back(token);
+	}
+
+	return tokens;
+}
+
+
+bool ChatBotCustom::isCommand(const char* msg, vector<const char*> patterns) {
+	// Split the message by spaces
+	vector<string> tokens = split(msg, ' ');
+
+	// Does the first token match any of the patterns?
+	vector<const char*>::iterator pi = patterns.begin();
+	for (; pi != patterns.end(); ++pi) {
+		if (tokens[0] == *pi) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// Get the arguments of a command
+vector<string> ChatBotCustom::getArguments(const char* msg) {
+	vector<string> tokens = split(msg, ' ');
+	tokens.erase(tokens.begin());
+	return tokens;
+}
+
+/*
+Add a command's help/description.
+*/
+void ChatBotCustom::addCmdHelp(std::string command, std::string desc, Tier tier) {
+	commands.push_back(CommandInfo(command, desc, tier));
 }

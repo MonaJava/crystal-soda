@@ -4,22 +4,33 @@ extern Hosting g_hosting;
 
 Hotseat Hotseat::instance = Hotseat();
 
-/// <summary>
-/// Constructor
-/// </summary>
+/**
+ * @brief Constructor for the Hotseat class.
+ */
 Hotseat::Hotseat() {
-	
+    reminderTimer = new StopwatchTimer();
 }
 
-/// <summary>
-/// Starts the hotseat thread.
-/// </summary>
-void Hotseat::Start() {
+// --------------------- MAIN FUNCTIONS ---------------------
 
-	// Start the hotseat thread
-	if (!running) {
-		running = true;
-		hotseatThread = std::thread([&] {
+/**
+ * @brief Starts the hotseat session by initializing and running the hotseat thread.
+ * Ensures that only one instance of the hotseat thread is running at a time.
+ */
+void Hotseat::start() {
+
+    // Start the hotseat thread
+    if (!running) {
+
+        // Start reminder timer
+        if (Config::cfg.hotseat.reminderInterval > 0) {
+            reminderTimer->start(Config::cfg.hotseat.reminderInterval);
+        }
+
+        g_hosting.logMessage("[HOTSEAT] Hotseat started.");
+        running = true;
+        hotseatThread = std::thread([&] {
+
 
 			while (running) {
 				//check if bonus time should be awarded for multiplayer
@@ -39,7 +50,7 @@ void Hotseat::Start() {
 						}
 						if (numUsers > 1)
 						{
-							for (HotseatUser& user : users) {
+							for (HotseatUser& user : Hotseat::instance.users) {
 
 								if (numUsers < 5)
 								{
@@ -49,11 +60,12 @@ void Hotseat::Start() {
 								{
 									bonusMinutes = 9;
 								}
-								if (user.inSeat)	extendUser(user.userId, bonusMinutes);
+								if (user.inSeat)	extendUserPlaytime(user.userId, bonusMinutes);
+
 
 
 							}
-							Log("MP Bonus: All users in hotseat have been granted " + to_string(bonusMinutes) + " extra minutes.");
+							log("MP Bonus: All users in hotseat have been granted " + to_string(bonusMinutes) + " extra minutes.");
 						}
 					}
 				}
@@ -71,269 +83,266 @@ void Hotseat::Start() {
 				for (HotseatUser& user : users) {
 
 					// A user can try to play again
-					user.cooldown = false;
+					//user.cooldown = false;
 
-					// Check if user is in seat
+					// Is the user seated?
 					if (user.inSeat) {
 
-						// Check if user has time remaining
+						// Has the user's playtime ended?
 						if (user.stopwatch->isFinished()) {
 
-							// Stop the stopwatch
-							user.stopwatch->stop();
-
-							// Remove user from seat
+							// Pause the user
 							user.inSeat = false;
+                            user.cooldown = true;
+                            //dio: Start this when grabbed pad, if larger than minimum set to minimum
+                            user.cooldownTimer->start(Config::cfg.hotseat.resetTime);
 
-							// Strip pads
-							g_hosting.getGamepadClient().strip(user.userId);
+							//dio: why are we still using this again?
+                            user.timeLastPlayed = getCurrentTimestamp();
 
-							//check if the cooldown time would zero out before play time runs out
-							int minutesSinceLastPlayed = getMinutesDifference(user.timeLastPlayed, currentTime);
-							if ((Config::cfg.hotseat.resetTime - minutesSinceLastPlayed) < Config::cfg.hotseat.minResetTime)
-							{
-								user.timeLastPlayed = currentTime - (Config::cfg.hotseat.resetTime - Config::cfg.hotseat.minResetTime) * 60;
-							}
+                            // Strip pads
+                            g_hosting.getGamepadClient().strip(user.userId);
 
-							// Log user removed
-							minutesSinceLastPlayed = getMinutesDifference(user.timeLastPlayed, currentTime);
-							Log("User " + user.userName + " has been removed from the hotseat. They must wait " + to_string(Config::cfg.hotseat.resetTime - minutesSinceLastPlayed) + " minutes.");
+
+
+
+							
+							// Log user paused
+							log(user.userName + " has run out of time. They have " + getCooldownRemaining(user.userId) + " to wait.");
 
 							user.checkThisOnce = false;
 						}
 						else {
-
 							// Log user time remaining
-							if (user.stopwatch->getRemainingSec() <= 300 &&  user.checkThisOnce == false)
+							if (user.stopwatch->getRemainingSec() <= 300 && user.checkThisOnce == false)
 							{
-								Log("User " + user.userName + " has " + user.stopwatch->getRemainingTime() + " remaining.");
+								log("User " + user.userName + " has " + user.stopwatch->getRemainingTime() + " remaining.");
 								user.checkThisOnce = true;
 							}
 						}
 
+					} else if (user.cooldown && user.cooldownTimer->isFinished()) {
+
+                        user.stopwatch->start(Config::cfg.hotseat.playTime);
+                        user.stopwatch->pause();
+                        user.cooldown = false;
+                        user.cooldownTimer->start(Config::cfg.hotseat.resetTime);
+                        user.cooldownTimer->pause();
+                        user.timeLastPlayed = getCurrentTimestamp();
+
 					}
 
+					// Check if the user has been inactive for too long
+                    else if (getMinutesDifference(user.timeLastPlayed, getCurrentTimestamp()) >= Config::cfg.hotseat.resetTime) {
+
+                        // Remove HotseatUser from the list
+                        Hotseat::instance.removeUser(user.userId);
+
+                    }
 				}
 
-				// Sleep for a second
-				std::this_thread::sleep_for(std::chrono::seconds(1));
-			}
-		});
-		hotseatThread.detach();
-	}
+                // Reminder intervals
+                if (Config::cfg.hotseat.reminderInterval > 0 && reminderTimer->isFinished()) {
+                    int numUsers = 0;
+                    std::string reminder = "\n";
+					for (HotseatUser& user : Hotseat::instance.users) {
+						if (user.inSeat) {
+							reminder += user.userName + " has " + getUserTimeRemaining(user.userId) + " remaining.\n";
+                            numUsers++;
+						}
+					}
+					if (numUsers > 0) {
+						log(reminder);
+					}
+					reminderTimer->start(Config::cfg.hotseat.reminderInterval);
+				}
 
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                
+            }
+            });
+        hotseatThread.detach();
+    }
 }
 
-/// <summary>
-/// Stops the hotseat thread.
-/// </summary>
-void Hotseat::Stop() {
+/**
+ * @brief Stops the hotseat session, terminating the hotseat thread.
+ */
+void Hotseat::stop() {
 
 	// Stop the hotseat thread
 	running = false;
-	rewardTimer->stop();
+	if (running) {
+		g_hosting.logMessage("[HOTSEAT] Hotseat stopped.");
+		running = false;
+		reminderTimer->stop();
+		rewardTimer->stop();
 
-	// Stop all active users
-	for (HotseatUser& user : users) {
-		user.inSeat = false;
-		user.stopwatch->pause();
-	}
-
-}
-
-/// <summary>
-/// Find a user by id.
-/// </summary>
-Hotseat::HotseatUser* Hotseat::getUser(int id) {
-
-	// Find user
-	for (HotseatUser& user : users) {
-		if (user.userId == id) {
-			return &user;
+		// Stop all active users
+		for (HotseatUser& user : users) {
+			user.inSeat = false;
+			user.stopwatch->pause();
 		}
 	}
-
-	// If user not found, return nullptr
-	return nullptr;
-
 }
 
-/// <summary>
-/// Check if a user can be seated.
-/// </summary>
-/// <param name="id"></param>
-/// <returns></returns>
-bool Hotseat::checkUser(int id, string name) {
+// --------------------- USER FUNCTIONS ---------------------
 
-	// Get current timestamp
-	std::time_t currentTime = getCurrentTimestamp();
-
-	// Find user
-	HotseatUser* user = getUser(id);
-	if (user == nullptr) {
-
-		// Create a new user
-		_createUser(id, name);
-
-		return true;
-
-	}
-	else {
-
-		// Check if user has time remaining
-		if (user->stopwatch->getRemainingMs() > 0) {
-
-			// User still has time remaining, so they can join
-			// Log user reseated
-			Log("User " + user->userName + " has been reseated. They have " + user->stopwatch->getRemainingTime() + " remaining.");
-			
-			
-			//check if the cooldown time would zero out before play time runs out
-			int minutesSinceLastPlayed = getMinutesDifference(user->timeLastPlayed, currentTime);
-
-			if ((Config::cfg.hotseat.resetTime - minutesSinceLastPlayed) < (user->stopwatch->getRemainingSec()/60 + Config::cfg.hotseat.minResetTime))
-			{
-				user->timeLastPlayed = currentTime - Config::cfg.hotseat.resetTime * 60 + user->stopwatch->getRemainingSec() + Config::cfg.hotseat.minResetTime * 60;
-			}
-			// Start the stopwatch
-			if (user->stopwatch->isPaused())
-			{
-				user->stopwatch->resume();
-			}
-
-			// Add user to seat
-			user->inSeat = true;
-
-			return true;
-		}
-		else {
-			// User has no time remaining
-
-			// Get time since last played
-			int minutesSinceLastPlayed = getMinutesDifference(user->timeLastPlayed, currentTime); //current time - timelastplayed
-
-			// Check if user is on cooldown
-			if (minutesSinceLastPlayed < Config::cfg.hotseat.resetTime) {
-				// User is on cooldown, prevent reseating
-				// Log user on cooldown
-				if (!user->cooldown) {
-					Log("User " + user->userName + " is on cooldown. They must wait " + to_string(Config::cfg.hotseat.resetTime - minutesSinceLastPlayed) + " minutes.");
-					// Prevent spamming
-					user->cooldown = true;
-				}
-
-				return false;
-
-			}
-			else {
-
-				if (user->stopwatch->isPaused()) {
-
-					// User is not on cooldown, reseat them
-					// Log user reseated
-					Log("User " + user->userName + " is now in the seat. They have " + user->stopwatch->getRemainingTime() + " left.");
-
-					// Start the stopwatch
-					user->stopwatch->resume();
-					
-
-				} else {
-
-					// User is not on cooldown, reseat them
-					// Log user reseated
-					Log("User " + user->userName + " has been reseated. They have " + to_string(Config::cfg.hotseat.playTime) + " minutes.");
-
-					// Set the stopwatch time
-					if (Cache::cache.vipList.isVIP(user->userId)) { user->stopwatch->start(Config::cfg.hotseat.playTime + 10); }
-					else { user->stopwatch->start(Config::cfg.hotseat.playTime); }
-
-				}
-
-				// Add user to seat
-				user->inSeat = true;
-
-				// Update last played time
-				user->timeLastPlayed = currentTime;
-
-				return true;
-			}
-		}
-	}
-
-	return true;
-}
-
-/// <summary>
-/// Creates a new Hotseat user.
-/// </summary>
-/// <param name="id"></param>
-/// <param name="name"></param>
+/**
+ * @brief Creates a new user for the hotseat session and initializes their playtime.
+ * @param id Unique identifier for the user.
+ * @param name Name of the user.
+ */
 void Hotseat::_createUser(int id, std::string name) {
     // Create a new user
     HotseatUser user;
     user.userId = id;
     user.userName = name;
-    user.inSeat = true;
     user.timeLastPlayed = getCurrentTimestamp();
     user.stopwatch = new StopwatchTimer();
-
-	// Set the stopwatch time
-	if (Cache::cache.vipList.isVIP(user.userId)) { user.stopwatch->start(Config::cfg.hotseat.playTime + 10); }
-	else { user.stopwatch->start(Config::cfg.hotseat.playTime); }
+    user.cooldownTimer = new StopwatchTimer();
 
     // Add the user to the list
     users.push_back(user);
-
-    // Log user added
-    Log("User " + name + " added to hotseat. They have " + std::to_string(Config::cfg.hotseat.playTime) + " minutes.");
 }
 
-/// <summary>
-/// Remove a user from hotseat.
-/// </summary>
-void Hotseat::pauseUser(int id) {
+/**
+ * @brief Checks if a user exists in the hotseat session.
+ * @param id Unique identifier for the user.
+ * @param name Name of the user.
+ * @return True if the user exists; otherwise, false.
+ */
+bool Hotseat::checkUser(int id, string name) {
 
-	// Get current timestamp
-	std::time_t currentTime = getCurrentTimestamp();
+    // Find user
+    HotseatUser* user = getUser(id);
+    if (user != nullptr) {
+		
+        // Does the user have time remaining?
+        if (user->stopwatch->getRemainingSec() > 0) {
+			return true;
+		}
+		
+
+        return false;
+
+	}
+
+    return true;
+}
+
+/**
+ * @brief Removes a user from the hotseat session.
+ * @param id Unique identifier for the user.
+ */
+void Hotseat::removeUser(int id) {
+
+    // Remove HotseatUser from the list
+    HotseatUser* user = getUser(id);
+	if (user != nullptr) {
+		for (int i = 0; i < users.size(); i++) {
+			if (users[i].userId == id) {
+				users.erase(users.begin() + i);
+			}
+		}
+	}
+
+}
+
+// --------------------- SEAT FUNCTIONS ---------------------
+
+/**
+ * @brief Seats a user in the hotseat.
+ * @param id Unique identifier for the user.
+ * @param name Name of the user.
+ * @return True if seating is successful; otherwise, false.
+ */
+bool Hotseat::seatUser(int id, string name) {
+		
+
+    // Find user
+	HotseatUser* user = getUser(id);
+	if (user != nullptr) {
+
+		// Is the user already seated?
+		if (user->inSeat) {
+			return false;
+		}
+
+		// Seat the user
+		user->inSeat = true;
+		
+        user->timeLastPlayed = getCurrentTimestamp();
+		log(name + " is now in the hotseat. They have " + getUserTimeRemaining(user->userId) + " remaining.");
+
+		// Start the stopwatch
+		user->stopwatch->resume();
+		//increase cooldown timer to minimum if higher
+					
+
+		return true;
+	}
+	else {
+
+
+		// Create a new user
+		_createUser(id, name);
+
+		// Seat the user
+		user = getUser(id);
+		user->inSeat = true;
+		user->stopwatch->start(Config::cfg.hotseat.playTime);
+		user->timeLastPlayed = getCurrentTimestamp();
+		log(name + " is now in the hotseat. They have " + getUserTimeRemaining(user->userId) + " remaining.");
+		//gonna have to start cooldown timer here
+
+		return true;
+	}
+	return false;
+		
+
+
+}
+
+/**
+ * @brief Pauses the playtime of a user currently in the hotseat.
+ * @param id Unique identifier for the user.
+ */
+void Hotseat::pauseUser(int id) {
 
 	// Find user
 	HotseatUser* user = getUser(id);
 	if (user != nullptr) {
 
-		// Was user in seat?
+		// Is the user seated?
 		if (user->inSeat) {
 
-			// Stop the stopwatch
+			// Pause the stopwatch
 			user->stopwatch->pause();
-
-			// Remove user from seat
-			user->inSeat = false;	
+			user->inSeat = false;
+			user->timeLastPlayed = getCurrentTimestamp();
 
 			// Did the user have time remaining?
 			if (user->stopwatch->getRemainingMs() > 0) {
 				// Set cooldown to minimum if its below it
-				int minutesSinceLastPlayed = getMinutesDifference(user->timeLastPlayed, currentTime);
-				if ((Config::cfg.hotseat.resetTime - minutesSinceLastPlayed) < Config::cfg.hotseat.minResetTime)
-				{
-					user->timeLastPlayed = currentTime - Config::cfg.hotseat.resetTime * 60 + user->stopwatch->getRemainingSec() + Config::cfg.hotseat.minResetTime * 60;
-				}
+				//user->cooldowntimer->start()
+
 				// Log user paused
-				Log("User " + user->userName + " left the seat with " + user->stopwatch->getRemainingTime() + " remaining.");
+				log("User " + user->userName + " left the seat with " + user->stopwatch->getRemainingTime() + " remaining.");
 
 			}
-		
+
 		}
 
 	}
-
 }
 
-/// <summary>
-/// Extend a user's hotseat time.
-/// </summary>
-void Hotseat::extendUser(int id, long minutes) {
-
-	// Find user
+/**
+ * @brief Extends the playtime for a user in the hotseat.
+ * @param id Unique identifier for the user.
+ * @param minutes Number of minutes to add to the user's playtime.
+ */
+void Hotseat::extendUserPlaytime(int id, long minutes) {
 	HotseatUser* user = getUser(id);
 	if (user != nullptr) {
 
@@ -341,220 +350,214 @@ void Hotseat::extendUser(int id, long minutes) {
 		user->stopwatch->addMinutes(minutes);
 
 		// Log user extended
-		Log("User " + user->userName + " has been extended by " + to_string(minutes) + " minutes.");
-
+		log("User " + user->userName + " has been extended by " + to_string(minutes) + " minutes.");
 	}
-
 }
 
-/// <summary>
-/// Extend a user's cooldown time.
-/// </summary>
-void Hotseat::screwUser(int id, long minutes) {
-
-	// Find user
-	HotseatUser* user = getUser(id);
-	if (user != nullptr) {
-		
-		user->timeLastPlayed += minutes * 60;
-
-		// Log user extended
-		Log("User " + user->userName + " has had their cooldown delayed by " + to_string(minutes) + " minutes.");
-
-	}
-
-}
-
-/// <summary>
-/// Deduct time from a user.
-/// </summary>
-void Hotseat::deductUser(int id, long minutes) {
-
-	// Find user
+/**
+ * @brief Reduces the playtime for a user in the hotseat.
+ * @param id Unique identifier for the user.
+ * @param minutes Number of minutes to subtract from the user's playtime.
+ */
+void Hotseat::reduceUserPlaytime(int id, long minutes) {
 	HotseatUser* user = getUser(id);
 	if (user != nullptr) {
 
-		// Deduct the user's time in minutes
+		// Extend the user's time in minutes
 		user->stopwatch->subtractMinutes(minutes);
 
-		// Log user deducted
-		Log("User " + user->userName + " has been deducted by " + to_string(minutes) + " minutes.");
-
+		// Log user extended
+		log("User " + user->userName + " has been reduced by " + to_string(minutes) + " minutes.");
 	}
-
 }
 
-/// <summary>
-/// Decrease a user's cooldown time.
-/// </summary>
-void Hotseat::rewardUser(int id, long minutes) {
-
+/**
+ * @brief Increases the cooldown time for a user after their playtime ends.
+ * @param id Unique identifier for the user.
+ * @param minutes Number of minutes to add to the cooldown time.
+ */
+void Hotseat::increaseUserCooldown(int id, long minutes) {
 	// Find user
 	HotseatUser* user = getUser(id);
 	if (user != nullptr) {
 
-			user->timeLastPlayed -= minutes * 60;
+		user->cooldownTimer->addMinutes(minutes);
 
-			// Log user extended
-			Log("User " + user->userName + " has had their cooldown shortened by " + to_string(minutes) + " minutes.");
-
+		// Log user extended
+		log("User " + user->userName + " has had their cooldown increased by " + to_string(minutes) + " minutes.");
 	}
-
 }
-/// <summary>
-/// Get the time remaining for a user.
-/// </summary>
-/// <param name="id"></param>
-/// <returns></returns>
+
+/**
+ * @brief Decreases the cooldown time for a user.
+ * @param id Unique identifier for the user.
+ * @param minutes Number of minutes to subtract from the cooldown time.
+ */
+void Hotseat::decreaseUserCooldown(int id, long minutes) {
+	// Find user
+	HotseatUser* user = getUser(id);
+	if (user != nullptr) {
+
+		user->cooldownTimer->subtractMinutes(minutes);
+
+		// Log user extended
+		log("User " + user->userName + " has had their cooldown decreased by " + to_string(minutes) + " minutes.");
+	}
+}
+
+/**
+ * @brief Checks if a user is currently seated in the hotseat.
+ * @param id Unique identifier for the user.
+ * @return True if the user is in the seat; otherwise, false.
+ */
+bool Hotseat::inSeat(int id) {
+
+    // Find user
+    HotseatUser* user = getUser(id);
+    if (user != nullptr) {
+        return user->inSeat;
+    }
+
+    return false;
+}
+
+// --------------------- GETTERS ---------------------
+
+/**
+ * @brief Retrieves a user by their ID.
+ * @param id Unique identifier for the user.
+ * @return Pointer to the HotseatUser if found; otherwise, nullptr.
+ */
+Hotseat::HotseatUser* Hotseat::getUser(int id) {
+    for (HotseatUser& user : users) {
+        if (user.userId == id) {
+            return &user;
+        }
+    }
+    return nullptr;
+}
+
+/**
+ * @brief Gets the remaining playtime for a user in the hotseat.
+ * @param id Unique identifier for the user.
+ * @return String representation of the user's remaining playtime.
+ */
 string Hotseat::getUserTimeRemaining(int id) {
 
-	// Find user
-	HotseatUser* user = getUser(id);
-	if (user != nullptr) {
-
-		// Get the user's time remaining
-		return user->stopwatch->getRemainingTime();
-
+    // Formats the time remaining to 00m 00s format
+    HotseatUser* user = getUser(id);
+    if (user != nullptr) {
+		int remainingSec = user->stopwatch->getRemainingSec();
+		int minutes = remainingSec / 60;
+		int seconds = remainingSec % 60;
+		return std::to_string(minutes) + "m " + std::to_string(seconds) + "s";
 	}
 
-	return "";
-
+    return "";
 }
 
+/**
+ * @brief Gets the remaining cooldown time for a user.
+ * @param id Unique identifier for the user.
+ * @return String representation of the user's cooldown time remaining.
+ */
 string Hotseat::getCooldownRemaining(int id) {
 
-	HotseatUser* user = getUser(id);
-	if (user != nullptr) {
+    // Formats the time remaining to 00m 00s format
+    HotseatUser* user = getUser(id);
+    if (user != nullptr) {
+        int remainingSec = user->cooldownTimer->getRemainingSec();
+        int minutes = remainingSec / 60;
+        int seconds = remainingSec % 60;
+        return std::to_string(minutes) + "m " + std::to_string(seconds) + "s";
+    }
 
-
-		std::time_t currentTime = getCurrentTimestamp();
-		int secondsSinceLastPlayed = currentTime - user->timeLastPlayed;
-
-		int t = max(0, Config::cfg.hotseat.resetTime * 60 - secondsSinceLastPlayed);
-		
-		std::stringstream ss;
-
-		// Get the remaining minutes
-		auto cooldownMin = t / 60;
-		ss << std::setfill('0') << std::setw(2) << cooldownMin << "m:";
-		// Get the remaining seconds
-		auto cooldownSec = t % 60;
-		ss << std::setfill('0') << std::setw(2) << cooldownSec << "s";
-
-		return ss.str();
-
-	}
-	return "";
-
+    return "";
 }
 
-/// <summary>
-/// Log a message and print in chat.
-/// </summary>
-/// <param name="message"></param>
-void Hotseat::Log(string message) {
-	
-	// Format message
-	string msg = "[HOTSEAT] ";
-	msg += message;
+// --------------------- HELPER FUNCTIONS ---------------------
 
-	// Print message
-	g_hosting.logMessage(msg);
-	g_hosting.broadcastChatMessage(msg);
-
-}
-
-/// <summary>
-/// Helper function to get the current timestamp.
-/// </summary>
-/// <returns></returns>
+/**
+ * @brief Gets the current timestamp.
+ * @return Current time in seconds since the epoch.
+ */
 std::time_t Hotseat::getCurrentTimestamp() {
 
-	// Get the current time point
-	auto currentTime = std::chrono::system_clock::now();
+    // Get the current time point
+    auto currentTime = std::chrono::system_clock::now();
 
-	// Convert the time point to a duration since the epoch
-	auto durationSinceEpoch = currentTime.time_since_epoch();
+    // Convert the time point to a duration since the epoch
+    auto durationSinceEpoch = currentTime.time_since_epoch();
 
-	// Convert the duration to seconds
-	auto seconds = std::chrono::duration_cast<std::chrono::seconds>(durationSinceEpoch);
+    // Convert the duration to seconds
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(durationSinceEpoch);
 
-	// Return the timestamp as time_t type
-	return seconds.count();
-
+    // Return the timestamp as time_t type
+    return seconds.count();
 }
 
-/// <summary>
-/// Helper function to get the minutes difference between two timestamps.
-/// </summary>
-/// <param name="timestamp1"></param>
-/// <param name="timestamp2"></param>
-/// <returns></returns>
+/**
+ * @brief Calculates the difference in minutes between two timestamps.
+ * @param timestamp1 The first timestamp.
+ * @param timestamp2 The second timestamp.
+ * @return Difference in minutes between the two timestamps.
+ */
 int Hotseat::getMinutesDifference(std::time_t timestamp1, std::time_t timestamp2) {
 
-	// Calculate the difference in seconds
-	std::time_t difference = timestamp2 - timestamp1;
+    // Calculate the difference in seconds
+    std::time_t difference = timestamp2 - timestamp1;
 
-	// Convert the difference to minutes
-	int minutesDifference = difference / 60;
+    // Convert the difference to minutes
+    int minutesDifference = difference / 60;
 
-	return minutesDifference;
+    return minutesDifference;
 }
 
-/// <summary>
-/// Helper function to add minutes to a timestamp.
-/// </summary>
-/// <param name="timestamp"></param>
-/// <param name="minutesToAdd"></param>
-/// <returns></returns>
+/**
+ * @brief Adds a specified number of minutes to a timestamp.
+ * @param timestamp The initial timestamp.
+ * @param minutesToAdd Number of minutes to add.
+ * @return New timestamp after adding the specified minutes.
+ */
 std::time_t Hotseat::addMinutesToTimestamp(std::time_t timestamp, int minutesToAdd) {
 
-	// Convert the minutes to seconds
-	std::time_t secondsToAdd = minutesToAdd * 60;
+    // Convert the minutes to seconds
+    std::time_t secondsToAdd = minutesToAdd * 60;
 
-	// Add the seconds to the timestamp
-	std::time_t newTimestamp = timestamp + secondsToAdd;
+    // Add the seconds to the timestamp
+    std::time_t newTimestamp = timestamp + secondsToAdd;
 
-	return newTimestamp;
+    return newTimestamp;
 }
 
-/// <summary>
-/// Helper function to subtract minutes from a timestamp.
-/// </summary>
-/// <param name="timestamp"></param>
-/// <param name="minutesToSubtract"></param>
-/// <returns></returns>
+/**
+ * @brief Subtracts a specified number of minutes from a timestamp.
+ * @param timestamp The initial timestamp.
+ * @param minutesToSubtract Number of minutes to subtract.
+ * @return New timestamp after subtracting the specified minutes.
+ */
 std::time_t Hotseat::subtractMinutesFromTimestamp(std::time_t timestamp, int minutesToSubtract) {
 
-	// Convert the minutes to seconds
-	std::time_t secondsToSubtract = minutesToSubtract * 60;
+    // Convert the minutes to seconds
+    std::time_t secondsToSubtract = minutesToSubtract * 60;
 
-	// Subtract the seconds from the timestamp
-	std::time_t newTimestamp = timestamp - secondsToSubtract;
+    // Subtract the seconds from the timestamp
+    std::time_t newTimestamp = timestamp - secondsToSubtract;
 
-	return newTimestamp;
-
+    return newTimestamp;
 }
 
-/// <summary>
-/// Get the remaining cooldown time for a user.
-/// </summary>
-/// <param name="id"></param>
-/// <returns></returns>
-int Hotseat::getCoolDownTime(int id) {
-	HotseatUser* user = getUser(id);
-	if (user != nullptr) {
+/**
+ * @brief Logs a message with the hotseat prefix and broadcasts it.
+ * @param message The message to log and broadcast.
+ */
+void Hotseat::log(string message) {
 
-		// If the user still has time remaining
-		if (user->stopwatch->getRemainingMs() > 0) {
-			return 0;
-		}
+    // Format message
+    
+    string msg = "[HOTSEAT] ";
+    msg += message;
 
-		std::time_t currentTime = getCurrentTimestamp();
-		int minutesSinceLastPlayed = getMinutesDifference(user->timeLastPlayed, currentTime);
-		if (minutesSinceLastPlayed < Config::cfg.hotseat.resetTime) {
-			return Config::cfg.hotseat.resetTime - minutesSinceLastPlayed;
-		}
-	}
-	return 0;
+	
+	
 }

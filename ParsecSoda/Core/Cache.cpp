@@ -10,7 +10,7 @@ Cache Cache::cache = Cache();
 Cache::Cache() {
 
 	// Set the version
-	version = "5.2.0";
+	version = "6.0.1";
 
     // Load verified users
     vector<GuestData> verified = VerifiedList::LoadFromFile();
@@ -155,7 +155,7 @@ void Cache::banIPAddress(std::string ip) {
 	}
 
 	// Save the file
-	string ipPath = PathHelper::GetConfigPath() + "\\banned_ip.json";
+	string ipPath = PathHelper::GetConfigPath() + "banned_ip.json";
 	string ipString = j.dump(4);
 	bool success = MTY_WriteTextFile(ipPath.c_str(), "%s", ipString.c_str());
 
@@ -179,7 +179,7 @@ void Cache::unbanIPAddress(std::string ip) {
 	}
 
 	// Save the file
-	string ipPath = PathHelper::GetConfigPath() + "\\banned_ip.json";
+	string ipPath = PathHelper::GetConfigPath() + "banned_ip.json";
 	string ipString = j.dump(4);
 	bool success = MTY_WriteTextFile(ipPath.c_str(), "%s", ipString.c_str());
 }
@@ -219,7 +219,7 @@ std::string Cache::getUserIpAddress(uint32_t userId) {
 void Cache::LoadBannedIpAddresses() {
 
     // Load banned IP addresses
-	string ipPath = PathHelper::GetConfigPath() + "\\banned_ip.json";
+	string ipPath = PathHelper::GetConfigPath() + "banned_ip.json";
 	if (MTY_FileExists(ipPath.c_str())) {
 
 		try {

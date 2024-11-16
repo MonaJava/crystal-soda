@@ -4,7 +4,7 @@
 #include "../../../Modules/Hotseat.h"
 #include "../../../GuestList.h"
 
-class EmptyTime : public ACommand
+class EmptyTime : public ACommand2
 {
 public:
 
@@ -23,7 +23,7 @@ public:
 	 * @return true if the command was successful
 	 */
 	bool run() override {
-		Hotseat::instance.deductUser(_sender.userID, 999);
+		Hotseat::instance.reduceUserPlaytime(_sender.userID, 999);
 		SetReply(_sender.name + " has given up his remaining playtime\0");
 		return true;
 	}

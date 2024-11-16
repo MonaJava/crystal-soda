@@ -13,12 +13,13 @@
 #include "TitleTooltipWidget.h"
 #include "TooltipWidget.h"
 #include "IntRangeWidget.h"
+#include "../Helpers/Keymap.h"
 
 class SettingsWidget
 {
 public:
 	SettingsWidget(Hosting& hosting);
-	bool render();
+	bool render(bool& showWindow);
 	void renderGeneral();
 	void renderChatbot();
 	void renderPermissions();
@@ -44,12 +45,13 @@ private:
 	bool _ipBan = true;
 	bool _socketEnabled = true;
 	bool _blockVPN = false;
+	bool _devMode = false;
 	unsigned int _latencyLimitThreshold = 0;
 	unsigned int _theme = 0;
 	char _hotkeyCommand[128] = "";
 	char _discord[HOST_NAME_LEN] = "";
 	char _chatbot[HOST_NAME_LEN] = "";
-	char _welcomeMessage[256] = "";
+	char _welcomeMessage[512] = "";
 
 	char _prependRegion[128] = "";
 
@@ -91,6 +93,7 @@ private:
 	char _messageStarter[128] = "";
 	char _commandPrefix[128] = "";
 	Countries _countries;
+	Keymap _keymap = Keymap();
 
 	int testNum = 1;
 	string testWord = "noob";

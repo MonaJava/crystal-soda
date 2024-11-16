@@ -8,6 +8,7 @@
 #include "matoya.h"
 #include <nlohmann/json.hpp>
 #include "../Helpers/PathHelper.h"
+#include "../Helpers/Keymap.h"
 
 using json = nlohmann::json;
 
@@ -19,6 +20,7 @@ public:
 	class Hotkey {
 	public:
 		string command = "";
+		string keyName = "";
 		int key = 0;
 	};
 
@@ -32,6 +34,7 @@ public:
 		bool hotkeyBB = true;
 		bool hotkeyLock = true;
 		bool blockVPN = false;
+		bool devMode = false;
 	};
 	
 	class Audio {
@@ -90,6 +93,8 @@ public:
 		string secret = "";
 		bool latencyLimit = false;
 		unsigned int latencyLimitThreshold = 0;
+		string streamUrl = "";
+		unsigned int repThreshold = 70;
 	};
 	
 	class Chat {
@@ -122,6 +127,7 @@ public:
 		bool video = false;
 		bool overlay = false;
 		bool keyMapper = false;
+		bool devTools = false;
 	};
 
 	class Hotseat {
@@ -131,6 +137,7 @@ public:
 		int resetTime = 30;
 		int minResetTime = 5;
 		bool multiBonus = true;
+		int reminderInterval = 5;
 	};
 	
 	class KioskMode {
@@ -220,8 +227,6 @@ public:
 
 	class Arcade {
 	public:
-		string token = "";
-		string username = "";
 		bool showLogin = true;
 		int countryIndex = 220;
 	};
@@ -239,6 +244,15 @@ public:
 			vector<Hotkey> keys = {};
 	};
 
+	class Developer {
+	public:
+		bool useDevDomain = false;
+		string devDomain = "";
+		bool useStagingDomain = false;
+		string stagingDomain = "";
+		bool skipUpdateCheck = false;
+	};
+
 	General general;
 	Audio audio;
 	Video video;
@@ -253,6 +267,7 @@ public:
 	Arcade arcade;
 	Socket socket;
 	Hotkeys hotkeys;
+	Developer developer;
 
 	// Supported resolutions
 	struct Resolution {
@@ -364,7 +379,7 @@ public:
 
 	void SetHotkey();
 	void AddHotkey(string command, int key);
-	void RemoveHotkey(string command);
+	void RemoveHotkey(int index);
 private:
 	void static LoadOverlayThemes();
 };

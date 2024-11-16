@@ -4,7 +4,7 @@
 
 using namespace std;
 
-class DioHelp : public ACommand
+class DioHelp : public ACommand2
 {
 public:
 

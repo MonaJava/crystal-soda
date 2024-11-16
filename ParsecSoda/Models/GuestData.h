@@ -18,6 +18,7 @@ public:
 		name = "";
 		userID = 0;
 		reason = "";
+		fake = false;
 		queuedPad = 0;
 	}
 
@@ -46,5 +47,6 @@ public:
 	uint32_t userID;
 	std::string reason;
 	int queuedPad;
+	bool fake;
 };
 

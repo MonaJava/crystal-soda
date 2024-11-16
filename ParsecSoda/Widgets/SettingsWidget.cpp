@@ -4,6 +4,7 @@
 SettingsWidget::SettingsWidget(Hosting& hosting)
     : _hosting(hosting)
 {
+
     _disableGuideButton = Config::cfg.input.disableGuideButton;
     _disableKeyboard = Config::cfg.input.disableKeyboard;
     _latencyLimitEnabled = Config::cfg.room.latencyLimit;
@@ -16,6 +17,7 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
     _ipBan = Config::cfg.general.ipBan;
     _parsecLogs = Config::cfg.general.parsecLogs;
     _blockVPN = Config::cfg.general.blockVPN;
+    _devMode = Config::cfg.general.devMode;
 
     
 
@@ -119,20 +121,15 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
     }
 }
 
-bool SettingsWidget::render()
+bool SettingsWidget::render(bool& showWindow)
 {
     AppStyle::pushTitle();
     ImGui::SetNextWindowSizeConstraints(ImVec2(400, 400), ImVec2(800, 900));
-    ImGui::Begin("Settings", (bool*)0);
+    ImGui::Begin("Settings", &showWindow);
+    if (!showWindow) Config::cfg.widgets.settings = showWindow;
     AppStyle::pushInput();
 
     ImVec2 size = ImGui::GetContentRegionAvail();
-
-    ImGui::BeginChild("Settings List", ImVec2(size.x, size.y));
-
-    ImGui::SetNextItemWidth(size.x - 42);
-    ImGui::SameLine();
-    ImGui::Dummy(ImVec2(0, 5));
 
     if (ImGui::BeginTabBar("Settings Tabs", ImGuiTabBarFlags_None))
     {
@@ -140,27 +137,33 @@ bool SettingsWidget::render()
         AppColors::pushTitle();
         if (ImGui::BeginTabItem("General"))
         {
+            ImGui::BeginChild("innerscroll");
             renderGeneral();
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Chat")) {
+            ImGui::BeginChild("innerscroll");
             renderChatbot();
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Roles")) {
+            ImGui::BeginChild("innerscroll");
             renderPermissions();
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Hotkeys")) {
+            ImGui::BeginChild("innerscroll");
             renderHotkeys();
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
         AppColors::pop();
         AppFonts::pop();
         ImGui::EndTabBar();
     }
-
-    ImGui::EndChild();
 
     AppStyle::pop();
     ImGui::End();
@@ -232,12 +235,6 @@ void SettingsWidget::renderGeneral() {
     AppStyle::pop();
 
     ImGui::Dummy(ImVec2(0, 20.0f));
-
-    if (ImForm::InputCheckbox("Enable Microphone", _microphoneEnabled,
-        "When enabled, the microphone cause audio issues in some games.")) {
-        Config::cfg.audio.micEnabled = _microphoneEnabled;
-		Config::cfg.Save();
-    }
 
     if (ImForm::InputCheckbox("Disable Guide Button", _disableGuideButton,
         "The guide button by default often brings up overlays in software, which can cause issues when hosting.")) {
@@ -311,6 +308,12 @@ void SettingsWidget::renderGeneral() {
         Config::cfg.Save();
     }
 
+    if (ImForm::InputCheckbox("Developer Mode", _devMode,
+        "Enables extra developer options for testing Smash Soda. Only for those who know what they are doing!")) {
+        Config::cfg.general.devMode = _devMode;
+        Config::cfg.Save();
+    }
+
     AppStyle::pop();
 
 }
@@ -370,11 +373,11 @@ void SettingsWidget::renderChatbot() {
 	    ImGui::Unindent(10);
 	ImGui::EndGroup();
 
-    // if (ImForm::InputCheckbox("Host can't be bonked", _hostBonkProof,
-    //     "You DARE bonk the host!?")) {
-    //     Config::cfg.chat.hostBonkProof = _hostBonkProof;
-    //     Config::cfg.Save();
-    // }
+     if (ImForm::InputCheckbox("Host can't be bonked", _hostBonkProof,
+         "You DARE bonk the host!?")) {
+         Config::cfg.chat.hostBonkProof = _hostBonkProof;
+         Config::cfg.Save();
+     }
 
 }
 
@@ -622,9 +625,8 @@ void SettingsWidget::renderHotkeys() {
         // List hotkeys
         for (int i = 0; i < Config::cfg.hotkeys.keys.size(); i++) {
 
-            IconButton::render(AppIcons::trash, AppColors::primary, ImVec2(30, 30));
-            if (ImGui::IsItemActive()) {
-                Config::cfg.RemoveHotkey(Config::cfg.hotkeys.keys[i].command);
+            if (IconButton::render(AppIcons::trash, AppColors::primary, ImVec2(30, 30))) {
+                Config::cfg.RemoveHotkey(i);
             }
 
             ImGui::SameLine();
@@ -634,7 +636,7 @@ void SettingsWidget::renderHotkeys() {
             ImGui::Text("%s", Config::cfg.hotkeys.keys[i].command.c_str());
             AppStyle::pop();
             AppStyle::pushLabel();
-            //ImGui::Text("%s", path.c_str());
+            ImGui::Text("%s", "CTRL + " + Config::cfg.hotkeys.keys[i].keyName);
             AppStyle::pop();
             ImGui::Unindent(10);
             ImGui::EndGroup();

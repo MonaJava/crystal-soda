@@ -5,7 +5,7 @@
 
 using namespace std;
 
-class DioVersion : public ACommand
+class DioVersion : public ACommand2
 {
 public:
 
@@ -23,7 +23,7 @@ public:
 	 */
 	bool run() override {
 
-		SetReply("v.1132024");
+		SetReply("Fixed leavebug and pulled mickey's updates");
 
 		return true;
 	}

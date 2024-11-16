@@ -5,7 +5,7 @@
 #include "../../../GamepadClient.h"
 #include "../../../Guest.h"
 
-class ExitQueue : public ACommand
+class ExitQueue : public ACommand2
 {
 public:
 

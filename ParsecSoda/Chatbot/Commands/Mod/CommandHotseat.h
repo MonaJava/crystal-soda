@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Base/ACommand.h"
+#include "../../ACommand.h"
 #include "../../../Modules/Hotseat.h"
 #include "../../../GamepadClient.h"
 
@@ -16,8 +16,8 @@ public:
 	 * @param sender
 	 * @param hotseat
 	 */
-	CommandHotseat(Guest& sender, Hotseat& hotseat, GamepadClient& gamepadClient)
-		: _sender(sender), _hotseat(hotseat), _gamepadClient(gamepadClient)
+	CommandHotseat(const char* msg, Guest& sender, Hotseat& hotseat, GamepadClient& gamepadClient)
+		: ACommand(msg, sender), _hotseat(hotseat), _gamepadClient(gamepadClient)
 	{}
 
 	/**
@@ -28,14 +28,14 @@ public:
 	 */
 	bool run() override {
 		if (Config::cfg.hotseat.enabled) {
-			SetReply("Hotseat has been disabled.");
+			setReply("Hotseat has been disabled.");
 			Config::cfg.hotseat.enabled = false;
-			Hotseat::instance.Stop();
+			Hotseat::instance.stop();
 		}
 		else {
-			SetReply("Hotseat has been enabled.");
+			setReply("Hotseat has been enabled.");
 			Config::cfg.hotseat.enabled = true;
-			Hotseat::instance.Start();
+			Hotseat::instance.start();
 			for (size_t i = 0; i < _gamepadClient.gamepads.size(); ++i)
 			{
 				if (_gamepadClient.gamepads[i]->isOwned())
@@ -46,9 +46,9 @@ public:
 			}
 		}
 
-		return true;
+			return true;
 
-	}
+		}
 
 	/**
 	 * @brief Get the prefixes object
@@ -60,7 +60,20 @@ public:
 	}
 
 protected:
-	Guest& _sender;
+
+	void disableHotseat() {
+		_hotseat.stop();
+		Config::cfg.hotseat.enabled = false;
+		Config::cfg.Save();
+		setReply("Hotseat mode disabled");
+	}
+
+	void enableHotseat() {
+		_hotseat.start();
+		Config::cfg.hotseat.enabled = true;
+		Config::cfg.Save();
+		setReply("Hotseat mode enabled");
+	}
 	Hotseat& _hotseat;
 	GamepadClient& _gamepadClient;
 };

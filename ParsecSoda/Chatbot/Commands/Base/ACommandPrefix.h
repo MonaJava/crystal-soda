@@ -4,7 +4,7 @@
 #include "../../../Helpers/Stringer.h"
 #include <vector>
 
-class ACommandPrefix : public ACommand
+class ACommandPrefix : public ACommand2
 {
 public:
 

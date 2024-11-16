@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Base/ACommand.h"
+#include "../../ACommand.h"
 #include "../../../Guest.h"
 
 class CommandStopSFX : public ACommand
@@ -12,8 +12,8 @@ public:
 	 * 
 	 * @param sender 
 	 */
-	CommandStopSFX(Guest &sender)
-		: _sender(sender)
+	CommandStopSFX(const char* msg, Guest& sender)
+		: ACommand(msg, sender), _sender(sender)
 	{}
 
 	/**
@@ -26,15 +26,13 @@ public:
 		Tier tier = Cache::cache.tierList.getTier(_sender.userID);
 
 		// SFX enabled?
-		if (tier == Tier::NOOB && !Config::cfg.permissions.noob.useSFX ||
-			tier == Tier::PLEB && !Config::cfg.permissions.guest.useSFX ||
+		if (tier == Tier::GUEST && !Config::cfg.permissions.guest.useSFX ||
+			tier == Tier::NOOB && !Config::cfg.permissions.noob.useSFX ||
 			tier == Tier::MOD && !Config::cfg.permissions.moderator.useSFX ||
-			tier == Tier::GOD && !Config::cfg.permissions.vip.useSFX) {
-			SetReply("Sound effects are disabled.\0");
+			Cache::cache.vipList.isVIP(_sender.userID) && !Config::cfg.permissions.vip.useSFX) {
+			setReply("Sound effects are disabled.\0");
 			return false;
-		}
-		else
-		{ 
+		} else { 
 			PlaySound(NULL, NULL, SND_FILENAME | SND_NODEFAULT | SND_ASYNC | SND_SYSTEM);
 		}
 		return true;
@@ -50,5 +48,6 @@ public:
 	}
 
 protected:
+
 	Guest& _sender;
 };
