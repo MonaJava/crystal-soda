@@ -7,7 +7,7 @@ GamepadsWidget::GamepadsWidget(Hosting& hosting)
 {
 }
 
-bool GamepadsWidget::render()
+bool GamepadsWidget::render(bool& showWindow)
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 5));
 
@@ -22,7 +22,8 @@ bool GamepadsWidget::render()
     AppStyle::pushTitle();
     ImGui::SetNextWindowPos(ImVec2(974, 5), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSizeConstraints(ImVec2(300, 150), ImVec2(800, 1100));
-    ImGui::Begin("Virtual Gamepads", (bool*)0, isWindowLocked ? (ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize) : 0);
+    ImGui::Begin("Virtual Gamepads", &showWindow, isWindowLocked ? (ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize) : 0);
+    if (!showWindow) Config::cfg.widgets.gamepads = showWindow;
     AppStyle::pushInput();
     
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
@@ -249,6 +250,16 @@ bool GamepadsWidget::render()
                             if (guestIndex >= 0 && guestIndex < _hosting.getGuests().size()) {
                                 Guest& guest = _hosting.getGuests()[guestIndex];
                                 if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
+
+                                    if (Config::cfg.hotseat.enabled) {
+
+                                        if (gi->owner.guest.isValid()) {
+                                            Hotseat::instance.pauseUser(gi->owner.guest.userID);
+                                        }
+
+                                        Hotseat::instance.seatUser(guest.userID, guest.name);
+                                    }
+
                                     gi->owner.guest.copy(_hosting.getGuests()[guestIndex]);
                                 }
                             }
@@ -256,22 +267,19 @@ bool GamepadsWidget::render()
                     }
                     else if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Gamepad"))
                     {
-                        if (payload->DataSize == sizeof(int))
-                        {
+                        if (payload->DataSize == sizeof(int) && !Config::cfg.hotseat.enabled) {
                             int sourceIndex = *(const int*)payload->Data;
-                            if (sourceIndex >= 0 && sourceIndex < _gamepads.size())
-                            {
+                            if (sourceIndex >= 0 && sourceIndex < _gamepads.size()) {
                                 static GuestDevice backupOwner;
                                 backupOwner.copy(_gamepads[i]->owner);
 
                                 Guest& guest = _gamepads[sourceIndex]->owner.guest;
 
-                                if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
-                                    _gamepads[i]->copyOwner(_gamepads[sourceIndex]);
-                                    _gamepads[sourceIndex]->owner.copy(backupOwner);
-                                    _gamepads[i]->clearState();
-                                    _gamepads[sourceIndex]->clearState();
-                                }
+                                _gamepads[i]->copyOwner(_gamepads[sourceIndex]);
+                                _gamepads[sourceIndex]->owner.copy(backupOwner);
+                                _gamepads[i]->clearState();
+                                _gamepads[sourceIndex]->clearState();
+    
                             }
                         }
                     }
@@ -289,11 +297,12 @@ bool GamepadsWidget::render()
 
             ImGui::Indent(20.0f);
 
-            if (IconButton::render(AppIcons::back, AppColors::primary, ImVec2(24, 24)))
-            {
+            if (IconButton::render(AppIcons::back, AppColors::primary, ImVec2(24, 24))) {
+
                 if (!_hosting.getGamepadClient().isSlave) {
                     gi->clearOwner();
                 }
+
             }
             TitleTooltipWidget::render("Strip gamepad", "Unlink current user from this gamepad.");
 

@@ -8,6 +8,7 @@
 #include "ImGui/imgui_impl_win32.h"
 #include "ImGui/imgui_impl_dx11.h"
 #include "ImGui/imgui_colors.h"
+#include "ImGui/implot.h"
 #include <d3d11.h>
 #include <tchar.h>
 #include <Windows.h>
@@ -42,6 +43,7 @@
 #include "Widgets/HotseatWidget.h"
 #include "Widgets/TournamentWidget.h"
 #include "Widgets/KeyboardMapWidget.h"
+#include "Widgets/DeveloperWidget.h"
 
 using namespace std;
 
@@ -107,6 +109,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE hPrevInstance, _In
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigWindowsMoveFromTitleBarOnly = true;
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -148,6 +151,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE hPrevInstance, _In
     HotseatWidget hotseatWidget(g_hosting);
     TournamentWidget tournamentWidget(g_hosting);
     VersionWidget versionWidget;
+    DeveloperWidget developerWidget(g_hosting);
 
     //ChatWidget chatWindow(g_hosting);
     KeyboardMapWidget keyMapWidget(g_hosting); //-- CodeSomnia Add Start--
@@ -199,6 +203,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE hPrevInstance, _In
     bool showHotseat = Config::cfg.widgets.hotseat;
     bool showTournament = false;
     bool showKeyMap = Config::cfg.widgets.keyMapper; //-- CodeSomnia Add --
+    bool showDevTools = Config::cfg.widgets.devTools;
 
     ParsecSession& g_session = g_hosting.getSession();
 
@@ -212,11 +217,11 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE hPrevInstance, _In
     // =====================================================================
     //  Soda Arcade
     // =====================================================================
-    if (Config::cfg.arcade.token != "") {
-        Arcade::instance.checkToken(Config::cfg.arcade.token);
+    if (Arcade::instance.loadCredentials()) {
+        Arcade::instance.checkToken(Arcade::instance.credentials.token);
     }
 
-    if (Cache::cache.checkForUpdates()) {
+    if (!Config::cfg.developer.skipUpdateCheck && Cache::cache.checkForUpdates()) {
         versionWidget.showUpdate = true;
         Config::cfg.overlay.update = Cache::cache.update.overlay;
         Config::cfg.Save();
@@ -295,25 +300,26 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE hPrevInstance, _In
         }
         else
         {
-            if (showHostSettings)       hostSettingsWindow.render(hwnd);
-            if (showChat)               chatWindow.render();
-            if (showLog)                logWindow.render();
-            if (showGuests)             guestsWindow.render();
-            if (showGamepads)           gamepadsWindow.render();
-            if (showMasterOfPuppets)    masterOfPuppets.render();
-            if (showAudio)              audioSettingswidget.render();
-            if (showVideo)              videoWidget.render();
-            if (showInfo)               InfoWidget::render();
-            if (showSettings)           settingsWidget.render();
-            if (showButtonLock)         buttonLockWidget.render();
-            if (showLibrary)            libraryWidget.render();
-            if (showOverlay)            overlayWidget.render();
-            if (showHotseat)            hotseatWidget.render();
-            if (showTournament)         tournamentWidget.render();
+            if (showHostSettings)       hostSettingsWindow.render(showHostSettings, hwnd);
+            if (showChat)               chatWindow.render(showChat);
+            if (showLog)                logWindow.render(showLog);
+            if (showGuests)             guestsWindow.render(showGuests);
+            if (showGamepads)           gamepadsWindow.render(showGamepads);
+            if (showMasterOfPuppets)    masterOfPuppets.render(showMasterOfPuppets);
+            if (showAudio)              audioSettingswidget.render(showAudio);
+            if (showVideo)              videoWidget.render(showVideo);
+            if (showInfo)               InfoWidget::render(showInfo);
+            if (showSettings)           settingsWidget.render(showSettings);
+            if (showButtonLock)         buttonLockWidget.render(showButtonLock);
+            if (showLibrary)            libraryWidget.render(showLibrary);
+            if (showOverlay)            overlayWidget.render(showOverlay);
+            if (showHotseat)            hotseatWidget.render(showHotseat);
+            if (showTournament)         tournamentWidget.render(showTournament);
+            if (showDevTools)           developerWidget.render(showDevTools);
 
             //-- CodeSomnia Add Start--
             if (showKeyMap)
-                keyMapWidget.render();
+                keyMapWidget.render(showKeyMap);
             //-- CodeSomnia Add End--
             // 
             //-- CodeSomnia Moidified Start--
@@ -322,7 +328,8 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE hPrevInstance, _In
                 g_hosting,
                 showLogin, showHostSettings, showGamepads, showMasterOfPuppets, showChat,
                 showGuests, showLog, showAudio, showVideo, showInfo, showSettings,
-                showButtonLock, showLibrary, showOverlay, showHotseat, showTournament, showKeyMap
+                showButtonLock, showLibrary, showOverlay, showHotseat, showTournament, 
+                showKeyMap, showDevTools
             );
 
             //-- CodeSomnia Moidified End--
@@ -357,6 +364,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE hPrevInstance, _In
     // Cleanup
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
+    ImPlot::DestroyContext();
     ImGui::DestroyContext();
 
     // Make sure all pads completely removed
@@ -437,6 +445,16 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return true;
     switch (msg)
     {
+    case WM_MOVE:
+        if (g_hosting.mainWindow == hWnd) {
+			RECT windowRect;
+            if (GetWindowRect(hWnd, &windowRect))
+            {
+				Config::cfg.video.windowX = windowRect.left;
+				Config::cfg.video.windowY = windowRect.top;
+			}
+		}
+		break;
     case WM_SIZE:
         if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
         {
@@ -444,6 +462,15 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
             CreateRenderTarget();
         }
+
+        if (g_hosting.mainWindow == hWnd) {
+			RECT windowRect;
+            if (GetWindowRect(hWnd, &windowRect))
+            {
+				Config::cfg.video.windowW = windowRect.right - windowRect.left;
+				Config::cfg.video.windowH = windowRect.bottom - windowRect.top;
+			}
+		}
         return 0;
     case WM_SYSCOMMAND:
         if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
@@ -453,14 +480,15 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
         g_hosting.release();
         RECT windowRect;
-        if (GetWindowRect(hWnd, &windowRect))
+        /*if (GetWindowRect(hWnd, &windowRect))
         {
             Config::cfg.video.windowX = windowRect.left;
             Config::cfg.video.windowY = windowRect.top;
             Config::cfg.video.windowW = windowRect.right - windowRect.left;
             Config::cfg.video.windowH = windowRect.bottom - windowRect.top;
             Config::cfg.Save();
-        }
+        }*/
+        Config::cfg.Save();
         Sleep(1000);
         ::PostQuitMessage(0);
         return 0;

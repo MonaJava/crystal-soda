@@ -61,7 +61,9 @@ class Hosting
 public:
 	Hosting();
 	void applyHostConfig();
+	bool resizeRoom(uint32_t maxGuests);
 	void broadcastChatMessage(string message);
+	void broadcastChatMessageAndLogCommand(string message);
 	void init();
 	void release();
 	bool isReady();
@@ -92,6 +94,7 @@ public:
 	vector<AGamepad*>& getGamepads();
 	GamepadClient& getGamepadClient();
 	MasterOfPuppets& getMasterOfPuppets();
+	Hotseat& getHotseat();
 
 	const char** getGuestNames();
 	void toggleGamepadLock();
@@ -109,6 +112,7 @@ public:
 	void stripGamepad(int index);
 	void setOwner(AGamepad& gamepad, Guest newOwner, int padId);
 	void logMessage(string message);
+	void messageFromExternalSource(string source, string user, string message);
 
 	bool removeGame(string name);
 
@@ -124,6 +128,7 @@ public:
 	void sendHostMessage(const char* message, bool isHidden = false);
 
 	void addFakeGuests(int count);
+	void removeFakeGuest(int userID);
 
 	bool isHotseatEnabled();
 	void startKioskMode();
@@ -143,7 +148,6 @@ private:
 	bool _kioskModeEnabled = false;
 
 	void initAllModules();
-	void submitSilence();
 	void liveStreamMedia();
 	void mainLoopControl();
 	void pollEvents();
