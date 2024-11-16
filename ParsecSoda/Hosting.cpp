@@ -1259,7 +1259,8 @@ void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecSt
 
 			//remove from queue
 			int queueNum = MetadataCache::getGuestQueueNum(guest.userID);
-			if (queueNum > 0)
+			
+			if (queueNum > 0 and queueNum <= _gamepadClient.gamepads.size())
 			{
 				_gamepadClient.gamepads[queueNum - 1]->removeFromQueue(guest);
 			}

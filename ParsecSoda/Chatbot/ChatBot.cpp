@@ -157,7 +157,7 @@ const std::string ChatBot::formatBannedGuestMessage(Guest guest)
 const std::string ChatBot::formatModGuestMessage(Guest guest) {
 
 	std::ostringstream reply;
-	reply << Config::cfg.chatbotName + "Moderator \n\t\t" << guest.name << " \t (#" << guest.userID << ") has joined!\0";
+	reply << Config::cfg.chatbotName << "Moderator \n\t\t" << guest.name << " \t (#" << guest.userID << ") has joined!\0";
 
 	return reply.str();
 
