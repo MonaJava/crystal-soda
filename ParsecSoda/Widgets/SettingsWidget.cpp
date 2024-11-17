@@ -590,14 +590,14 @@ void SettingsWidget::renderPermissions() {
     ImGui::Text("HOTSEAT");
     AppStyle::pop();
 
-    if (ImForm::InputNumber("EXTRA TIME", _rank, 1, 9999,
+    if (ImForm::InputNumber("EXTRA TIME", _extraHotseatTime, 1, 9999,
         "Additional playtime for users with the role.")) {
         Config::cfg.permissions.role[testWord].extraHotseatTime = _extraHotseatTime;
         _extraHotseatTime = Config::cfg.permissions.role[testWord].extraHotseatTime;
         Config::cfg.Save();
     }
 
-    if (ImForm::InputNumber("SUBTRACT COOLDOWN", _rank, 1, 9999,
+    if (ImForm::InputNumber("SUBTRACT COOLDOWN", _cooldownShrink, 1, 9999,
         "Users with the role have this number subtracted from their cooldown.")) {
         Config::cfg.permissions.role[testWord].cooldownShrink = _cooldownShrink;
         _cooldownShrink = Config::cfg.permissions.role[testWord].cooldownShrink;

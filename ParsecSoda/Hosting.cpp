@@ -40,7 +40,7 @@ Hosting::Hosting() {
 	_guestRoles.loadRoles();
 	_guestRoles.saveRoles();
 	_roles.LoadFromFile();
-	_roles.SaveToFile();
+	//_roles.SaveToFile();
 
 
 	_parsec = nullptr;

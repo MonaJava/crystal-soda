@@ -22,7 +22,7 @@ using namespace std;
 				{"guest", Role("Guest", "> ", "!guest")},
 				{"mod", Role("Mod", "MOD  ", "!nonconflictingmod")},
 				{"host", Role("Host")},
-				{"z", Role("+Add Role", "ROLE ERROR?", "", "z")}
+				{"z", Role("+Add Role", "Unset ", "", "z")}
 			};
 
 			static Roles r;
