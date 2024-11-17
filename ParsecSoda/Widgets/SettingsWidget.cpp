@@ -58,7 +58,7 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
     {
         bool inVec = false;
         for (auto i : rolelist) {
-            if (i.name == it->second.name) {
+            if (i.name == it->second.name or i.name == "+Add Role") {
                 inVec = true;
                 break;
             }
@@ -83,6 +83,7 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
             }
         }
     }
+    rolelist.push_back(Role("+Add Role"));
 
 
     _prependPingLimit = false;
@@ -424,31 +425,10 @@ void SettingsWidget::renderPermissions() {
         
         ImGui::EndCombo();
     }
-    if (testWord == "z")
+    if (testWord == "+add role")
     {
 
         if (ImForm::InputText("ROLE NAME", _roleName)) {
-            /*string key = _roleName;
-            transform(key.begin(), key.end(), key.begin(), ::tolower);
-            Roles::r.list[key] = Roles::r.list[testWord];
-            Roles::r.list[key].key = key;
-            Roles::r.list[key].name = _roleName;
-
-            if (testWord == "z")
-            {
-
-                rolelist.insert(rolelist.end() - 1, Roles::r.list[key]);
-            }
-            else
-            {
-                Roles::r.list.erase(testWord);
-                rolelist[testNum].name = _roleName;
-            }
-
-            testWord = key;
-
-            Roles::r.SaveToFile();*/
-
         }
         ImGui::BeginGroup();
         AppFonts::pushLarge();
@@ -512,96 +492,24 @@ void SettingsWidget::renderPermissions() {
             Config::cfg.permissions.role[testWord].limit = !_limit;
             Config::cfg.Save();
         }
-    }
-    /*AppStyle::pushTitle();
-    ImGui::Text("Regular Guest");
-    AppStyle::pop();
 
-    if (ImForm::InputCheckbox("Can use !sfx command", _guestSFX)) {
-        Config::cfg.permissions.guest.useSFX = _guestSFX;
-        Config::cfg.Save();
-    }
+        AppStyle::pushTitle();
+        ImGui::Text("HOTSEAT");
+        AppStyle::pop();
 
-    if (ImForm::InputCheckbox("Can use !bb command", _guestBB)) {
-        Config::cfg.permissions.guest.useBB = _guestBB;
-        Config::cfg.Save();
-    }
+        if (ImForm::InputNumber("EXTRA TIME", _extraHotseatTime, 1, 9999,
+            "Additional playtime for users with the role.")) {
+            Config::cfg.permissions.role[testWord].extraHotseatTime = _extraHotseatTime;
+            _extraHotseatTime = Config::cfg.permissions.role[testWord].extraHotseatTime;
+            Config::cfg.Save();
+        }
 
-    if (ImForm::InputCheckbox("Can change keyboard controls", _guestControls)) {
-        Config::cfg.permissions.guest.changeControls = _guestControls;
-        Config::cfg.Save();
-    }
-
-    AppStyle::pushTitle();
-    ImGui::Text("VIPs");
-    AppStyle::pop();
-
-    if (ImForm::InputCheckbox("Can use !sfx command", _vipSFX)) {
-        Config::cfg.permissions.vip.useBB = _vipSFX;
-        Config::cfg.Save();
-    }
-
-    if (ImForm::InputCheckbox("Can use !bb command", _vipBB)) {
-        Config::cfg.permissions.vip.useBB = _vipBB;
-        Config::cfg.Save();
-    }
-
-    if (ImForm::InputCheckbox("Can change keyboard controls", _vipControls)) {
-        Config::cfg.permissions.vip.changeControls = _vipControls;
-        Config::cfg.Save();
-    }
-
-    AppStyle::pushTitle();
-    ImGui::Text("Moderators");
-    AppStyle::pop();
-
-    if (ImForm::InputCheckbox("Can use !sfx command", _modSFX)) {
-        Config::cfg.permissions.moderator.useSFX = _modSFX;
-        Config::cfg.Save();
-    }
-
-    if (ImForm::InputCheckbox("Can use !bb command", _modBB)) {
-        Config::cfg.permissions.moderator.useBB = _modBB;
-        Config::cfg.Save();
-    }
-
-    if (ImForm::InputCheckbox("Can change keyboard controls", _modControls)) {
-        Config::cfg.permissions.moderator.changeControls = _modControls;
-        Config::cfg.Save();
-    }
-
-    AppStyle::pushTitle();
-    ImGui::Text("Noobs");
-    AppStyle::pop();
-
-
-
-    if (ImForm::InputCheckbox("Can join room", _kickNoob)) {
-        Config::cfg.permissions.noob.kick = !_kickNoob;
-        Config::cfg.Save();
-    }
-
-    if (ImForm::InputCheckbox("Can grab pads", _limitNoob)) {
-        Config::cfg.permissions.noob.limit = !_limitNoob;
-        Config::cfg.Save();
-    }*/
-
-    AppStyle::pushTitle();
-    ImGui::Text("HOTSEAT");
-    AppStyle::pop();
-
-    if (ImForm::InputNumber("EXTRA TIME", _extraHotseatTime, 1, 9999,
-        "Additional playtime for users with the role.")) {
-        Config::cfg.permissions.role[testWord].extraHotseatTime = _extraHotseatTime;
-        _extraHotseatTime = Config::cfg.permissions.role[testWord].extraHotseatTime;
-        Config::cfg.Save();
-    }
-
-    if (ImForm::InputNumber("SUBTRACT COOLDOWN", _cooldownShrink, 1, 9999,
-        "Users with the role have this number subtracted from their cooldown.")) {
-        Config::cfg.permissions.role[testWord].cooldownShrink = _cooldownShrink;
-        _cooldownShrink = Config::cfg.permissions.role[testWord].cooldownShrink;
-        Config::cfg.Save();
+        if (ImForm::InputNumber("SUBTRACT COOLDOWN", _cooldownShrink, 1, 9999,
+            "Users with the role have this number subtracted from their cooldown.")) {
+            Config::cfg.permissions.role[testWord].cooldownShrink = _cooldownShrink;
+            _cooldownShrink = Config::cfg.permissions.role[testWord].cooldownShrink;
+            Config::cfg.Save();
+        }
     }
 
     AppStyle::pushTitle();
