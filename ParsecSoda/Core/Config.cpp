@@ -176,6 +176,8 @@ void Config::Load() {
 				permission.changeControls = it.value()["changeControls"].get<bool>();
 				permission.kick = it.value()["kick"].get<bool>();
 				permission.limit = it.value()["limit"].get<bool>();
+				permission.extraHotseatTime = it.value()["extraHotseatTime"].get<int>();
+				permission.cooldownShrink = it.value()["cooldownShrink"].get<int>();
 				cfg.permissions.role[it.value()["role"].get<string>()] = permission;
 			}
 			cfg.permissions.noobNum = setValue(cfg.permissions.noobNum, j["Permissions"]["noobNum"].get<int>());
@@ -381,6 +383,8 @@ void Config::Save() {
 		permissionJson["changeControls"] = it->second.changeControls;
 		permissionJson["kick"] = it->second.kick;
 		permissionJson["limit"] = it->second.limit;
+		permissionJson["extraHotseatTime"] = it->second.extraHotseatTime;
+		permissionJson["cooldownShrink"] = it->second.cooldownShrink;
 		permissions[it->first] = permissionJson;
 	}
 

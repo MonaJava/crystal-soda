@@ -526,7 +526,7 @@ vector<GuestRole> MetadataCache::loadGuestRoles()
                 const MTY_JSON* guest = MTY_JSONArrayGetItem(json, (uint32_t)i);
 
                 char name[128] = "";
-                uint32_t userID, tier = 0;
+                uint32_t userID, tier, extraHotseatTime, cooldownShrink, rank = 0;
                 char key[128] = "";
                 char rolename[128] = "";
                 char messageStarter[128] = "";
@@ -536,11 +536,18 @@ vector<GuestRole> MetadataCache::loadGuestRoles()
                 bool rolenameSuccess = MTY_JSONObjGetString(guest, "name", rolename, 128);
                 bool messageStarterSuccess = MTY_JSONObjGetString(guest, "message starter", messageStarter, 128);
                 bool commandSuccess = MTY_JSONObjGetString(guest, "command", command, 128);
+                bool extraHotseatTimeSuccess = MTY_JSONObjGetUInt(guest, "extraHotseatTime", &extraHotseatTime);
+                bool cooldownShrinkSuccess = MTY_JSONObjGetUInt(guest, "cooldownShrink", &cooldownShrink);
                 bool userIDSuccess = MTY_JSONObjGetUInt(guest, "userID", &userID);
+                bool rankSuccess = MTY_JSONObjGetUInt(guest, "userID", &rank);
 
 
                 if (keySuccess && userIDSuccess)
                 {
+                    Role r = Role(name, messageStarter, command, key);
+                    r.extraHotseatTime = extraHotseatTime;
+                    r.cooldownShrink = cooldownShrink;
+                    r.rank = rank;
                     result.push_back(GuestRole(userID, Role(name, messageStarter, command, key)));
                 }
             }
@@ -570,11 +577,15 @@ bool MetadataCache::saveGuestRoles(vector<GuestRole> guestRoles)
         vector<GuestRole>::iterator gi = guestRoles.begin();
         for (; gi != guestRoles.end(); ++gi)
         {
+            //I really should just do it by role name here
             MTY_JSON* guest = MTY_JSONObjCreate();
             MTY_JSONObjSetString(guest, "name", (*gi).role.name.c_str());
             MTY_JSONObjSetString(guest, "key", (*gi).role.key.c_str());
             MTY_JSONObjSetString(guest, "message starter", (*gi).role.messageStarter.c_str());
             MTY_JSONObjSetString(guest, "command", (*gi).role.commandPrefix.c_str());
+            MTY_JSONObjSetUInt(guest, "extraHotseatTime", (*gi).role.extraHotseatTime);
+            MTY_JSONObjSetUInt(guest, "cooldownShrink", (*gi).role.cooldownShrink);
+            MTY_JSONObjSetUInt(guest, "rank", (*gi).role.rank);
             MTY_JSONObjSetUInt(guest, "userID", (*gi).userID);
             MTY_JSONArrayAppendItem(json, guest);
         }

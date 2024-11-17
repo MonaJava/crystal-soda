@@ -189,6 +189,9 @@ public:
 			bool changeControls = false;
 			bool kick = false;
 			bool limit = false;
+			int extraHotseatTime = 0;
+			int cooldownShrink = 0;
+			int rank = 0;
 
 			PermissionGroup() {
 				this->useBB = false;
@@ -196,6 +199,9 @@ public:
 				this->changeControls = true;
 				this->kick = false;
 				this->limit = false;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
 			};
 			PermissionGroup(bool useBB, bool useSFX, bool changeControls) {
 				this->useBB = useBB;
@@ -203,6 +209,9 @@ public:
 				this->changeControls = useBB;
 				this->kick = false;
 				this->limit = false;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
 			};
 
 			PermissionGroup(bool useBB, bool useSFX, bool changeControls, bool kick, bool limit) {
@@ -211,16 +220,22 @@ public:
 				this->changeControls = useBB;
 				this->kick = kick;
 				this->limit = limit;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
 			};
 		};
-		PermissionGroup guest = PermissionGroup(false, false, true);
+		PermissionGroup guest = PermissionGroup(true, true, true);
 		PermissionGroup vip = PermissionGroup(true, true, true);
 		PermissionGroup moderator = PermissionGroup(true, true, true);
-		PermissionGroup noob = PermissionGroup(false, false, true, false, true);
+		PermissionGroup noob = PermissionGroup(true, true, true, false, true);
 		map<string, PermissionGroup> role = { 
 			{"guest", PermissionGroup(false, false, true) },
 			{"noob", PermissionGroup(false, false, true, false, true)},
 			{"mod", PermissionGroup(true, true, true)},
+			{"vip", PermissionGroup(true, true, true)},
+			{"host", PermissionGroup(true, true, true)},
+
 		};
 		int noobNum = 1600;
 	};

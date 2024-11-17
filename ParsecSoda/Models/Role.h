@@ -47,6 +47,9 @@ public:
 	std::string messageStarter;
 	std::string commandPrefix;
 	std::string key;
+	int extraHotseatTime;
+	int cooldownShrink;
+	int rank;
 };
 
 

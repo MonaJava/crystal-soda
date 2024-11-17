@@ -1,11 +1,15 @@
 #pragma once
 
-#include "../Base/ACommandIntegerArg.h"
+#include "../../ACommand.h"
 #include "../../../GamepadClient.h"
 
-class EmptyQueue : public ACommandIntegerArg
+class EmptyQueue : public ACommand
 {
 public:
+	/**
+	 * Example of how to use the command
+	 */
+	std::string usage = "/emptyqueue <int>";
 
 	/**
 	 * @brief Construct a new CommandSwap object
@@ -15,7 +19,7 @@ public:
 	 * @param gamepadClient
 	 */
 	EmptyQueue(const char* msg, Guest& sender, GamepadClient& gamepadClient)
-		: ACommandIntegerArg(msg, internalPrefixes()), _sender(sender), _gamepadClient(gamepadClient)
+		: ACommand(msg, sender), _sender(sender), _gamepadClient(gamepadClient)
 	{}
 
 	/**
@@ -25,20 +29,25 @@ public:
 	 * @return false
 	 */
 	bool run() override {
-		vector<Guest>& queue = _gamepadClient.gamepads[_intArg - 1]->getQueue();
-		if (!ACommandIntegerArg::run()) {
-			SetReply("Usage: /emptyqueue <integer in range [1, 4]>\nExample: /emptyqueue 4\0");
+		if (getArgs().size() == 0) {
+			setReply("Usage: /emptyqueue <int>\0");
 			return false;
 		}
+
+		
+		int _intArg;
+		_intArg = std::stoi(getArgs()[0]);
+		vector<Guest>& queue = _gamepadClient.gamepads[_intArg - 1]->getQueue();
+		
 		AGamepad* pad = nullptr;
 		if (_intArg > 0 && _intArg < _gamepadClient.gamepads.size())
 		{
 			_gamepadClient.gamepads[_intArg - 1]->eraseQueue();
-			SetReply("The queue for pad #" + to_string(_intArg) + " has been cleared.\0");
+			setReply("The queue for pad #" + to_string(_intArg) + " has been cleared.\0");
 		}
 		else
 		{
-			SetReply(_sender.name + ", your gamepad index is wrong (valid range is [1, 4]).\n"
+			setReply(_sender.name + ", your gamepad index is wrong (valid range is [1, 4]).\n"
 				+ "\t\tType !pads to see the gamepad list.\0");
 		}
 		return true;

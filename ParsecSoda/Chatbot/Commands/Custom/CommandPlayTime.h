@@ -8,7 +8,7 @@
 class CommandPlayTime : public ACommand
 {
 public:
-	std::string usage = "Usage: /playtime <username>";
+	std::string usage = "Usage: !playtime <username>";
 
 	/**
 	 * @brief Construct a new CommandPlayTime object
@@ -42,6 +42,7 @@ public:
 			setReply(target.name + " has " + Hotseat::instance.getUserTimeRemaining(target.userID)
 				+ " of play time remaining. \nTheir play time will refresh in "
 				+ Hotseat::instance.getCooldownRemaining(target.userID) + ".\0");
+			return true;
 		}
 
 
@@ -54,12 +55,12 @@ public:
 	 * @return vector<const char*> 
 	 */
 	static vector<const char*> prefixes() {
-		return vector<const char*> { "/playtime" };
+		return vector<const char*> { "!playtime" };
 	}
 
 protected:
 	static vector<const char*> internalPrefixes() {
-		return vector<const char*> { "/playtime " };
+		return vector<const char*> { "!playtime " };
 	}
 	
 	bool findGuest() {

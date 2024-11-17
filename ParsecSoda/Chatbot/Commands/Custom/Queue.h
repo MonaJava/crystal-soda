@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../../../Core/Cache.h"
-#include "../Base/ACommandIntegerArg.h"
+#include "../../ACommand.h"
 #include "../../../GamepadClient.h"
 
-class Queue : public ACommandIntegerArg
+class Queue : public ACommand
 {
 public:
 
@@ -16,7 +16,7 @@ public:
 	 * @param gamepadClient
 	 */
 	Queue(const char* msg, Guest& sender, GamepadClient& gamepadClient)
-		: ACommandIntegerArg(msg, internalPrefixes()), _sender(sender), _gamepadClient(gamepadClient)
+		: ACommand(msg, sender), _sender(sender), _gamepadClient(gamepadClient)
 	{}
 
 	/**
@@ -27,10 +27,13 @@ public:
 	 */
 	bool run() override {
 
-		if (!ACommandIntegerArg::run()) {
-			SetReply("Usage: /queue <integer in range [1, 4]>\nExample: /queue 4\0");
+		if (getArgs().size() == 0) {
+			setReply("Usage: /queue <int>\0");
 			return false;
 		}
+
+		int _intArg;
+		_intArg = std::stoi(getArgs()[0]);
 
 		bool rv = false;
 		std::ostringstream reply;

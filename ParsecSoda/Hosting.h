@@ -43,6 +43,7 @@
 #include "Modules/Tournament.h"
 #include "Modules/AutoMod.h"
 #include "Modules/Arcade.h"
+#include "Lists/Roles.h"
 
 #include <nlohmann/json.hpp>
 using namespace std;
@@ -187,6 +188,8 @@ private:
 	ParsecStatus _parsecStatus;
 	Guest _host;
 	TierList _tierList;
+	GuestRoles _guestRoles;
+	Roles _roles;
 	Macro _macro;
 	Hotseat _hotseat;
 	Tournament _tournament;

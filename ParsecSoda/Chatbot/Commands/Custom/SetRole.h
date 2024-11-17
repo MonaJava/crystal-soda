@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../../Core/Cache.h"
-#include "../Base/ACommandSearchUser.h"
+#include "../../ACommand.h"
 #include <iostream>
 #include <Windows.h>
 #include <mmsystem.h>
@@ -10,7 +10,7 @@
 
 using namespace std;
 
-class SetRole : public ACommandSearchUser
+class SetRole : public ACommand
 {
 public:
 
@@ -24,7 +24,7 @@ public:
 	 * @param guestHistory The list of offline guests
 	 */
 	SetRole(const char* msg, Guest& sender, ParsecDSO* parsec, GuestList& guests, GuestDataList& guestHistory, Role &role)
-		: ACommandSearchUser(msg, { role.commandPrefix.c_str() }, guests), _sender(sender), _parsec(parsec), _role(role)
+		: ACommand(msg, sender), _sender(sender), _parsec(parsec), _role(role), guests(guests)
 	{
 		
 	}
@@ -35,12 +35,23 @@ public:
 	 * @return true if the command was successful
 	 */
 	bool run() override {
-		ACommandSearchUser::run();
-
-		_role.commandPrefix.pop_back();
+		//ACommandSearchUser::run();
+		if (getArgs().size() == 0) {
+			setReply("Usage: " + _role.commandPrefix +" <username>\0");
+			return false;
+		}
+		if (findGuest()) {
+			GuestData targetData(target.name, target.userID);
+			return handleGuest(targetData);
+		}
+		else
+		{
+			setReply(_sender.name + ", I cannot find the user you want to make a " + _role.name + "\0");
+		}
+		//_role.commandPrefix.pop_back();
 		bool rv = false;
 
-		switch (_searchResult)
+		/*switch (_searchResult)
 		{
 		case SEARCH_USER_RESULT::NOT_FOUND:
 			SetReply(_sender.name + ", I cannot find the user you want to make a " + _role.name + "\0");
@@ -55,9 +66,9 @@ public:
 		default:
 			SetReply("Usage: " + _role.commandPrefix + " <username>\nExample: " + _role.commandPrefix + " Call_Me_Troy\0");
 			break;
-		}
+		}*/
 
-		return rv;
+		return false;
 	}
 
 
@@ -66,6 +77,8 @@ private:
 	ParsecDSO* _parsec;
 	Guest& _sender;
 	Role& _role;
+	Guest target;
+	GuestList guests;
 
 	/**
 	 * @brief Handle the guest
@@ -75,11 +88,39 @@ private:
 	 * @param guestID The guest ID
 	 * @return true if the guest was handled
 	 */
-	bool handleGuest(GuestData target, bool isOnline, uint32_t guestID = -1) {
+	bool handleGuest(GuestData target) {
 		bool result = false;
 		GuestRoles::instance.setRole(target.userID, _role);
 
-		SetReply(target.name + " is now a " + _role.name + "!\0");
+		setReply(target.name + " is now a " + _role.name + "!\0");
 		return result;
+	}
+
+	bool findGuest() {
+
+		// Get the guest
+		string guest = getArgString();
+		if (guest == "") {
+			return false;
+		}
+
+		try {
+			uint32_t id = stoul(guest);
+			vector<Guest>::iterator i;
+			for (i = guests.getGuests().begin(); i != guests.getGuests().end(); ++i) {
+				if ((*i).userID == id) {
+					target = *i;
+					return true;
+				}
+			}
+		}
+		catch (const std::exception&) {
+			bool found = guests.find(guest, &target);
+			if (found) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 };

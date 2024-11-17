@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../../Core/Cache.h"
-#include "../Base/ACommandSearchUserHistory.h"
+#include "../../ACommand.h"
 #include <iostream>
 #include <Windows.h>
 #include <mmsystem.h>
@@ -10,7 +10,7 @@
 
 using namespace std;
 
-class Pleb : public ACommandSearchUserHistory
+class Pleb : public ACommand
 {
 public:
 
@@ -24,7 +24,7 @@ public:
 	 * @param guestHistory The list of offline guests
 	 */
 	Pleb(const char* msg, Guest& sender, ParsecDSO* parsec, GuestList& guests, GuestDataList& guestHistory, GamepadClient& gamepadClient)
-		: ACommandSearchUserHistory(msg, internalPrefixes(), guests, guestHistory), _sender(sender), _parsec(parsec), _gamepadClient(gamepadClient)
+		: ACommand(msg, sender), _sender(sender), _parsec(parsec), _gamepadClient(gamepadClient), guests(guests), guesthistory(guestHistory)
 	{
 	}
 
@@ -33,7 +33,7 @@ public:
 	 * @return true if the command was successful
 	 */
 	bool run() override {
-		ACommandSearchUserHistory::run();
+		/*ACommandSearchUserHistory::run();
 
 		bool rv = false;
 
@@ -58,8 +58,8 @@ public:
 			SetReply("Usage: /unnoob <username>\nExample: /unnoob Call_Me_Troy\0");
 			break;
 		}
-
-		return rv;
+		*/
+		return true;
 	}
 
 	/**
@@ -79,6 +79,8 @@ private:
 	ParsecDSO* _parsec;
 	Guest& _sender;
 	GamepadClient& _gamepadClient;
+	GuestList guests;
+	GuestDataList guesthistory;
 
 	/**
 	 * @brief Handle the guest
@@ -92,9 +94,9 @@ private:
 		bool result = false;
 
 		if (_sender.userID == target.userID) {
-			SetReply("Skibidi sigma rizz, " + _sender.name + "!\0");
+			setReply("Skibidi sigma rizz, " + _sender.name + "!\0");
 		} else {
-			SetReply(_sender.name + " has made " + target.name + " a non-noob!\0");
+			setReply(_sender.name + " has made " + target.name + " a non-noob!\0");
 			_gamepadClient.setLimit(target.userID, 1);
 
 			if (Cache::cache.noobExemptList.Add(target)) {

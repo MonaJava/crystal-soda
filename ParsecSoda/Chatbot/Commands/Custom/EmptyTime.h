@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../Base/ACommand.h"
+
 #include "../../../Modules/Hotseat.h"
 #include "../../../GuestList.h"
+#include "../../ACommand.h"
 
-class EmptyTime : public ACommand2
+class EmptyTime : public ACommand
 {
 public:
 
@@ -14,8 +15,8 @@ public:
 	 * @param guests
 	 * @param padClient
 	 */
-	EmptyTime(Guest& sender) 
-		: _sender(sender)
+	EmptyTime(const char* msg, Guest& sender)
+		: ACommand(msg, sender), _sender(sender)
 	{}
 
 	/**
@@ -23,8 +24,9 @@ public:
 	 * @return true if the command was successful
 	 */
 	bool run() override {
+		Hotseat::instance.seatUser(_sender.userID, _sender.name);
 		Hotseat::instance.reduceUserPlaytime(_sender.userID, 999);
-		SetReply(_sender.name + " has given up his remaining playtime\0");
+		setReply(_sender.name + " has given up his remaining playtime\0");
 		return true;
 	}
 

@@ -9,6 +9,7 @@
 #include "../Lists/VIPList.h"
 #include "../Lists/SFXList.h"
 #include "../Lists/NoobExemptList.h"
+#include "../Lists/Roles.h"
 
 struct IPRange {
     uint32_t start;
@@ -75,6 +76,8 @@ public:
     GameDataList gameList; // Host's list of games
     SFXList sfxList; // List of SFX
     NoobExemptList noobExemptList; // List of noob exempts
+    Roles roles;
+    GuestRoles guestRoles;
 
 	std::string pendingIpAddress; // This holds the last recorded IP address of a user
     std::string lastIpAddress; // This holds the last recorded IP address of a user

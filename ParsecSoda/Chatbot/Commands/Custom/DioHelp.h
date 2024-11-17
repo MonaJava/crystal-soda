@@ -1,27 +1,28 @@
 #pragma once
 
-#include "../Base/ACommand.h"
+#include "../../ACommand.h"
 
 using namespace std;
 
-class DioHelp : public ACommand2
+class DioHelp : public ACommand
 {
 public:
-
+	
 	/**
 	 * @brief Construct a new DioHelp object
 	 *
 	 * @param sender
 	 */
-	DioHelp()
-	{}
+	DioHelp(const char* msg, Guest& sender)
+		: ACommand(msg, sender)
+	{} 
 
 	/**
 	 * @brief Run the command
 	 * @return true if the command was successful
 	 */
 	bool run() override {
-		_replyMessage = Config::cfg.chatbotName + "/queue <num>, /listqueue <num>, /exitqueue, /startcooldown, /tts <text>, /version\n\Mods: /unnoob <guest>, /emptyqueue <num>";
+		_replyMessage = Config::cfg.chatbotName + "/queue <num>, /listqueue <num>, /exitqueue, /startcooldown, /tts <text>, /version\n\Mods: /emptyqueue <num>";
 		return true;
 	}
 

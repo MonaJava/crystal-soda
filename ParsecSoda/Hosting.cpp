@@ -37,6 +37,11 @@ Hosting::Hosting() {
 	
 	_tierList.loadTiers();
 	_tierList.saveTiers();
+	_guestRoles.loadRoles();
+	_guestRoles.saveRoles();
+	_roles.LoadFromFile();
+	_roles.SaveToFile();
+
 
 	_parsec = nullptr;
 
@@ -1020,7 +1025,7 @@ void Hosting::handleNewGuests() {
 			Tier tier = Cache::cache.tierList.getTier(newGuest.guest.userID);
 			// Welcome message
 			string msg = Config::cfg.chat.welcomeMessage;
-			if((newGuest.guest.userID > Config::cfg.permissions.noobNum * 10000) && Config::cfg.permissions.noob.limit)
+			if((newGuest.guest.userID > Config::cfg.permissions.noobNum * 10000) && Config::cfg.permissions.role["noob"].limit)
 				msg = msg + "\n[NEWBIE] This room does not allow accounts made recently to play. Feel free to spectate and chat!";
 			msg = regex_replace(msg, regex("_PLAYER_"), newGuest.guest.name);
 			ParsecHostSendUserData(_parsec, newGuestList.front().guest.id, HOSTING_CHAT_MSG_ID, msg.c_str());
@@ -1202,6 +1207,33 @@ void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecSt
 			return;
 		}
 
+		// Is this a noob?
+		else if (guest.userID > Config::cfg.permissions.noobNum * 10000
+			and _guestRoles.getRole(guest.userID).key == "guest")
+		{
+			_tierList.setTier(guest.userID, Tier::NOOB);
+			_guestRoles.setRole(guest.userID, _roles.list["noob"]);
+
+			//Do we want to limit noobs?
+			//if (Config::cfg.permissions.role[_guestRoles.getRole(guest.userID).key].limit)
+			//{
+			//	_gamepadClient.setLimit(guest.userID, 0);
+			//} //Lets set this in welcome message
+		}
+		else if (guest.userID < Config::cfg.permissions.noobNum * 10000
+			and _guestRoles.getRole(guest.userID).key == "noob") {
+			_tierList.setTier(guest.userID, Tier::GUEST);
+			_guestRoles.setRole(guest.userID, _roles.list["guest"]);
+		}
+
+		//Is this a role we want to kick?
+		if (Config::cfg.permissions.role[_guestRoles.getRole(guest.userID).key].kick)
+		{
+			ParsecHostKickGuest(_parsec, guest.id);
+			broadcastChatMessageAndLogCommand(Config::cfg.chatbotName + "Kicked a " + _guestRoles.getRole(guest.userID).name + ": " + guest.name);
+			return;
+		}
+
 		if (state == GUEST_CONNECTED) {
 			if (Cache::cache.modList.isModded(guest.userID)) {
 				_tierList.setTier(guest.userID, Tier::MOD);
@@ -1210,42 +1242,23 @@ void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecSt
 			else logMessage = _chatBot->formatGuestConnection(guest, state, status);
 			broadcastChatMessageAndLogCommand(logMessage);
 
-			// Is this guest pretending to be someone else?	
-				// Is this a noob?
-				if ((state == GUEST_CONNECTED || state == GUEST_CONNECTING) && (guest.userID > Config::cfg.permissions.noobNum * 10000)
-					and !Cache::cache.noobExemptList.inList(guest.userID)) 
-				{
-					_tierList.setTier(guest.userID, Tier::NOOB);
-					//Do we want to ban noobs?
-					if (Config::cfg.permissions.noob.kick)
-					{
-						ParsecHostKickGuest(_parsec, guest.id);
-						broadcastChatMessage(Config::cfg.chatbotName + "Kicked a noob: " + guest.name);
-						_chatLog.logMessage(Config::cfg.chatbotName + "Kicked a noob: " + guest.name);
-					}
-					else
-					{
-						//_guestHistory.add(data);
-						MetadataCache::addActiveGuest(guest);
-					}
+			// Is the connecting guest the host?
+			if (_host.userID == guest.userID) {
+				_tierList.setTier(guest.userID, Tier::GOD);
+			}
 
-						addNewGuest(guest);
+			// Add to guest history
+			_guestHistory.add(guestData);
+			MetadataCache::addActiveGuest(guest);
 
-					//Do we want to limit noobs?
-					if (Config::cfg.permissions.noob.limit)
-					{
-						_gamepadClient.setLimit(guest.userID, 0);
-					}
-				}
-				else {
-					_tierList.setTier(guest.userID, Tier::PLEB);
-					// Add to guest history
-					//_guestHistory.add(data);
-					MetadataCache::addActiveGuest(guest);
-
-					// Show welcome message
-					addNewGuest(guest);
-				}
+			// Show welcome message
+			addNewGuest(guest);
+			if (Config::cfg.permissions.role[_guestRoles.getRole(guest.userID).key].limit)
+			{
+				_gamepadClient.setLimit(guest.userID, 0);
+			}
+				
+				
 
 			// Update the guest count on Soda Arcade
 			if (!Config::cfg.room.privateRoom) {

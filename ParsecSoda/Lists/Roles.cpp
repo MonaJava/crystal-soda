@@ -25,14 +25,23 @@ map<string, Role> Roles::LoadFromFile() {
                 char messageStarter[128] = "";
                 char commandPrefix[128] = "";
                 char key[128] = "";
+                uint32_t extraHotseatTime = 0;
+                uint32_t cooldownShrink = 0;
+                uint32_t rank = 0;
 
                 bool nameSuccess = MTY_JSONObjGetString(role, "name", name, 128);
                 bool messageStarterSuccess = MTY_JSONObjGetString(role, "messageStarter", messageStarter, 128);
                 bool commandPrefixSuccess = MTY_JSONObjGetString(role, "commandPrefix", commandPrefix, 128);
                 bool keySuccess = MTY_JSONObjGetString(role, "key", key, 128);
+                bool extraHotseatTimeSuccess = MTY_JSONObjGetUInt(role, "extraHotseatTime", &extraHotseatTime);
+                bool cooldownShrinkSuccess = MTY_JSONObjGetUInt(role, "cooldownShrink", &cooldownShrink);
+                bool rankSuccess = MTY_JSONObjGetUInt(role, "rank", &rank);
 
                 if (nameSuccess && messageStarterSuccess && commandPrefixSuccess && keySuccess) {
                     result[key] = Role(name, messageStarter, commandPrefix, key);
+                    result[key].extraHotseatTime = extraHotseatTime;
+                    result[key].cooldownShrink = cooldownShrink;
+                    result[key].rank = rank;
                 }
             }
             MTY_JSONDestroy(&json);
@@ -63,6 +72,9 @@ bool Roles::SaveToFile() {
             MTY_JSONObjSetString(role, "messageStarter", (*gi).second.messageStarter.c_str());
             MTY_JSONObjSetString(role, "commandPrefix", (*gi).second.commandPrefix.c_str());
             MTY_JSONObjSetString(role, "key", (*gi).first.c_str());
+            MTY_JSONObjSetUInt(role, "extraHotseatTime", (*gi).second.extraHotseatTime);
+            MTY_JSONObjSetUInt(role, "cooldownShrink", (*gi).second.cooldownShrink);
+            MTY_JSONObjSetUInt(role, "rank", (*gi).second.rank);
             MTY_JSONArrayAppendItem(json, role);
         }
 

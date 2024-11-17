@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../Base/ACommandIntegerArg.h"
+#include "../../ACommand.h"
 #include "../../../GamepadClient.h"
 
-class ListQueue : public ACommandIntegerArg
+class ListQueue : public ACommand
 {
 public:
 
@@ -15,7 +15,7 @@ public:
 	 * @param gamepadClient
 	 */
 	ListQueue(const char* msg, Guest& sender, GamepadClient& gamepadClient)
-		: ACommandIntegerArg(msg, internalPrefixes()), _sender(sender), _gamepadClient(gamepadClient)
+		: ACommand(msg, sender), _sender(sender), _gamepadClient(gamepadClient)
 	{}
 
 	/**
@@ -26,13 +26,16 @@ public:
 	 */
 	bool run() override {
 
-		if (!ACommandIntegerArg::run()) {
-			SetReply("Usage: /listqueue <integer in range [1, 4]>\nExample: /listqueue 4\0");
+		if (getArgs().size() == 0) {
+			setReply("Usage: /listqueue <int>\0");
 			return false;
 		}
 
 		bool rv = false;
 		std::ostringstream reply;
+
+		int _intArg;
+		_intArg = std::stoi(getArgs()[0]);
 
 		if (_intArg > 0 && _intArg <= _gamepadClient.gamepads.size())
 		{

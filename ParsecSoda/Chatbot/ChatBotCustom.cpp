@@ -19,12 +19,17 @@
 #include "Commands/Custom/DioHelp.h"
 #include "Commands/Custom/DioVersion.h"
 #include "Commands/Custom/SetRole.h"
+#include "Commands/Custom/CommandPlayTime.h"
 
 /**
 * This function is where you check to see if the
 * message matches your command prefixes.
 **/
 ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool isHost, Tier tier, uint32_t previous) {
+	/*if (isCommand(msg, YourCommandClass::prefixes())) {
+	return new YourCommandClass(msg, sender, _parsec, _guests, _guestHistory);
+}*/
+
 	string role = "guest";
 	switch (tier)
 	{
@@ -40,18 +45,18 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 		default:
 			role = "guest";
 	}
-	//if (msgIsEqual(msg, YourCommandClass::prefixes()))	return new YourCommandClass(sender, _gamepadClient, _macro);
-		
-	/*if (isCommand(msg, YourCommandClass::prefixes())) {
-		return new YourCommandClass(msg, sender, _parsec, _guests, _guestHistory);
-	}*/
+
+	Role r = GuestRoles::instance.getRole(sender.userID);
+	role = r.key;
+
+	if (isCommand(msg, CommandPlayTime::prefixes())) return new CommandPlayTime(msg, sender, _guests);
 	
-	/*if (msgIsEqual(msg, EmptyTime::prefixes()))		return new EmptyTime(sender);
-	if (msgStartsWith(msg, Queue::prefixes()))		return new Queue(msg, sender, _gamepadClient);
-	if (msgStartsWith(msg, ListQueue::prefixes()))	return new ListQueue(msg, sender, _gamepadClient);
-	if (msgIsEqual(msg, ExitQueue::prefixes()))		return new ExitQueue(sender, _gamepadClient);
-	if (msgIsEqual(msg, DioHelp::prefixes()))		return new DioHelp();
-	if (msgIsEqual(msg, DioVersion::prefixes()))	return new DioVersion();*/
+	if (isCommand(msg, EmptyTime::prefixes()))		return new EmptyTime(msg, sender);
+	if (isCommand(msg, Queue::prefixes()))		return new Queue(msg, sender, _gamepadClient);
+	if (isCommand(msg, ListQueue::prefixes()))	return new ListQueue(msg, sender, _gamepadClient);
+	if (isCommand(msg, ExitQueue::prefixes()))		return new ExitQueue(msg, sender, _gamepadClient);
+	if (isCommand(msg, DioHelp::prefixes()))		return new DioHelp(msg, sender);
+	if (isCommand(msg, DioVersion::prefixes()))	return new DioVersion(msg, sender);
 
 	/*
 	ADMIN COMMANDS
@@ -59,8 +64,8 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	"ADMIN" tier. The host has the "GOD" tier.
 	*/
 	if (tier >= Tier::ADMIN || isHost) {
-		//if (msgStartsWith(msg, EmptyQueue::prefixes()))		return new EmptyQueue(msg, sender, _gamepadClient);
-		//if (msgStartsWith(msg, Pleb::prefixes()))			return new Pleb(msg, sender, _parsec, _guests, _guestHistory, _gamepadClient);
+		if (isCommand(msg, EmptyQueue::prefixes()))		return new EmptyQueue(msg, sender, _gamepadClient);
+		if (isCommand(msg, Pleb::prefixes()))			return new Pleb(msg, sender, _parsec, _guests, _guestHistory, _gamepadClient);
 
 	}
 
@@ -68,7 +73,7 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	HOST COMMANDS
 	Only the host can use these commands. The host has the "GOD" tier.
 	*/
-	if (tier >= Tier::GOD || isHost) {
+	if (tier >= Tier::ADMIN || isHost) {
 
 		map<string, Role>::iterator it;
 
@@ -78,9 +83,8 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 			int len = it->second.commandPrefix.length();
 			if (!roleprefix.empty() && len >= 4)
 			{
-				if (msgStartsWith(msg, roleprefix)) {
-					it->second.commandPrefix.push_back(' ');
-					//return new SetRole(msg, sender, _parsec, _guests, _guestHistory, it->second);
+				if (isCommand(msg, roleprefix)) {
+					return new SetRole(msg, sender, _parsec, _guests, _guestHistory, it->second);
 				}
 			}
 		}
@@ -92,7 +96,7 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	*/
 	if (Config::cfg.permissions.role[role].useSFX)
 	{
-		//if (msgStartsWith(msg, TTS::prefixes()))		return new TTS(msg, sender);
+		if (msgStartsWith(msg, TTS::prefixes()))		return new TTS(msg, sender);
 	}
 
 	// Returns a default message if no custom command is found, so the bot can still respond.
@@ -105,7 +109,25 @@ Add all the help/descriptions for the commands.
 void ChatBotCustom::addHelp() {
 
 	//addCmdHelp("!yourcommand", "Description", Tier::GUEST);
+	addCmdHelp("/help", "lists Dio's commands", Tier::GUEST);
+	addCmdHelp("/version", "ill change this every time theres a significant update", Tier::GUEST);
+	addCmdHelp("/startcooldown", "removes all your hotseat playtime", Tier::GUEST);
+	addCmdHelp("/queue", "reserves a gamepad for you to use when the owner drops", Tier::GUEST);
+	addCmdHelp("/listqueue", "shows who's in a queue", Tier::GUEST);
+	addCmdHelp("/exitqueue", "exits the queue", Tier::GUEST);
+	addCmdHelp("/tts", "text to speech", Tier::GUEST);
+	addCmdHelp("/emptyqueue", "removes all users from the queue of a gamepad", Tier::MOD);
+	map<string, Role>::iterator it;
 
+	for (it = Roles::r.list.begin(); it != Roles::r.list.end(); it++)
+	{
+		string roleprefix =  it->second.commandPrefix;
+		int len = roleprefix.length();
+		if (len >= 4)
+		{
+			addCmdHelp(roleprefix, "Sets a user's role to " + it->second.name, Tier::GOD);
+		}
+	}
 }
 
 /**

@@ -77,6 +77,9 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
                 _controls = Config::cfg.permissions.role[it->first].changeControls;
                 _kick = !Config::cfg.permissions.role[it->first].kick;
                 _limit = !Config::cfg.permissions.role[it->first].limit;
+                _extraHotseatTime = Config::cfg.permissions.role[it->first].extraHotseatTime;
+                _cooldownShrink = Config::cfg.permissions.role[it->first].cooldownShrink;
+                _rank = Config::cfg.permissions.role[it->first].rank;
             }
         }
     }
@@ -409,6 +412,9 @@ void SettingsWidget::renderPermissions() {
                 _controls = Config::cfg.permissions.role[testWord].changeControls;
                 _kick = !Config::cfg.permissions.role[testWord].kick;
                 _limit = !Config::cfg.permissions.role[testWord].limit;
+                _extraHotseatTime = Config::cfg.permissions.role[testWord].extraHotseatTime;
+                _cooldownShrink = Config::cfg.permissions.role[testWord].cooldownShrink;
+                _rank = Config::cfg.permissions.role[testWord].rank;
             }
             if (isSelected) {
                 ImGui::SetItemDefaultFocus();
@@ -421,8 +427,8 @@ void SettingsWidget::renderPermissions() {
     if (testWord == "z")
     {
 
-        if (ImForm::InputText("ROLE NAME", _roleName, "Paste the rolename from clipboard cause my code is dumb")) {
-            string key = _roleName;
+        if (ImForm::InputText("ROLE NAME", _roleName)) {
+            /*string key = _roleName;
             transform(key.begin(), key.end(), key.begin(), ::tolower);
             Roles::r.list[key] = Roles::r.list[testWord];
             Roles::r.list[key].key = key;
@@ -441,45 +447,71 @@ void SettingsWidget::renderPermissions() {
 
             testWord = key;
 
-            Roles::r.SaveToFile();
+            Roles::r.SaveToFile();*/
 
         }
+        ImGui::BeginGroup();
+        AppFonts::pushLarge();
+        AppColors::pushButtonSolid();
+        if (ImGui::Button("ADD ROLE")) {       
+            string key = _roleName;
+            transform(key.begin(), key.end(), key.begin(), ::tolower);
+            Roles::r.list[key] = Role(_roleName);
+            //Roles::r.list[key].key = key;
+            //Roles::r.list[key].name = _roleName;
+            rolelist.insert(rolelist.end() - 1, Roles::r.list[key]);
+            testWord = key;
+
+            Roles::r.SaveToFile();
+        }
+        AppColors::popButton();
+        AppFonts::pop();
+        ImGui::EndGroup();
     }
+    else
+    {
 
-    if (ImForm::InputText("CHAT IDENTIFIER", _messageStarter, "This will come before the username for every post made with the role")) {
-        Roles::r.list[testWord].messageStarter = _messageStarter;
-        Roles::r.SaveToFile();
-    }
+        if (ImForm::InputText("CHAT IDENTIFIER", _messageStarter, "This will come before the username for every post made with the role")) {
+            Roles::r.list[testWord].messageStarter = _messageStarter;
+            Roles::r.SaveToFile();
+        }
 
-    if (ImForm::InputText("COMMAND", _commandPrefix, "The chat command to give someone this role. Must be 4+ characters long!")) {
-        Roles::r.list[testWord].commandPrefix = _commandPrefix;
-        Roles::r.SaveToFile();
-    }
+        if (ImForm::InputText("COMMAND", _commandPrefix, "The chat command to give someone this role. Must be 4+ characters long!")) {
+            Roles::r.list[testWord].commandPrefix = _commandPrefix;
+            Roles::r.SaveToFile();
+        }
 
+        if (ImForm::InputNumber("RANK", _rank, 1, 9999,
+            "Higher rank role immune to mod command from lower rank role when I get around to coding that part.")) {
+            Config::cfg.permissions.role[testWord].rank = _rank;
+            _rank = Config::cfg.permissions.role[testWord].rank;
+            Config::cfg.Save();
+        }
 
-    if (ImForm::InputCheckbox("Can use !sfx command", _SFX)) {
-        Config::cfg.permissions.role[testWord].useSFX = _SFX;
-        Config::cfg.Save();
-    }
+        if (ImForm::InputCheckbox("Can use !sfx command", _SFX)) {
+            Config::cfg.permissions.role[testWord].useSFX = _SFX;
+            Config::cfg.Save();
+        }
 
-    if (ImForm::InputCheckbox("Can use !bb command", _BB)) {
-        Config::cfg.permissions.role[testWord].useBB = _BB;
-        Config::cfg.Save();
-    }
+        if (ImForm::InputCheckbox("Can use !bb command", _BB)) {
+            Config::cfg.permissions.role[testWord].useBB = _BB;
+            Config::cfg.Save();
+        }
 
-    if (ImForm::InputCheckbox("Can change keyboard controls", _controls)) {
-        Config::cfg.permissions.role[testWord].changeControls = _controls;
-        Config::cfg.Save();
-    }
+        /*if (ImForm::InputCheckbox("Can change keyboard controls", _controls)) {
+            Config::cfg.permissions.role[testWord].changeControls = _controls;
+            Config::cfg.Save();
+        }*/
 
-    if (ImForm::InputCheckbox("Can join room", _kick)) {
-        Config::cfg.permissions.role[testWord].kick = !_kick;
-        Config::cfg.Save();
-    }
+        if (ImForm::InputCheckbox("Can join room", _kick)) {
+            Config::cfg.permissions.role[testWord].kick = !_kick;
+            Config::cfg.Save();
+        }
 
-    if (ImForm::InputCheckbox("Can grab pads", _limit)) {
-        Config::cfg.permissions.role[testWord].limit = !_limit;
-        Config::cfg.Save();
+        if (ImForm::InputCheckbox("Can grab pads", _limit)) {
+            Config::cfg.permissions.role[testWord].limit = !_limit;
+            Config::cfg.Save();
+        }
     }
     /*AppStyle::pushTitle();
     ImGui::Text("Regular Guest");
@@ -553,6 +585,24 @@ void SettingsWidget::renderPermissions() {
         Config::cfg.permissions.noob.limit = !_limitNoob;
         Config::cfg.Save();
     }*/
+
+    AppStyle::pushTitle();
+    ImGui::Text("HOTSEAT");
+    AppStyle::pop();
+
+    if (ImForm::InputNumber("EXTRA TIME", _rank, 1, 9999,
+        "Additional playtime for users with the role.")) {
+        Config::cfg.permissions.role[testWord].extraHotseatTime = _extraHotseatTime;
+        _extraHotseatTime = Config::cfg.permissions.role[testWord].extraHotseatTime;
+        Config::cfg.Save();
+    }
+
+    if (ImForm::InputNumber("SUBTRACT COOLDOWN", _rank, 1, 9999,
+        "Users with the role have this number subtracted from their cooldown.")) {
+        Config::cfg.permissions.role[testWord].cooldownShrink = _cooldownShrink;
+        _cooldownShrink = Config::cfg.permissions.role[testWord].cooldownShrink;
+        Config::cfg.Save();
+    }
 
     AppStyle::pushTitle();
     ImGui::Text("MISC");

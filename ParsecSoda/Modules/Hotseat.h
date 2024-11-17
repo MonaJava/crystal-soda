@@ -12,6 +12,7 @@
 #include <ctime>
 #include "../Helpers/StopwatchTimer.h"
 #include "../Models/GuestData.h"
+#include "../Lists/Roles.h"
 
 #include <nlohmann/json.hpp>
 using namespace std;

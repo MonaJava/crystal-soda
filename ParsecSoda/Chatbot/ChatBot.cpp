@@ -1,11 +1,13 @@
 #include "ChatBot.h"
 
+
 ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool isHost) {
 	const uint32_t previous = this->_lastUserId;
 	setLastUserId(BOT_GUESTID);
 
 	// Get the user's tier and permissions
 	Tier tier = Cache::cache.tierList.getTier(sender.userID);
+	Role role = GuestRoles::instance.getRole(sender.userID);
 
 	// Is this a Soda Cop, laying down the law?
 	if (!isHost && Cache::cache.isSodaCop(sender.userID)) {
@@ -36,9 +38,11 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 	if (isCommand(msg, Command8Ball::prefixes())) {
 		return new Command8Ball(msg, sender);
 	}
-
-	if (isCommand(msg, CommandBB::prefixes())) {
-		return new CommandBB(msg, sender, _gamepadClient, _macro);
+	if (Config::cfg.permissions.role[role.key].useBB)
+	{
+		if (isCommand(msg, CommandBB::prefixes())) {
+			return new CommandBB(msg, sender, _gamepadClient, _macro);
+		}
 	}
 
 	if (isCommand(msg, CommandBonk::prefixes())) {
@@ -101,12 +105,15 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 		return new CommandRollCall(msg, sender, _guests);
 	}
 
-	if (isCommand(msg, CommandSFX::prefixes())) {
-		return new CommandSFX(msg, sender);
-	}
+	if (Config::cfg.permissions.role[role.key].useSFX)
+	{
+		if (isCommand(msg, CommandSFX::prefixes())) {
+			return new CommandSFX(msg, sender);
+		}
 
-	if (isCommand(msg, CommandStopSFX::prefixes())) {
-		return new CommandStopSFX(msg, sender);
+		if (isCommand(msg, CommandStopSFX::prefixes())) {
+			return new CommandStopSFX(msg, sender);
+		}
 	}
 	//if (isCommand(msg, CommandPlay))
 
@@ -143,6 +150,9 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 		}
 		if (isCommand(msg, CommandLockAll::prefixes())) {
 			return new CommandLockAll(msg, sender, _gamepadClient);
+		}
+		if (isCommand(msg, CommandLimit::prefixes())) {
+			return new CommandLimit(msg, sender, _guests, _gamepadClient);
 		}
 		if (isCommand(msg, CommandMute::prefixes())) {
 			return new CommandMute(msg, sender, _guests, _host);

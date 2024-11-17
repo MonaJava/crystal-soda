@@ -1,14 +1,14 @@
 #pragma once
 #pragma once
 
-#include "../Base/ACommandStringArg.h"
+#include "../../ACommand.h"
 #include "../../../GuestList.h"
 
 #include <sapi.h>
 #include <sstream>
 
 
-class TTS : public ACommandStringArg
+class TTS : public ACommand
 {
 public:
 	/**
@@ -18,7 +18,7 @@ public:
 	 * @param padClient
 	 */
 	TTS(const char* msg, Guest& sender)
-		: ACommandStringArg(msg, internalPrefixes()), _sender(sender)
+		: ACommand(msg, sender), _sender(sender)
 	{}
 
 	/**
@@ -27,16 +27,17 @@ public:
 	 */
 	bool run() override {
 
-		if (!ACommandStringArg::run()) {
+		if (getArgs().size() == 0) {
+			setReply("Usage: /tts <string>\0");
 			return false;
-			}
+		}
 
 		ISpVoice * pVoice = NULL;
 
 		if (FAILED(::CoInitialize(NULL)))
 			return false;
 
-		
+		string _stringArg = getArgString();
 		std::string narrow = _stringArg;
 		std::wstring wide = L"";
 		std::wstringstream cls;

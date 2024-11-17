@@ -94,10 +94,6 @@ void Hotseat::start() {
 							// Pause the user
 							user.inSeat = false;
                             user.cooldown = true;
-                            //dio: Start this when grabbed pad, if larger than minimum set to minimum
-                            user.cooldownTimer->start(Config::cfg.hotseat.resetTime);
-
-							//dio: why are we still using this again?
                             user.timeLastPlayed = getCurrentTimestamp();
 
                             // Strip pads
@@ -258,10 +254,13 @@ void Hotseat::removeUser(int id) {
  * @return True if seating is successful; otherwise, false.
  */
 bool Hotseat::seatUser(int id, string name) {
-		
 
     // Find user
 	HotseatUser* user = getUser(id);
+	Role role = GuestRoles::instance.getRole(user->userId);
+	int exTime = Config::cfg.permissions.role[role.key].extraHotseatTime;
+	int subCool = Config::cfg.permissions.role[role.key].cooldownShrink;
+	
 	if (user != nullptr) {
 
 		// Is the user already seated?
@@ -277,8 +276,12 @@ bool Hotseat::seatUser(int id, string name) {
 
 		// Start the stopwatch
 		user->stopwatch->resume();
-		//increase cooldown timer to minimum if higher
-					
+		user->cooldownTimer->resume();
+
+		if ((user->stopwatch->getRemainingSec() + user->cooldownTimer->getRemainingSec()) > (Config::cfg.hotseat.minResetTime - subCool) * 60)
+		{
+			user->cooldownTimer->start(user->stopwatch->getRemainingSec() / 60 + Config::cfg.hotseat.minResetTime - subCool);
+		}
 
 		return true;
 	}
@@ -291,10 +294,11 @@ bool Hotseat::seatUser(int id, string name) {
 		// Seat the user
 		user = getUser(id);
 		user->inSeat = true;
-		user->stopwatch->start(Config::cfg.hotseat.playTime);
+		user->stopwatch->start(Config::cfg.hotseat.playTime + exTime);
+		user->cooldownTimer->start(Config::cfg.hotseat.resetTime - subCool);
 		user->timeLastPlayed = getCurrentTimestamp();
 		log(name + " is now in the hotseat. They have " + getUserTimeRemaining(user->userId) + " remaining.");
-		//gonna have to start cooldown timer here
+		
 
 		return true;
 	}
@@ -324,8 +328,6 @@ void Hotseat::pauseUser(int id) {
 
 			// Did the user have time remaining?
 			if (user->stopwatch->getRemainingMs() > 0) {
-				// Set cooldown to minimum if its below it
-				//user->cooldowntimer->start()
 
 				// Log user paused
 				log("User " + user->userName + " left the seat with " + user->stopwatch->getRemainingTime() + " remaining.");
@@ -465,8 +467,13 @@ string Hotseat::getCooldownRemaining(int id) {
 
     // Formats the time remaining to 00m 00s format
     HotseatUser* user = getUser(id);
+	Role role = GuestRoles::instance.getRole(user->userId);
+	int subCool = Config::cfg.permissions.role[role.key].cooldownShrink;
+
     if (user != nullptr) {
         int remainingSec = user->cooldownTimer->getRemainingSec();
+		if ((remainingSec + user->stopwatch->getRemainingSec()) < (Config::cfg.hotseat.minResetTime - subCool))		
+			remainingSec = (Config::cfg.hotseat.minResetTime - subCool) * 60;
         int minutes = remainingSec / 60;
         int seconds = remainingSec % 60;
         return std::to_string(minutes) + "m " + std::to_string(seconds) + "s";
@@ -553,11 +560,12 @@ std::time_t Hotseat::subtractMinutesFromTimestamp(std::time_t timestamp, int min
  */
 void Hotseat::log(string message) {
 
-    // Format message
-    
+    // Format message 
     string msg = "[HOTSEAT] ";
     msg += message;
 
-	
+	// Print message
+	g_hosting.logMessage(msg);
+	g_hosting.broadcastChatMessage(msg);
 	
 }

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "../../../Core/Cache.h"
-#include "../Base/ACommand.h"
+#include "../../ACommand.h"
 
 using namespace std;
 
-class DioVersion : public ACommand2
+class DioVersion : public ACommand
 {
 public:
 
@@ -14,7 +14,8 @@ public:
 	 *
 	 * @param sender
 	 */
-	DioVersion()
+	DioVersion(const char* msg, Guest& sender)
+		: ACommand(msg, sender)
 	{}
 
 	/**
@@ -23,7 +24,7 @@ public:
 	 */
 	bool run() override {
 
-		SetReply("Fixed leavebug and pulled mickey's updates");
+		setReply("v. Grandma got run over by a reindeer walking home from our house christmas eve");
 
 		return true;
 	}

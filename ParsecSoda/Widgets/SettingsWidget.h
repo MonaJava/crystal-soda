@@ -77,7 +77,7 @@ private:
 	bool _modControls = false;
 
 	int _noobNum = 160;
-	bool _kickNoob = false;
+	bool _kickNoob = false; //redundant
 	bool _limitNoob = true;
 
 	bool _BB = false;
@@ -85,6 +85,9 @@ private:
 	bool _controls = false;
 	bool _kick = false;
 	bool _limit = false;
+	int _extraHotseatTime = 0;
+	int _cooldownShrink = 0;
+	int _rank = 0;
 
 	string themes[5] = { "Midnight", "Parsec Soda", "Parsec Soda V", "Mini", "Arcade" };
 	vector<Role> rolelist = vector<Role>();

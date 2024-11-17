@@ -788,11 +788,11 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 				{
 					if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
 						gamepad->setOwner(guest, deviceID, isKeyboard);
+						if (Config::cfg.hotseat.enabled) {
+							Hotseat::instance.seatUser(guest.userID, guest.name);
+						}
 						if (gamepad->isReserved)
 						{
-							if (Config::cfg.hotseat.enabled) {
-								Hotseat::instance.seatUser(guest.userID, guest.name);
-							}
 							gamepad->removeFirstInQueue();
 							gamepad->reserveTime->stop();
 							if (gamepad->getQueue().size() <= 0)	gamepad->isReserved = false;
