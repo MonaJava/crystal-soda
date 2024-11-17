@@ -206,7 +206,7 @@ public:
 			PermissionGroup(bool useBB, bool useSFX, bool changeControls) {
 				this->useBB = useBB;
 				this->useSFX = useSFX;
-				this->changeControls = useBB;
+				this->changeControls = changeControls;
 				this->kick = false;
 				this->limit = false;
 				this->extraHotseatTime = 0;
@@ -217,7 +217,7 @@ public:
 			PermissionGroup(bool useBB, bool useSFX, bool changeControls, bool kick, bool limit) {
 				this->useBB = useBB;
 				this->useSFX = useSFX;
-				this->changeControls = useBB;
+				this->changeControls = changeControls;
 				this->kick = kick;
 				this->limit = limit;
 				this->extraHotseatTime = 0;
