@@ -411,7 +411,9 @@ void HostSettingsWidget::renderGeneral(HWND& hwnd) {
                     if (g_hosting.getGamepads()[i]->isOwned())
                     {
                         Guest guest = g_hosting.getGamepads()[i]->owner.guest;
-                        Hotseat::instance.checkUser(guest.userID, guest.name);
+                        if (Hotseat::instance.checkUser(guest.userID, guest.name)) {
+                            Hotseat::instance.seatUser(guest.userID, guest.name);
+                        }
                     }
                 }
             }

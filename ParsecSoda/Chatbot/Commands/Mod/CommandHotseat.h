@@ -41,7 +41,9 @@ public:
 				if (_gamepadClient.gamepads[i]->isOwned())
 				{
 					Guest guest = _gamepadClient.gamepads[i]->owner.guest;
-					Hotseat::instance.checkUser(guest.userID, guest.name);
+					if (Hotseat::instance.checkUser(guest.userID, guest.name)) {
+						Hotseat::instance.seatUser(guest.userID, guest.name);
+					}
 				}
 			}
 		}
