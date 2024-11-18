@@ -65,9 +65,7 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 		return new CommandHelp(msg, sender, commands);
 	}
 
-	if (isCommand(msg, CommandHotseat::prefixes())) {
-		return new CommandHotseat(msg, sender, _hotseat, _gamepadClient);
-	}
+
 
 	if (isCommand(msg, CommandKeyboard::prefixes())) {
 		return new CommandKeyboard(msg, sender, _gamepadClient);
@@ -187,7 +185,9 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 		if (isCommand(msg, CommandName::prefixes())) {
 			return new CommandName(msg, sender, _hostConfig);
 		}
-
+		if (isCommand(msg, CommandHotseat::prefixes())) {
+			return new CommandHotseat(msg, sender, _hotseat, _gamepadClient);
+		}
 	}
 
 	/*
