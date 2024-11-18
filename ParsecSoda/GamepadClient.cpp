@@ -525,6 +525,9 @@ const GamepadClient::PICK_REQUEST GamepadClient::pick(Guest guest, int gamepadIn
 				pad->clearState();
 				pad->copyOwner(gamepad);
 				gamepad->clearOwner();
+				if (Config::cfg.hotseat.enabled) {
+					Hotseat::instance.seatUser(guest.userID, guest.name);
+				}
 				if (pad->isReserved)
 				{
 					pad->removeFirstInQueue();
