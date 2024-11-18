@@ -38,8 +38,10 @@ Hosting::Hosting() {
 	_tierList.loadTiers();
 	_tierList.saveTiers();
 	_guestRoles.loadRoles();
-	_guestRoles.saveRoles();
+	//_guestRoles.saveRoles();
+	GuestRoles::instance.loadRoles();
 	_roles.LoadFromFile();
+	Roles::r.LoadFromFile();
 	//_roles.SaveToFile();
 
 

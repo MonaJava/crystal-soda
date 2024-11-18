@@ -6,6 +6,9 @@
 #include "../../Helpers/Stringer.h"
 #include "../../Lists/Roles.h"
 #include <sstream>
+#include <chrono>
+#include <ctime>
+
 
 class CommandDefaultMessage : public ACommand
 {
@@ -58,7 +61,22 @@ public:
 				reply << role << "Unkown Guest";
 			}
 
-			reply << ": ";
+			struct tm tmp;
+			__int64 ltime;
+			char buf[26];
+			errno_t err;
+
+			_time64(&ltime);
+			err = _gmtime64_s(&tmp, &ltime);
+			if (err)
+			{
+				reply << "[X:XX]: ";
+			}
+			else
+			{
+				reply << " [" << tmp.tm_hour << ":" << tmp.tm_min << "]: ";
+			}
+			
 		}
 		else reply << "\t";
 		reply << _msg << "\0";

@@ -57,8 +57,11 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
     for (map<string, Role>::iterator it = Roles::r.list.begin(); it != Roles::r.list.end(); it++)
     {
         bool inVec = false;
+        if (it->second.name == "+Add Role") {
+            inVec = true;
+        }
         for (auto i : rolelist) {
-            if (i.name == it->second.name or i.name == "+Add Role") {
+            if (i.name == it->second.name) {
                 inVec = true;
                 break;
             }
@@ -436,13 +439,16 @@ void SettingsWidget::renderPermissions() {
         if (ImGui::Button("ADD ROLE")) {       
             string key = _roleName;
             transform(key.begin(), key.end(), key.begin(), ::tolower);
-            Roles::r.list[key] = Role(_roleName);
-            //Roles::r.list[key].key = key;
-            //Roles::r.list[key].name = _roleName;
-            rolelist.insert(rolelist.end() - 1, Roles::r.list[key]);
-            testWord = key;
+            if (key != "+add role")
+            {
+                Roles::r.list[key] = Role(_roleName);
+                //Roles::r.list[key].key = key;
+                //Roles::r.list[key].name = _roleName;
+                rolelist.insert(rolelist.end() - 1, Roles::r.list[key]);
+                testWord = key;
 
-            Roles::r.SaveToFile();
+                Roles::r.SaveToFile();
+            }
         }
         AppColors::popButton();
         AppFonts::pop();

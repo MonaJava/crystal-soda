@@ -118,11 +118,13 @@ void Hotseat::start() {
 						}
 
 					} else if (user.cooldown && user.cooldownTimer->isFinished()) {
-
-                        user.stopwatch->start(Config::cfg.hotseat.playTime);
+						Role role = GuestRoles::instance.getRole(user.userId);
+						int exTime = Config::cfg.permissions.role[role.key].extraHotseatTime;
+						int subCool = Config::cfg.permissions.role[role.key].cooldownShrink;
+                        user.stopwatch->start(Config::cfg.hotseat.playTime + exTime);
                         user.stopwatch->pause();
                         user.cooldown = false;
-                        user.cooldownTimer->start(Config::cfg.hotseat.resetTime);
+                        user.cooldownTimer->start(Config::cfg.hotseat.resetTime - subCool);
                         user.cooldownTimer->pause();
                         user.timeLastPlayed = getCurrentTimestamp();
 
@@ -257,7 +259,7 @@ bool Hotseat::seatUser(int id, string name) {
 
     // Find user
 	HotseatUser* user = getUser(id);
-	Role role = GuestRoles::instance.getRole(user->userId);
+	Role role = GuestRoles::instance.getRole(id);
 	int exTime = Config::cfg.permissions.role[role.key].extraHotseatTime;
 	int subCool = Config::cfg.permissions.role[role.key].cooldownShrink;
 	
@@ -467,10 +469,9 @@ string Hotseat::getCooldownRemaining(int id) {
 
     // Formats the time remaining to 00m 00s format
     HotseatUser* user = getUser(id);
-	Role role = GuestRoles::instance.getRole(user->userId);
-	int subCool = Config::cfg.permissions.role[role.key].cooldownShrink;
-
     if (user != nullptr) {
+		Role role = GuestRoles::instance.getRole(id);
+		int subCool = Config::cfg.permissions.role[role.key].cooldownShrink;
         int remainingSec = user->cooldownTimer->getRemainingSec();
 		if ((remainingSec + user->stopwatch->getRemainingSec()) < (Config::cfg.hotseat.minResetTime - subCool))		
 			remainingSec = (Config::cfg.hotseat.minResetTime - subCool) * 60;
