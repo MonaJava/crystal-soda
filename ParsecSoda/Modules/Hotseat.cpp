@@ -278,9 +278,12 @@ bool Hotseat::seatUser(int id, string name) {
 
 		// Start the stopwatch
 		user->stopwatch->resume();
-		user->cooldownTimer->resume();
+		if (user->cooldownTimer->isPaused())
+		{
+			user->cooldownTimer->resume();
+		}
 
-		if ((user->stopwatch->getRemainingSec() + user->cooldownTimer->getRemainingSec()) > (Config::cfg.hotseat.minResetTime - subCool) * 60)
+		if ((user->cooldownTimer->getRemainingSec() - user->stopwatch->getRemainingSec()) < (Config::cfg.hotseat.minResetTime - subCool) * 60)
 		{
 			user->cooldownTimer->start(user->stopwatch->getRemainingSec() / 60 + Config::cfg.hotseat.minResetTime - subCool);
 		}

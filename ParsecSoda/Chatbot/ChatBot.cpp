@@ -23,11 +23,7 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 		/*if (msgIsEqual(msg, CommandVersion::prefixes()))		return new CommandVersion(sender);*/
 	}
 
-	// Is this a custom command?
-	ACommand* custom = _chatBotCustom->isCustomCommand(msg, sender, isHost, tier, previous);
-	if (custom->isBotCommand) {
-		return custom;
-	}
+
 
 	/*
 	REGULAR USER COMMANDS
@@ -226,6 +222,12 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 		if (isCommand(msg, CommandVIP::prefixes())) {
 			return new CommandVIP(msg, sender, _guests, _guestHistory);
 		}
+	}
+
+	// Is this a custom command?
+	ACommand* custom = _chatBotCustom->isCustomCommand(msg, sender, isHost, tier, previous);
+	if (custom->isBotCommand) {
+		return custom;
 	}
 
 	this->setLastUserId(previous);
