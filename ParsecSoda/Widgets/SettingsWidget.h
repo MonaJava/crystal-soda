@@ -80,6 +80,7 @@ private:
 	bool _kickNoob = false; //redundant
 	bool _limitNoob = true;
 
+	std::string _roleCommandPerms = "";
 	bool _BB = false;
 	bool _SFX = false;
 	bool _controls = false;

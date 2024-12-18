@@ -499,6 +499,13 @@ const GamepadClient::PICK_REQUEST GamepadClient::pick(Guest guest, int gamepadIn
 		limit = prefs.padLimit;
 		});
 
+
+	Role role = GuestRoles::instance.getRole(guest.userID);
+	if (Config::cfg.permissions.role[role.key].limit)
+	{
+		return PICK_REQUEST::ROLE_BLOCK;
+	};
+
 	if (limit <= 0)
 	{
 		return PICK_REQUEST::LIMIT_BLOCK;
@@ -566,6 +573,7 @@ bool GamepadClient::sendMessage(Guest guest, ParsecMessage message)
 	findPreferences(guest.userID, [&guestPrefs](GuestPreferences& prefs) {
 		guestPrefs = prefs;
 	});
+
 
 	switch (message.type)
 	{
@@ -782,6 +790,12 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 	if (currentSlots >= prefs.padLimit) {
 		return false;
 	}
+
+	Role role = GuestRoles::instance.getRole(guest.userID);
+	if (Config::cfg.permissions.role[role.key].limit)
+	{
+		return false;
+	};
 	
 	int i = 0;
 	return reduceUntilFirst([&](AGamepad* gamepad) {

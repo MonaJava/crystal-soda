@@ -60,6 +60,7 @@ public:
 			return false;
 		}
 
+		_stopwatch.reset();
 		srand(time(NULL));
 		static uint8_t BONK_CHANCE = 50;
 

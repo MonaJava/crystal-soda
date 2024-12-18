@@ -117,9 +117,29 @@ void Hosting::broadcastChatMessage(string message)
 	}
 }
 
+void Hosting::broadcastChatMessage(string message, uint32_t sender)
+{
+	vector<Guest> guests = _guestList.getGuests();
+	vector<Guest>::iterator gi;
+
+	for (gi = guests.begin(); gi != guests.end(); ++gi)
+	{
+		if (!MetadataCache::isIgnored((*gi).userID, sender))
+		{
+			ParsecHostSendUserData(_parsec, (*gi).id, HOSTING_CHAT_MSG_ID, message.c_str());
+		}
+	}
+}
+
 void Hosting::broadcastChatMessageAndLogCommand(string message)
 {
 	broadcastChatMessage(message);
+	_chatLog.logCommand(message);
+}
+
+void Hosting::broadcastChatMessageAndLogCommand(string message, uint32_t sender)
+{
+	broadcastChatMessage(message, sender);
 	_chatLog.logCommand(message);
 }
 
@@ -546,7 +566,7 @@ void Hosting::handleMessage(const char* message, Guest& guest, bool isHost, bool
 	}
 
 	// Has the user been muted?
-	if (AutoMod::instance.isMuted(guest.userID)) {
+	if (AutoMod::instance.isMuted(guest.userID) and !Cache::cache.modList.isModded(guest.userID) and guest.userID != _host.userID) {
 		return;
 	}
 
@@ -562,7 +582,7 @@ void Hosting::handleMessage(const char* message, Guest& guest, bool isHost, bool
 		_chatBot->setLastUserId(guest.userID);
 
 		if (!defaultMessage.getReply().empty() && !isHidden) {
-			broadcastChatMessage(defaultMessage.getReply());
+			broadcastChatMessage(defaultMessage.getReply(), guest.userID);
 
 			string adjustedMessage = defaultMessage.getReply();
 			Stringer::replacePatternOnce(adjustedMessage, "%", "%%");
@@ -577,7 +597,7 @@ void Hosting::handleMessage(const char* message, Guest& guest, bool isHost, bool
 				j["data"]["message"] = message;
 				WebSocket::instance.sendMessageToAll(j.dump());
 			}
-
+			
 			// Record last message
 			AutoMod::instance.RecordMessage(guest.userID, guest.name, message);
 		}
@@ -1255,10 +1275,11 @@ void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecSt
 
 			// Show welcome message
 			addNewGuest(guest);
-			if (Config::cfg.permissions.role[_guestRoles.getRole(guest.userID).key].limit)
-			{
-				_gamepadClient.setLimit(guest.userID, 0);
-			}
+			
+			//if (Config::cfg.permissions.role[_guestRoles.getRole(guest.userID).key].limit)
+			//{
+			//	_gamepadClient.setLimit(guest.userID, 0);
+			//}
 				
 				
 

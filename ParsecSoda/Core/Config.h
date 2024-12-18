@@ -184,6 +184,7 @@ public:
 	public:
 		class PermissionGroup {
 		public:
+			string permissions = "";
 			bool useBB = false;
 			bool useSFX = false;
 			bool changeControls = false;
@@ -194,6 +195,7 @@ public:
 			int rank = 0;
 
 			PermissionGroup() {
+				this->permissions = "";
 				this->useBB = false;
 				this->useSFX = false;
 				this->changeControls = true;
@@ -203,7 +205,30 @@ public:
 				this->cooldownShrink = 0;
 				this->rank = 0;
 			};
+			PermissionGroup(string permissions) {
+				this->permissions = permissions;
+				this->useBB = false;
+				this->useSFX = false;
+				this->changeControls = true;
+				this->kick = false;
+				this->limit = false;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
+			};
+			PermissionGroup(string permissions, bool kick, bool limit) {
+				this->permissions = permissions;
+				this->useBB = false;
+				this->useSFX = false;
+				this->changeControls = true;
+				this->kick = kick;
+				this->limit = limit;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
+			};
 			PermissionGroup(bool useBB, bool useSFX, bool changeControls) {
+				this->permissions = "";
 				this->useBB = useBB;
 				this->useSFX = useSFX;
 				this->changeControls = changeControls;
@@ -215,6 +240,7 @@ public:
 			};
 
 			PermissionGroup(bool useBB, bool useSFX, bool changeControls, bool kick, bool limit) {
+				this->permissions = "";
 				this->useBB = useBB;
 				this->useSFX = useSFX;
 				this->changeControls = changeControls;
@@ -229,12 +255,15 @@ public:
 		PermissionGroup vip = PermissionGroup(true, true, true);
 		PermissionGroup moderator = PermissionGroup(true, true, true);
 		PermissionGroup noob = PermissionGroup(true, true, true, false, true);
+		
 		map<string, PermissionGroup> role = { 
-			{"guest", PermissionGroup(false, false, true) },
-			{"noob", PermissionGroup(false, false, true, false, true)},
-			{"mod", PermissionGroup(true, true, true)},
-			{"vip", PermissionGroup(true, true, true)},
-			{"host", PermissionGroup(true, true, true)},
+			{"guest", PermissionGroup("!8ball !bonk !cookie !discord !ff !kb !keyboard !limit !mirror !one !pads !ping !playtime !rollcall !rpg !spectate !swap !triangle /emptyplaytime /exitqueue /help /ignore /listqueue /nay /poll /queue /startcooldown /v /version /votekick /votequestion /yay") },
+			{"white-listed noob", PermissionGroup("!8ball !bonk !cookie !discord !ff !kb !keyboard !limit !mirror !one !pads !ping !playtime !rollcall !rpg !spectate !swap !triangle /emptyplaytime /exitqueue /help /ignore /listqueue /nay /poll /queue /startcooldown /v /version /votekick /votequestion /yay") },
+			{"noob", PermissionGroup("!8ball !cookie !discord !ff !kb !keyboard !limit !mirror !one !pads !ping !playtime !rollcall !rpg !spectate !swap !triangle /emptyplaytime /exitqueue /help /ignore /listqueue /nay /poll /startcooldown /v /version /votequestion /yay", false, true)},
+			{"mod 2", PermissionGroup("!8ball !ban !bb !bonk !cookie !cooldown !dc !dcall !decrease !discord !extend !ff !kb !keyboard !kick !limit !lock !lockall !mirror !mute !name !one !pads !ping !playtime !rc !restart !rollcall !rpg !sfx !spectate !stopsfx !strip !stripall !swap !triangle !unban !unbanlastip !unmute !verify !warmup /emptyplaytime /emptyqueue /exitqueue /help /ignore /listqueue /nay /poll /queue /randkick /startcooldown /v /version /voteclear /votekick /votequestion /yay")},
+			{"overlord", PermissionGroup("!8ball !ban !bb !bonk !cookie !cooldown !dc !dcall !decrease !discord !extend !ff !guest !kb !keyboard !kick !limit !lock !lockall !mirror !mod !modbutnotmod !mute !name !one !pads !ping !playtime !rc !restart !rollcall !rpg !sfx !spectate !stopsfx !strip !stripall !swap !triangle !unban !unbanlastip !unmod !unmute !unvip !verify !vip !warmup /emptyplaytime /emptyqueue /exitqueue /help /ignore /listqueue /nay /poll /queue /randkick /startcooldown /unnoob /v /version /voteclear /votekick /votequestion /yay")},
+			{"vip", PermissionGroup("!8ball !bb !bonk !cookie !discord !ff !kb !keyboard !mirror !one !pads !ping !playtime !rollcall !rpg !sfx !spectate !stopsfx !swap !triangle /emptyplaytime /emptyqueue /exitqueue /help /ignore /listqueue /nay /poll /queue /startcooldown /v /version /voteclear /votekick /votequestion /yay")},
+			{"host", PermissionGroup("<ALLCOMMANDS>")},
 
 		};
 		int noobNum = 1600;

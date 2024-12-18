@@ -119,7 +119,7 @@ bool Cache::checkForUpdates() {
 
 		// Has the version changed?
 		if (version != update.version) {
-			return true;
+			return false; //TEMPORARILY DISABLING, SHOULD BE RETURN TRUE
 		} else {
 			return false;
 		}

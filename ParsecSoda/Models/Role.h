@@ -16,6 +16,9 @@ public:
 		this->messageStarter = "";
 		this->commandPrefix = "!guest";
 		this->key = "pleb";
+		this->extraHotseatTime = 0;
+		this->cooldownShrink = 0;
+		this->rank = 0;
 	}
 	Role(std::string n)
 	{
@@ -25,6 +28,9 @@ public:
 		transform(lowercase.begin(), lowercase.end(), lowercase.begin(), ::tolower);
 		this->commandPrefix = "!" + lowercase;
 		this->key = lowercase;
+		this->extraHotseatTime = 0;
+		this->cooldownShrink = 0;
+		this->rank = 0;
 	}
 	Role(std::string n, std::string m, std::string c)
 	{
@@ -34,6 +40,9 @@ public:
 		string lowercase = n;
 		transform(lowercase.begin(), lowercase.end(), lowercase.begin(), ::tolower);
 		this->key = lowercase;
+		this->extraHotseatTime = 0;
+		this->cooldownShrink = 0;
+		this->rank = 0;
 	}
 	Role(std::string n, std::string m, std::string c, std::string k)
 	{
@@ -41,6 +50,9 @@ public:
 		this->messageStarter = m;
 		this->commandPrefix = c;
 		this->key = k;
+		this->extraHotseatTime = 0;
+		this->cooldownShrink = 0;
+		this->rank = 0;
 	}
 
 	std::string name;

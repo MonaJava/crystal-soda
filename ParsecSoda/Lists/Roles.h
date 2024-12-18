@@ -19,8 +19,10 @@ using namespace std;
 			map<string, Role> list =
 			{
 				{"noob", Role("Noob", "NOOB  ", "!noob")},
+				{"white-listed noob", Role("white-listed noob", ")  ", "/unnoob")},
 				{"guest", Role("Guest", "> ", "!guest")},
-				{"mod", Role("Mod", "MOD  ", "!nonconflictingmod")},
+				{"mod 2", Role("Mod 2", "MOD  ", "!modbutnotmod")},
+				{"overlord", Role("Overlord", "LORD  ", "!lord")},
 				{"host", Role("Host")},
 				{"z", Role("+Add Role")}
 			};

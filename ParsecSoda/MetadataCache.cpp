@@ -698,7 +698,6 @@ bool MetadataCache::removeActiveGuest(Guest guest) {
             return true;
         }
     }
-
 }
 
 bool MetadataCache::giveGuestQueueNum(uint32_t guestID, int padIndex)
@@ -723,4 +722,64 @@ int MetadataCache::getGuestQueueNum(uint32_t guestID)
         }
     }
     return 0;
+}
+
+bool MetadataCache::addToIgnored(uint32_t guestID, uint32_t ignoredID)
+{
+    if (MetadataCache::preferences.activeGuests.empty() == false) {
+        for (int i = MetadataCache::preferences.activeGuests.size() - 1; i >= 0; i--) {
+            if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
+                preferences.activeGuests[i].ignoredUsers.push_back(ignoredID);
+            }
+        }
+    }
+    return true;
+}
+
+bool MetadataCache::removeFromIgnored(uint32_t guestID, uint32_t ignoredID) {
+
+    for (int i = MetadataCache::preferences.activeGuests.size() - 1; i >= 0; i--) {
+        if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
+            for (int j = MetadataCache::preferences.activeGuests[i].ignoredUsers.size() - 1; j >= 0; j--) {
+                if (MetadataCache::preferences.activeGuests[i].ignoredUsers.at(j) == ignoredID) {
+                    MetadataCache::preferences.activeGuests[i].ignoredUsers.erase(MetadataCache::preferences.activeGuests[i].ignoredUsers.begin() + i);
+                    MetadataCache::preferences.activeGuests[i].ignoredUsers.shrink_to_fit();
+                }
+            }
+            return true;
+        }
+    }
+}
+
+
+vector<int> MetadataCache::getIgnored(uint32_t guestID)
+{
+    if (MetadataCache::preferences.activeGuests.empty() == false) {
+        for (int i = MetadataCache::preferences.activeGuests.size() - 1; i >= 0; i--) {
+            if (MetadataCache::preferences.activeGuests[i].ignoredUsers.empty() == false) {
+                if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
+                    return MetadataCache::preferences.activeGuests[i].ignoredUsers;
+                }
+            }
+        }
+    }
+    return { 0 };
+}
+
+bool MetadataCache::isIgnored(uint32_t guestID, uint32_t ignoredID)
+{
+    if (MetadataCache::preferences.activeGuests.empty() == false) {
+        for (int i = MetadataCache::preferences.activeGuests.size() - 1; i >= 0; i--) {
+            if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
+                if (MetadataCache::preferences.activeGuests[i].ignoredUsers.empty() == false) {
+                    for (int j = MetadataCache::preferences.activeGuests[i].ignoredUsers.size() - 1; j >= 0; j--) {
+                        if (MetadataCache::preferences.activeGuests[i].ignoredUsers.at(j) == ignoredID) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }

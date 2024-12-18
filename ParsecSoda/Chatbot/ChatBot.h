@@ -41,7 +41,7 @@
 #include "Commands/Mod/CommandLimit.h"
 #include "Commands/Mod/CommandLock.h"
 #include "Commands/Mod/CommandLockAll.h"
-#include "Commands/Mod/CommandOne.h"
+
 #include "Commands/Mod/CommandName.h"
 #include "Commands/Mod/CommandRC.h"
 #include "Commands/Mod/CommandRestart.h"
@@ -63,6 +63,7 @@
 #include "Commands/Guest/CommandHelp.h"
 #include "Commands/Guest/CommandKeyboard.h"
 #include "Commands/Guest/CommandMirror.h"
+#include "Commands/Guest/CommandOne.h"
 #include "Commands/Guest/CommandPads.h"
 #include "Commands/Guest/CommandPing.h"
 #include "Commands/Guest/CommandRollCall.h"

@@ -267,6 +267,11 @@ public:
 	static bool giveGuestQueueNum(uint32_t guestID, int padIndex);
 	static int getGuestQueueNum(uint32_t guestID);
 
+	static bool addToIgnored(uint32_t guestID, uint32_t ignoredID);
+	static bool removeFromIgnored(uint32_t guestID, uint32_t ignoredID);
+	static vector<int> getIgnored(uint32_t guestID);
+	static bool isIgnored(uint32_t guestID, uint32_t ignoredID);
+
 	static Preferences preferences;
 	static Kiosk kiosk;
 	static AutoGamepad autoGamepad;

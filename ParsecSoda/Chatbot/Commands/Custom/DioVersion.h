@@ -24,7 +24,7 @@ public:
 	 */
 	bool run() override {
 
-		setReply("v. Grandma got run over by a reindeer walking home from our house christmas eve");
+		setReply("v. LIVE AND LEARN");
 
 		return true;
 	}

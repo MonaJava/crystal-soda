@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -182,9 +182,12 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClCompile Include="Chatbot\ChatBot.cpp" />
     <ClCompile Include="Chatbot\ChatBotCustom.cpp" />
     <ClCompile Include="Chatbot\Commands\Custom\EmptyTime.h" />
+    <ClCompile Include="Chatbot\Commands\Custom\VoteCommands.cpp" />
+    <ClCompile Include="Chatbot\Commands\Custom\VoteQuestion.cpp" />
     <ClCompile Include="Chatbot\Commands\Guest\CommandBonk.cpp" />
     <ClCompile Include="Core\Cache.cpp" />
     <ClCompile Include="GameData.cpp" />
+    <ClCompile Include="ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="ImGui\implot.cpp" />
     <ClCompile Include="ImGui\implot_demo.cpp" />
     <ClCompile Include="ImGui\implot_items.cpp" />
@@ -201,6 +204,7 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClCompile Include="Models\Role.cpp" />
     <ClCompile Include="Modules\Arcade.cpp" />
     <ClCompile Include="Modules\AutoMod.cpp" />
+    <ClCompile Include="Modules\DioStuff.cpp" />
     <ClCompile Include="Modules\Hotseat.cpp" />
     <ClCompile Include="Modules\Macro.cpp" />
     <ClCompile Include="Modules\ProcessMan.cpp" />
@@ -297,6 +301,11 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="ButtonLock.h" />
     <ClInclude Include="Chatbot\ChatBotCustom.h" />
     <ClInclude Include="Chatbot\Commands\CommandBotMessage.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\Ignore.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\KickRandom.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\VoteKick.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\VoteQuestion.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\VoteCommands.h" />
     <ClInclude Include="Chatbot\Commands\Guest\Command8Ball.h" />
     <ClInclude Include="Chatbot\Commands\Mod\CommandDC.h" />
     <ClInclude Include="Chatbot\Commands\CommandDefaultMessage.h" />
@@ -349,6 +358,7 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="GameData.h" />
     <ClInclude Include="Helpers\Countries.h" />
     <ClInclude Include="Helpers\Keymap.h" />
+    <ClInclude Include="ImGui\imgui_stdlib.h" />
     <ClInclude Include="ImGui\implot.h" />
     <ClInclude Include="ImGui\implot_internal.h" />
     <ClInclude Include="Lists\GameDataList.h" />
@@ -363,6 +373,7 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="Models\CommandInfo.h" />
     <ClInclude Include="Modules\Arcade.h" />
     <ClInclude Include="Modules\AutoMod.h" />
+    <ClInclude Include="Modules\DioStuff.h" />
     <ClInclude Include="Modules\Hotseat.h" />
     <ClInclude Include="Modules\Macro.h" />
     <ClInclude Include="Helpers\TimeT.h" />
@@ -394,7 +405,7 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="AudioTools.h" />
     <ClInclude Include="Helpers\Clock.h" />
     <ClInclude Include="Chatbot\Commands\Guest\CommandSFX.h" />
-    <ClInclude Include="Chatbot\Commands\Mod\CommandOne.h" />
+    <ClInclude Include="Chatbot\Commands\Guest\CommandOne.h" />
     <ClInclude Include="CompilerDirectives.h" />
     <ClInclude Include="Helpers\Debouncer.h" />
     <ClInclude Include="Helpers\Stopwatch.h" />

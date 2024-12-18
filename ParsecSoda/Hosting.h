@@ -64,7 +64,9 @@ public:
 	void applyHostConfig();
 	bool resizeRoom(uint32_t maxGuests);
 	void broadcastChatMessage(string message);
+	void broadcastChatMessage(string message, uint32_t sender);
 	void broadcastChatMessageAndLogCommand(string message);
+	void broadcastChatMessageAndLogCommand(string message, uint32_t sender);
 	void init();
 	void release();
 	bool isReady();

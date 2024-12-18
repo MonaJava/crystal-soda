@@ -36,7 +36,8 @@ public:
 		LIMIT_BLOCK,
 		OUT_OF_RANGE,
 		PUPPET,
-		RESERVED
+		RESERVED,
+		ROLE_BLOCK
 	};
 
 	class GuestPreferences

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -20,6 +21,7 @@ public:
 		reason = "";
 		fake = false;
 		queuedPad = 0;
+		ignoredUsers = {};
 	}
 
 	/**
@@ -47,6 +49,7 @@ public:
 	uint32_t userID;
 	std::string reason;
 	int queuedPad;
+	vector<int> ignoredUsers;
 	bool fake;
 };
 

@@ -171,6 +171,7 @@ void Config::Load() {
 			json permissions = j["Permissions"]["roles"];
 			for (json::iterator it = permissions.begin(); it != permissions.end(); ++it) {
 				Permissions::PermissionGroup permission;
+				permission.permissions = it.value()["permissions"].get<string>();
 				permission.useBB = it.value()["useBB"].get<bool>();
 				permission.useSFX = it.value()["useSFX"].get<bool>();
 				permission.changeControls = it.value()["changeControls"].get<bool>();
@@ -378,6 +379,7 @@ void Config::Save() {
 	{
 		json permissionJson;
 		permissionJson["role"] = it->first;
+		permissionJson["permissions"] = it->second.permissions;
 		permissionJson["useBB"] = it->second.useBB;
 		permissionJson["useSFX"] = it->second.useSFX;
 		permissionJson["changeControls"] = it->second.changeControls;

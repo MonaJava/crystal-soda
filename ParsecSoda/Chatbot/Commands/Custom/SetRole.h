@@ -48,25 +48,7 @@ public:
 		{
 			setReply(_sender.name + ", I cannot find the user you want to make a " + _role.name + "\0");
 		}
-		//_role.commandPrefix.pop_back();
 		bool rv = false;
-
-		/*switch (_searchResult)
-		{
-		case SEARCH_USER_RESULT::NOT_FOUND:
-			SetReply(_sender.name + ", I cannot find the user you want to make a " + _role.name + "\0");
-			break;
-
-		case SEARCH_USER_RESULT::FOUND:
-			handleGuest(GuestData(_targetGuest.name, _targetGuest.userID), true, _targetGuest.id);
-			break;
-
-
-		case SEARCH_USER_RESULT::FAILED:
-		default:
-			SetReply("Usage: " + _role.commandPrefix + " <username>\nExample: " + _role.commandPrefix + " Call_Me_Troy\0");
-			break;
-		}*/
 
 		return false;
 	}

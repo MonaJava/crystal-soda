@@ -24,7 +24,22 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 	}
 
 
+	// Split the message by spaces
+	vector<string> permissions = split(Config::cfg.permissions.role[role.key].permissions, ' ');
+	vector<string> tokens = split(msg, ' ');
+	bool allowedCommand = false;
 
+	// Does the first token match any of the patterns?
+	vector<string>::iterator pi = permissions.begin();
+	for (; pi != permissions.end(); ++pi) {
+		if (tokens[0] == *pi) {
+			allowedCommand = true;
+		}
+	}
+	if (!allowedCommand and !isHost and permissions[0] != "<ALLCOMMANDS>")
+	{
+		return new CommandDefaultMessage(msg, sender, previous, tier, isHost);
+	}
 	/*
 	REGULAR USER COMMANDS
 	Any user can use these commands. All commands require msg and sender
@@ -33,6 +48,9 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 
 	if (isCommand(msg, Command8Ball::prefixes())) {
 		return new Command8Ball(msg, sender);
+	}
+	if (isCommand(msg, CommandOne::prefixes())) {
+		return new CommandOne(msg, sender, _gamepadClient);
 	}
 	if (Config::cfg.permissions.role[role.key].useBB)
 	{
@@ -116,7 +134,7 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 	The host and moderators can use these commands. Moderators have the
 	"MOD" tier. The host has the "GOD" tier.
 	*/
-	if (tier >= Tier::MOD || isHost) {
+	//if (tier >= Tier::MOD || isHost) {
 
 		if (isCommand(msg, CommandBan::prefixes())) {
 			return new CommandBan(msg, sender, _parsec, _guests, _guestHistory);
@@ -184,13 +202,13 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 		if (isCommand(msg, CommandHotseat::prefixes())) {
 			return new CommandHotseat(msg, sender, _hotseat, _gamepadClient);
 		}
-	}
+	//}
 
 	/*
 	HOST COMMANDS
 	Only the host can use these commands. The host has the "GOD" tier.
 	*/
-	if (tier >= Tier::GOD || isHost) {
+	//if (tier >= Tier::GOD || isHost) {
 
 		if (isCommand(msg, CommandAddXbox::prefixes())) {
 			return new CommandAddXbox(msg, sender, _gamepadClient);
@@ -222,7 +240,7 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 		if (isCommand(msg, CommandVIP::prefixes())) {
 			return new CommandVIP(msg, sender, _guests, _guestHistory);
 		}
-	}
+	//}
 
 	// Is this a custom command?
 	ACommand* custom = _chatBotCustom->isCustomCommand(msg, sender, isHost, tier, previous);
@@ -256,6 +274,7 @@ void ChatBot::addHelp() {
 	addCmdHelp("!rollcall", "List who is not spectating.", Tier::GUEST);
 	addCmdHelp("!sfx", "Play a sound effect.", Tier::GUEST);
 	addCmdHelp("!stopsfx", "Stop a sound effect.", Tier::GUEST);
+	addCmdHelp("!one", "Toggles whether all of your iddevices control one pad or multiple.", Tier::GUEST);
 
 	addCmdHelp("!ban", "Ban a user.", Tier::MOD);
 	addCmdHelp("!dc", "Disconnect a gamepad.", Tier::MOD);
@@ -264,6 +283,7 @@ void ChatBot::addHelp() {
 	addCmdHelp("!warmup", "Reduce hotseat cooldown for a user.", Tier::MOD);
 	addCmdHelp("!cooldown", "Increase hotseat cooldown for a user.", Tier::MOD);
 	addCmdHelp("!kick", "Kick a user.", Tier::MOD);
+	addCmdHelp("!limit", "Sets the number of gamepads a guest can hold.", Tier::MOD);
 	addCmdHelp("!lock", "Lock a gamepad.", Tier::MOD);
 	addCmdHelp("!lockall", "Lock all gamepads.", Tier::MOD);
 	addCmdHelp("!mute", "Mute a user.", Tier::MOD);

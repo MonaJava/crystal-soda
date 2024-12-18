@@ -74,6 +74,7 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
                 strcpy_s(_roleName, it->second.name.c_str());
                 strcpy_s(_messageStarter, it->second.messageStarter.c_str());
                 strcpy_s(_commandPrefix, it->second.commandPrefix.c_str());
+                _roleCommandPerms = Config::cfg.permissions.role[testWord].permissions;
                 //cfg.permissions.role["guest"]
                 _SFX = Config::cfg.permissions.role[it->first].useSFX;
                 _BB = Config::cfg.permissions.role[it->first].useBB;
@@ -410,6 +411,7 @@ void SettingsWidget::renderPermissions() {
                 strcpy_s(_roleName, Roles::r.list[testWord].name.c_str());
                 strcpy_s(_messageStarter, Roles::r.list[testWord].messageStarter.c_str());
                 strcpy_s(_commandPrefix, Roles::r.list[testWord].commandPrefix.c_str());
+                _roleCommandPerms = Config::cfg.permissions.role[testWord].permissions;
 
                 _SFX = Config::cfg.permissions.role[testWord].useSFX;
                 _BB = Config::cfg.permissions.role[testWord].useBB;
@@ -467,14 +469,17 @@ void SettingsWidget::renderPermissions() {
             Roles::r.SaveToFile();
         }
 
-        if (ImForm::InputNumber("RANK", _rank, 1, 9999,
-            "Higher rank role immune to mod command from lower rank role when I get around to coding that part.")) {
+        if (ImForm::InputText("ALLOWED COMMANDS", &_roleCommandPerms,
+            "Commands a user is allowed to use. Separate with single spaces.")) {
+            Config::cfg.permissions.role[testWord].permissions = _roleCommandPerms;
+        }
+        if (ImForm::InputNumber("NUMBER THAT DOES NOTHING", _rank, 1, 9999)) {
             Config::cfg.permissions.role[testWord].rank = _rank;
             _rank = Config::cfg.permissions.role[testWord].rank;
             Config::cfg.Save();
         }
 
-        if (ImForm::InputCheckbox("Can use !sfx command", _SFX)) {
+        /*if (ImForm::InputCheckbox("Can use !sfx command", _SFX)) {
             Config::cfg.permissions.role[testWord].useSFX = _SFX;
             Config::cfg.Save();
         }
@@ -482,7 +487,7 @@ void SettingsWidget::renderPermissions() {
         if (ImForm::InputCheckbox("Can use !bb command", _BB)) {
             Config::cfg.permissions.role[testWord].useBB = _BB;
             Config::cfg.Save();
-        }
+        }*/
 
         /*if (ImForm::InputCheckbox("Can change keyboard controls", _controls)) {
             Config::cfg.permissions.role[testWord].changeControls = _controls;
@@ -503,14 +508,14 @@ void SettingsWidget::renderPermissions() {
         ImGui::Text("HOTSEAT");
         AppStyle::pop();
 
-        if (ImForm::InputNumber("EXTRA TIME", _extraHotseatTime, 1, 9999,
+        if (ImForm::InputNumber("EXTRA TIME", _extraHotseatTime, 0, 9999,
             "Additional playtime for users with the role.")) {
             Config::cfg.permissions.role[testWord].extraHotseatTime = _extraHotseatTime;
             _extraHotseatTime = Config::cfg.permissions.role[testWord].extraHotseatTime;
             Config::cfg.Save();
         }
 
-        if (ImForm::InputNumber("SUBTRACT COOLDOWN", _cooldownShrink, 1, 9999,
+        if (ImForm::InputNumber("SUBTRACT COOLDOWN", _cooldownShrink, 0, 9999,
             "Users with the role have this number subtracted from their cooldown.")) {
             Config::cfg.permissions.role[testWord].cooldownShrink = _cooldownShrink;
             _cooldownShrink = Config::cfg.permissions.role[testWord].cooldownShrink;
@@ -522,7 +527,7 @@ void SettingsWidget::renderPermissions() {
     ImGui::Text("MISC");
     AppStyle::pop();
 
-    if (ImForm::InputNumber("Noob number (in tens of thousands)", _noobNum, 1, 9999,
+    if (ImForm::InputNumber("Noob number (in tens of thousands)", _noobNum, 0, 9999,
         "Any one with an id higher than this is considered a noob")) {
         Config::cfg.permissions.noobNum = _noobNum;
         _noobNum = Config::cfg.permissions.noobNum;
