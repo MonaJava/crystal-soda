@@ -1,5 +1,6 @@
 #include "ModList.h"
 #include "../Helpers/Stringer.h"
+#include "../Core/Cache.h"
 
 ModList::ModList() {}
 
@@ -22,6 +23,7 @@ const bool ModList::unmod(const uint32_t userID) {
     vector<GuestData>::iterator gi = _guests.begin();
     for (; gi != _guests.end(); ++gi) {
         if ((*gi).userID == userID) {
+            Cache::cache.tierList.setTier((*gi).userID, Tier::GUEST);
             _guests.erase(gi);
             SaveToFile();
             return true;
@@ -37,6 +39,7 @@ const bool ModList::unmod(string guestName) {
     vector<GuestData>::iterator gi = _guests.begin();
     for (; gi != _guests.end(); ++gi) {
         if ((*gi).name == guestName) {
+            Cache::cache.tierList.setTier((*gi).userID, Tier::GUEST);
             _guests.erase(gi);
             SaveToFile();
             return true;
