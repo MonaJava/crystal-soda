@@ -25,18 +25,23 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 
 
 	// Split the message by spaces
-	vector<string> permissions = split(Config::cfg.permissions.role[role.key].permissions, ' ');
+	
 	vector<string> tokens = split(msg, ' ');
 	bool allowedCommand = false;
-
+	string p = "test";
 	// Does the first token match any of the patterns?
-	vector<string>::iterator pi = permissions.begin();
-	for (; pi != permissions.end(); ++pi) {
-		if (tokens[0] == *pi) {
-			allowedCommand = true;
+	if (Config::cfg.permissions.role[role.key].permissions.length() > 0)
+	{
+		vector<string> permissions = split(Config::cfg.permissions.role[role.key].permissions, ' ');
+		vector<string>::iterator pi = permissions.begin();
+		for (; pi != permissions.end(); ++pi) {
+			if (tokens[0] == *pi) {
+				allowedCommand = true;
+			}
 		}
+		p = permissions[0];
 	}
-	if (!allowedCommand and !isHost and permissions[0] != "<ALLCOMMANDS>")
+	if (!allowedCommand and !isHost and p != "<ALLCOMMANDS>")
 	{
 		return new CommandDefaultMessage(msg, sender, previous, tier, isHost);
 	}
