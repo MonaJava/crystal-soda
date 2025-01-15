@@ -56,7 +56,7 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 
 
 	// Split the message by spaces
-	vector<string> permissions = split(Config::cfg.permissions.role[role].permissions, ' ');
+	/*vector<string> permissions = split(Config::cfg.permissions.role[role].permissions, ' ');
 	vector<string> tokens = split(msg, ' ');
 	bool allowedCommand = false;
 
@@ -70,7 +70,7 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	if (!allowedCommand and !isHost and permissions[0] != "<ALLCOMMANDS>")
 	{
 		return new CommandDefaultMessage(msg, sender, previous, tier, isHost);
-	}
+	}*/
 	if (isCommand(msg, CommandPlayTime::prefixes()))	return new CommandPlayTime(msg, sender, _guests);
 	
 	if (isCommand(msg, EmptyTime::prefixes()))			return new EmptyTime(msg, sender);
