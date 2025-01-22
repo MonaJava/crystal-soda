@@ -59,7 +59,7 @@ public:
 
 		if (VoteData::instance._isVoting == true)
 		{
-			setReply("Something else is still being voted on!");
+			setReply("Something else is still being voted on!" + VoteData::instance._subject + "\nType /yay or /nay to vote!");
 		}
 		return true;
 	}
