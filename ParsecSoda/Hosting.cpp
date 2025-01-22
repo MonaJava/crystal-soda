@@ -586,7 +586,7 @@ void Hosting::handleMessage(const char* message, Guest& guest, bool isHost, bool
 
 			string adjustedMessage = defaultMessage.getReply();
 			Stringer::replacePatternOnce(adjustedMessage, "%", "%%");
-			_chatLog.logMessage(adjustedMessage);
+			_chatLog.logMessage("(" + to_string(guest.userID) + ") " + adjustedMessage);
 			if (WebSocket::instance.isRunning()) {
 				json j;
 				j["event"] = "chat:message";
