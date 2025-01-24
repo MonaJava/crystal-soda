@@ -16,7 +16,7 @@ public:
 	 * @param gamepadClient
 	 */
 	Queue(const char* msg, Guest& sender, GamepadClient& gamepadClient)
-		: ACommand(msg, sender), _sender(sender), _gamepadClient(gamepadClient)
+		: ACommand(msg, sender), _gamepadClient(gamepadClient)
 	{}
 
 	/**
@@ -158,6 +158,5 @@ protected:
 		return vector<const char*> { "/queue ", };
 	}
 	string _msg;
-	Guest& _sender;
 	GamepadClient& _gamepadClient;
 };

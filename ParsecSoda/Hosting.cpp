@@ -1272,6 +1272,7 @@ void Hosting::onGuestStateChange(ParsecGuestState& state, Guest& guest, ParsecSt
 			// Add to guest history
 			_guestHistory.add(guestData);
 			MetadataCache::addActiveGuest(guest);
+			MetadataCache::giveGuestQueueNum(guest.userID, 0);
 
 			// Show welcome message
 			addNewGuest(guest);

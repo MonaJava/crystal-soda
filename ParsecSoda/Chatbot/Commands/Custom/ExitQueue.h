@@ -17,7 +17,7 @@ public:
 	 * @param hotseat
 	 */
 	ExitQueue(const char* msg, Guest& sender, GamepadClient& gamepadClient)
-		: ACommand(msg, sender), _sender(sender), _gamepadClient(gamepadClient)
+		: ACommand(msg, sender), _gamepadClient(gamepadClient)
 	{}
 
 	/**
@@ -29,7 +29,14 @@ public:
 		if (queueNum > 0)
 		{
 			setReply(_sender.name + " has left the queue for pad #" + to_string(queueNum));
-			_gamepadClient.gamepads[queueNum - 1]->removeFromQueue(_sender);
+			if (queueNum <= _gamepadClient.gamepads.size())
+			{
+				_gamepadClient.gamepads[queueNum - 1]->removeFromQueue(_sender);
+			}
+			else
+			{
+				MetadataCache::giveGuestQueueNum(_sender.userID, 0);
+			}
 		}
 		else
 		{
@@ -46,6 +53,5 @@ public:
 	}
 
 protected:
-	Guest& _sender;
 	GamepadClient& _gamepadClient;
 };
