@@ -742,7 +742,7 @@ bool MetadataCache::removeFromIgnored(uint32_t guestID, uint32_t ignoredID) {
         if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
             for (int j = MetadataCache::preferences.activeGuests[i].ignoredUsers.size() - 1; j >= 0; j--) {
                 if (MetadataCache::preferences.activeGuests[i].ignoredUsers.at(j) == ignoredID) {
-                    MetadataCache::preferences.activeGuests[i].ignoredUsers.erase(MetadataCache::preferences.activeGuests[i].ignoredUsers.begin() + i);
+                    MetadataCache::preferences.activeGuests[i].ignoredUsers.erase(MetadataCache::preferences.activeGuests[i].ignoredUsers.begin() + j);
                     MetadataCache::preferences.activeGuests[i].ignoredUsers.shrink_to_fit();
                 }
             }

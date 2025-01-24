@@ -147,14 +147,15 @@ void ChatBotCustom::addHelp() {
 	addCmdHelp("/votekick", "Begins a vote to kick a specified user", Tier::GUEST);
 	addCmdHelp("/yay", "Agrees to a vote", Tier::GUEST);
 	addCmdHelp("/nay", "Disagrees with a vote", Tier::GUEST);
+	addCmdHelp("/ignore", "Prevents another user's chat messages from being sent to you", Tier::GUEST);
 	addCmdHelp("/startcooldown", "Removes all your hotseat playtime", Tier::GUEST);
 	addCmdHelp("/queue", "Reserves a gamepad for you to use when the owner drops", Tier::GUEST);
 	addCmdHelp("/listqueue", "Shows who's in a queue", Tier::GUEST);
 	addCmdHelp("/exitqueue", "Exits the queue", Tier::GUEST);
 	addCmdHelp("/tts", "Text to speech", Tier::GUEST);
-	addCmdHelp("/emptyqueue", "Removes all users from the queue of a gamepad", Tier::MOD);
-	addCmdHelp("/randkick", "Kicks a random guest", Tier::MOD);
-	addCmdHelp("/voteclear", "Stops a vote from finishing", Tier::MOD);
+	addCmdHelp("/emptyqueue", "Removes all users from the queue of a gamepad", Tier::GUEST);
+	addCmdHelp("/randkick", "Kicks a random guest", Tier::GUEST);
+	addCmdHelp("/voteclear", "Stops a vote prematurely", Tier::GUEST);
 	map<string, Role>::iterator it;
 
 	for (it = Roles::r.list.begin(); it != Roles::r.list.end(); it++)

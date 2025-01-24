@@ -22,7 +22,7 @@ public:
 	 * @return true if the command was successful
 	 */
 	bool run() override {
-		_replyMessage = Config::cfg.chatbotName + "/votekick, /poll, /yay, /nay, /queue <num>, /listqueue <num>, /exitqueue, /startcooldown, /tts <text>, /version\n\Mods: /emptyqueue <num>, /randkick";
+		_replyMessage = Config::cfg.chatbotName + "/votekick, /poll, /yay, /nay, /queue <num>, /listqueue <num>, /exitqueue, /startcooldown, /ignore, /tts <text>, /version\n\Mods: /emptyqueue <num>, /randkick, /voteclear";
 		return true;
 	}
 
