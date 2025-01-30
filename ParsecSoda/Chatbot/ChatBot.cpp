@@ -43,6 +43,7 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 	}
 	if (!allowedCommand and !isHost and p != "<ALLCOMMANDS>")
 	{
+		this->setLastUserId(previous);
 		return new CommandDefaultMessage(msg, sender, previous, tier, isHost);
 	}
 	/*
