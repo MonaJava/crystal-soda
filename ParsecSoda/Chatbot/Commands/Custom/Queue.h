@@ -32,8 +32,14 @@ public:
 			return false;
 		}
 
-		int _intArg;
-		_intArg = std::stoi(getArgs()[0]);
+		int _intArg = 1;
+		try {
+			_intArg = std::stoi(getArgs()[0]);
+		}
+		catch (std::invalid_argument) {
+			setReply("No, " + _sender.name + ", " + getArgs()[0] + " is not a number." + "\0");
+			return false;
+		}
 
 		bool rv = false;
 		std::ostringstream reply;
