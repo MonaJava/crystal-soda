@@ -58,12 +58,11 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 	if (isCommand(msg, CommandOne::prefixes())) {
 		return new CommandOne(msg, sender, _gamepadClient);
 	}
-	if (Config::cfg.permissions.role[role.key].useBB)
-	{
-		if (isCommand(msg, CommandBB::prefixes())) {
-			return new CommandBB(msg, sender, _gamepadClient, _macro);
-		}
+
+	if (isCommand(msg, CommandBB::prefixes())) {
+		return new CommandBB(msg, sender, _gamepadClient, _macro);
 	}
+	
 
 	if (isCommand(msg, CommandBonk::prefixes())) {
 		return new CommandBonk(msg, sender, _guests, _host);
@@ -123,16 +122,14 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 		return new CommandRollCall(msg, sender, _guests);
 	}
 
-	if (Config::cfg.permissions.role[role.key].useSFX)
-	{
-		if (isCommand(msg, CommandSFX::prefixes())) {
-			return new CommandSFX(msg, sender);
-		}
-
-		if (isCommand(msg, CommandStopSFX::prefixes())) {
-			return new CommandStopSFX(msg, sender);
-		}
+	if (isCommand(msg, CommandSFX::prefixes())) {
+		return new CommandSFX(msg, sender);
 	}
+
+	if (isCommand(msg, CommandStopSFX::prefixes())) {
+		return new CommandStopSFX(msg, sender);
+	}
+	
 	//if (isCommand(msg, CommandPlay))
 
 	/*
