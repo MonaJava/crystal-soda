@@ -9,8 +9,8 @@ Cache Cache::cache = Cache();
  */
 Cache::Cache() {
 
-	// Set the version
-	version = "5.2.0";
+  	// Set the version
+	  version = "6.0.1";
 
     // Load verified users
     vector<GuestData> verified = VerifiedList::LoadFromFile();
@@ -32,6 +32,10 @@ Cache::Cache() {
     vector<GuestData> vips = VIPList::LoadFromFile();
     vipList = VIPList(vips);
 
+	// Load Exempt noobs users
+	vector<GuestData> exemptNoobs = NoobExemptList::LoadFromFile();
+	noobExemptList = NoobExemptList(exemptNoobs);
+
 	// Load SFX
 	sfxList.init("./SFX/custom/_sfx.json");
 
@@ -43,6 +47,9 @@ Cache::Cache() {
 
 	// Check for updates
 	checkForUpdates();
+
+	// Get the VPN list
+	getVPNList();
 
 	// Start thread to check for updates
 	std::thread updateThread = std::thread([this]() {
@@ -112,7 +119,7 @@ bool Cache::checkForUpdates() {
 
 		// Has the version changed?
 		if (version != update.version) {
-			return true;
+			return false; //TEMPORARILY DISABLING, SHOULD BE RETURN TRUE
 		} else {
 			return false;
 		}
@@ -148,7 +155,7 @@ void Cache::banIPAddress(std::string ip) {
 	}
 
 	// Save the file
-	string ipPath = PathHelper::GetConfigPath() + "\\banned_ip.json";
+	string ipPath = PathHelper::GetConfigPath() + "banned_ip.json";
 	string ipString = j.dump(4);
 	bool success = MTY_WriteTextFile(ipPath.c_str(), "%s", ipString.c_str());
 
@@ -172,9 +179,20 @@ void Cache::unbanIPAddress(std::string ip) {
 	}
 
 	// Save the file
-	string ipPath = PathHelper::GetConfigPath() + "\\banned_ip.json";
+	string ipPath = PathHelper::GetConfigPath() + "banned_ip.json";
 	string ipString = j.dump(4);
 	bool success = MTY_WriteTextFile(ipPath.c_str(), "%s", ipString.c_str());
+}
+
+/**
+ * @brief Remove last IP address from ban list.
+ */
+void Cache::unbanLastIPAddress() {
+	// Was the last IP address banned?
+	if (isBannedIPAddress(lastIpAddress)) {
+		// Unban the IP address
+		unbanIPAddress(lastIpAddress);
+	}
 }
 
 /**
@@ -201,7 +219,7 @@ std::string Cache::getUserIpAddress(uint32_t userId) {
 void Cache::LoadBannedIpAddresses() {
 
     // Load banned IP addresses
-	string ipPath = PathHelper::GetConfigPath() + "\\banned_ip.json";
+	string ipPath = PathHelper::GetConfigPath() + "banned_ip.json";
 	if (MTY_FileExists(ipPath.c_str())) {
 
 		try {
@@ -223,6 +241,80 @@ void Cache::LoadBannedIpAddresses() {
 
 	}
 
+}
+
+// Get the list of VPN IP addresses
+void Cache::getVPNList() {
+	string data = "";
+	size_t bodySize = sizeof(char) * data.length();
+
+	// Prepare the response
+	uint16_t _status = 0;
+	void* response = nullptr;
+	size_t responseSize = 0;
+
+	// Send the request
+	string headers = "Content-Type: application/json\r\n";
+	headers += "Content-Length: " + to_string(bodySize) + "\r\n";
+
+	string domain = "raw.githubusercontent.com";
+	string path = "/X4BNet/lists_vpn/main/ipv4.txt";
+	string method = "GET";
+
+	const bool success = MTY_HttpRequest(
+		domain.c_str(), 0, true, method.c_str(), path.c_str(),
+		headers.c_str(),
+		data.c_str(), bodySize, 20000,
+		&response, &responseSize, &_status
+	);
+
+	const char* responseStr = (const char*)response;
+	if (responseSize > 0 && _status == 200) {
+		// Convert response to std::string
+		string responseString(static_cast<char*>(response), responseSize);
+		
+		// Parse the response string into lines
+		istringstream responseStream(responseString);
+		string line;
+		cidrRanges.clear();  // Clear previous entries
+
+		while (getline(responseStream, line)) {
+			// Trim any leading or trailing whitespace (if needed)
+			line.erase(line.find_last_not_of(" \n\r\t") + 1); // Trim trailing spaces
+			if (!line.empty()) {
+				cidrRanges.push_back(line);  // Add CIDR to the vector
+			}
+		}
+
+	}
+}
+
+// Function to check if an IP address is a VPN
+bool Cache::isVPN(const std::string& ip) {
+
+	for (const auto& range : cidrRanges) {
+		string base = range.substr(0, range.find_last_of('.'));
+		string start = range.substr(range.find_last_of('.') + 1, range.find_last_of('/') - range.find_last_of('.') - 1);
+		string end = range.substr(range.find_last_of('/') + 1);
+
+		// Convert the start and end to integers
+		uint32_t startInt = std::stoi(start);
+		uint32_t endInt = std::stoi(end);
+
+		// Does IP match the base?
+		if (ip.find(base) != string::npos) {
+			// Get the last octet of the IP
+			string lastOctet = ip.substr(ip.find_last_of('.') + 1);
+			uint32_t lastOctetInt = std::stoi(lastOctet);
+
+			// Is the last octet within the range?
+			if (lastOctetInt >= startInt && lastOctetInt <= endInt) {
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 /**

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Base/ACommand.h"
+#include "../../ACommand.h"
 #include "../../../GamepadClient.h"
 #include "../Modules/Macro.h"
 
@@ -13,8 +13,8 @@ public:
 	 * 
 	 * @param gamepadClient
 	 */
-	CommandLockAll(GamepadClient& gamepadClient)
-		: _gamepadClient(gamepadClient)
+	CommandLockAll(const char* msg, Guest& sender, GamepadClient& gamepadClient)
+		: ACommand(msg, sender), _gamepadClient(gamepadClient)
 	{}
 
 	/**
@@ -51,7 +51,7 @@ public:
 	}
 
 	static vector<const char*> prefixes() {
-		return vector<const char*> { "!lockall", "!unlockall", "!lockpads", "!unlockpads" };
+		return vector<const char*> { "!lockall", "!unlockall", "!lockpads", "!unlockpads", "!megalock" };
 	}
 
 protected:

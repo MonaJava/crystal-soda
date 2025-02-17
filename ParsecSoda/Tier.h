@@ -1,6 +1,7 @@
 #pragma once
-enum class Tier
-{
+enum class Tier {
+	GUEST,
+	NOOB,
 	PLEB,
 	ADMIN,
 	MOD,

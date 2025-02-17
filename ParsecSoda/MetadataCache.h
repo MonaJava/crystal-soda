@@ -11,6 +11,7 @@
 #include "Models/GuestData.h"
 #include "GameData.h"
 #include "GuestTier.h"
+#include "Models/Role.h"
 #include "Helpers/Stringer.h"
 #include "Helpers/Stopwatch.h"
 #include <nlohmann/json.hpp>
@@ -18,6 +19,7 @@
 using json = nlohmann::json;
 
 using namespace std;
+
 
 class MetadataCache
 {
@@ -250,6 +252,11 @@ public:
 
 	static vector<GuestTier> loadGuestTiers();
 	static bool saveGuestTiers(vector<GuestTier> guestTiers);
+	
+	static vector<GuestRole> loadGuestRoles();
+	static bool saveGuestRoles(vector<GuestRole> guestRoles);
+
+
 
 	static bool saveTheme(int theme);
 
@@ -257,6 +264,13 @@ public:
 
 	static bool addActiveGuest(Guest guest);
 	static bool removeActiveGuest(Guest guest);
+	static bool giveGuestQueueNum(uint32_t guestID, int padIndex);
+	static int getGuestQueueNum(uint32_t guestID);
+
+	static bool addToIgnored(uint32_t guestID, uint32_t ignoredID);
+	static bool removeFromIgnored(uint32_t guestID, uint32_t ignoredID);
+	static vector<int> getIgnored(uint32_t guestID);
+	static bool isIgnored(uint32_t guestID, uint32_t ignoredID);
 
 	static Preferences preferences;
 	static Kiosk kiosk;

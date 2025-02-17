@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../Base/ACommandIntegerArg.h"
+#include "../../ACommand.h"
 #include "../../../GamepadClient.h"
 
-class CommandSwap : public ACommandIntegerArg
+class CommandSwap : public ACommand
 {
 public:
 	
@@ -15,7 +15,7 @@ public:
 	 * @param gamepadClient 
 	 */
 	CommandSwap(const char* msg, Guest &sender, GamepadClient  &gamepadClient)
-		: ACommandIntegerArg(msg, internalPrefixes()), _sender(sender), _gamepadClient(gamepadClient)
+		: ACommand(msg, sender), _gamepadClient(gamepadClient)
 	{}
 
 	/**
@@ -25,28 +25,51 @@ public:
 	 * @return false 
 	 */
 	bool run() override {
-		
-		if (!ACommandIntegerArg::run()) {
-			SetReply("Usage: !swap <integer in range [1, 4]>\nExample: !swap 4\0");
+
+		int nGamepads = _gamepadClient.gamepads.size();
+
+		if (nGamepads == 0) {
+			setReply("No gamepads available.\0");
 			return false;
 		}
 
-		GamepadClient::PICK_REQUEST result = _gamepadClient.pick(_sender, _intArg - 1);
+		if (getArgs().size() == 0) {
+			setReply("Usage: !swap <integer in range [1, " + std::to_string(nGamepads) + "]>\nExample: !swap 4\0");
+			return false;
+		}
 
+		int slot = 1;
+		try {
+			slot = std::stoi(getArgs()[0]);
+		}
+		catch (std::invalid_argument) {
+			setReply("Usage: !swap <integer in range [1, " + std::to_string(nGamepads) + "]>\nExample: !swap 4\0");
+			return false;
+		}
+
+		// In range [1, nGamepads]
+		if (slot < 1 || slot > nGamepads) {
+			setReply("Usage: !swap <integer in range [1, " + std::to_string(nGamepads) + "]>\nExample: !swap 4\0");
+			return false;
+		}
+
+		GamepadClient::PICK_REQUEST result = _gamepadClient.pick(_sender, slot - 1);
+		
 		bool rv = false;
 		std::ostringstream reply;
+		Role role = Roles::r.list[GuestRoles::instance.getRole(_sender.userID).key];
 
 		switch (result)
 		{
 		case GamepadClient::PICK_REQUEST::OK:
 			reply
-				<< Config::cfg.chatbotName + "Gamepad " << _intArg << " was given to " << _sender.name << "\t(#" << _sender.userID << ")\n"
+				<< Config::cfg.chatbotName + "Gamepad " << slot << " was given to " << _sender.name << "\t(#" << _sender.userID << ")\n"
 				<< "\t\tType !pads to see the gamepad list.\0";
 			rv = true;
 			break;
 		case GamepadClient::PICK_REQUEST::DISCONNECTED:
 			reply
-				<< Config::cfg.chatbotName << _sender.name << ", gamepad " << _intArg << " is offline.\n"
+				<< Config::cfg.chatbotName << _sender.name << ", gamepad " << slot << " is offline.\n"
 				<< "\t\tType !pads to see the gamepad list.\0";
 			break;
 		case GamepadClient::PICK_REQUEST::SAME_USER:
@@ -79,12 +102,22 @@ public:
 				<< Config::cfg.chatbotName << _sender.name << ", puppet master is handling that gamepad.\n"
 				<< "\t\tType !pads to see the gamepad list.\0";
 			break;
+		case GamepadClient::PICK_REQUEST::RESERVED:
+			reply
+				<< Config::cfg.chatbotName << _sender.name << ", That gamepad is reserved by someone else.\n"
+				<< "\t\tType !pads to see the gamepad list.\0";
+			break;
+		case GamepadClient::PICK_REQUEST::ROLE_BLOCK:
+			reply
+				<< Config::cfg.chatbotName << role.name << "s aren't allowed to receive gamepads.\n"
+				<< "\t\tType !pads to see the gamepad list.\0";
+			break;
 		default:
 			break;
 		}
 
 		_replyMessage = reply.str();
-		return rv;
+		return false;
 	}
 
 	/**
@@ -102,7 +135,6 @@ protected:
 		return vector<const char*> { "!swap ", "!pick ", "!slot " };
 	}
 	string _msg;
-	Guest& _sender;
 	GamepadClient& _gamepadClient;
 };
 

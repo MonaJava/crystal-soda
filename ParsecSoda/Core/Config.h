@@ -8,6 +8,7 @@
 #include "matoya.h"
 #include <nlohmann/json.hpp>
 #include "../Helpers/PathHelper.h"
+#include "../Helpers/Keymap.h"
 
 using json = nlohmann::json;
 
@@ -16,6 +17,13 @@ using namespace std;
 class Config {
 	
 public:
+	class Hotkey {
+	public:
+		string command = "";
+		string keyName = "";
+		int key = 0;
+	};
+
 	class General {
 	public:
 		unsigned int theme = 4;
@@ -25,6 +33,8 @@ public:
 		bool parsecLogs = false;
 		bool hotkeyBB = true;
 		bool hotkeyLock = true;
+		bool blockVPN = false;
+		bool devMode = false;
 	};
 	
 	class Audio {
@@ -83,6 +93,8 @@ public:
 		string secret = "";
 		bool latencyLimit = false;
 		unsigned int latencyLimitThreshold = 0;
+		string streamUrl = "";
+		unsigned int repThreshold = 70;
 	};
 	
 	class Chat {
@@ -96,6 +108,7 @@ public:
 		string welcomeMessage = "";
 		bool bonkEnabled = true;
 		bool hostBonkProof = false;
+		bool messageNotification = false;
 	};
 
 	class Widgets {
@@ -114,6 +127,7 @@ public:
 		bool video = false;
 		bool overlay = false;
 		bool keyMapper = false;
+		bool devTools = false;
 	};
 
 	class Hotseat {
@@ -123,6 +137,7 @@ public:
 		int resetTime = 30;
 		int minResetTime = 5;
 		bool multiBonus = true;
+		int reminderInterval = 5;
 	};
 	
 	class KioskMode {
@@ -169,34 +184,116 @@ public:
 	public:
 		class PermissionGroup {
 		public:
+			string permissions = "";
 			bool useBB = false;
 			bool useSFX = false;
 			bool changeControls = false;
+			bool kick = false;
+			bool limit = false;
+			int extraHotseatTime = 0;
+			int cooldownShrink = 0;
+			int rank = 0;
 
+			PermissionGroup() {
+				this->permissions = "";
+				this->useBB = false;
+				this->useSFX = false;
+				this->changeControls = true;
+				this->kick = false;
+				this->limit = false;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
+			};
+			PermissionGroup(string permissions) {
+				this->permissions = permissions;
+				this->useBB = false;
+				this->useSFX = false;
+				this->changeControls = true;
+				this->kick = false;
+				this->limit = false;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
+			};
+			PermissionGroup(string permissions, bool kick, bool limit) {
+				this->permissions = permissions;
+				this->useBB = false;
+				this->useSFX = false;
+				this->changeControls = true;
+				this->kick = kick;
+				this->limit = limit;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
+			};
 			PermissionGroup(bool useBB, bool useSFX, bool changeControls) {
+				this->permissions = "";
 				this->useBB = useBB;
 				this->useSFX = useSFX;
-				this->changeControls = useBB;
+				this->changeControls = changeControls;
+				this->kick = false;
+				this->limit = false;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
+			};
+
+			PermissionGroup(bool useBB, bool useSFX, bool changeControls, bool kick, bool limit) {
+				this->permissions = "";
+				this->useBB = useBB;
+				this->useSFX = useSFX;
+				this->changeControls = changeControls;
+				this->kick = kick;
+				this->limit = limit;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
 			};
 		};
-
-		PermissionGroup guest = PermissionGroup(false, false, true);
+		PermissionGroup guest = PermissionGroup(true, true, true);
 		PermissionGroup vip = PermissionGroup(true, true, true);
 		PermissionGroup moderator = PermissionGroup(true, true, true);
+		PermissionGroup noob = PermissionGroup(true, true, true, false, true);
+		
+		map<string, PermissionGroup> role = { 
+			{"guest", PermissionGroup("!8ball !bonk !cookie !discord !ff !kb !keyboard !limit !mirror !one !pads !ping !playtime !rollcall !rpg !spectate !swap !triangle /emptyplaytime /exitqueue /help /ignore /listqueue /nay /poll /queue /startcooldown /v /version /votekick /votequestion /yay") },
+			{"white-listed noob", PermissionGroup("!8ball !bonk !cookie !discord !ff !kb !keyboard !limit !mirror !one !pads !ping !playtime !rollcall !rpg !spectate !swap !triangle /emptyplaytime /exitqueue /help /ignore /listqueue /nay /poll /queue /startcooldown /v /version /votekick /votequestion /yay") },
+			{"noob", PermissionGroup("!8ball !cookie !discord !ff !kb !keyboard !limit !mirror !one !pads !ping !playtime !rollcall !rpg !spectate !swap !triangle /emptyplaytime /exitqueue /help /ignore /listqueue /nay /poll /startcooldown /v /version /votequestion /yay")},
+			{"mod 2", PermissionGroup("!8ball !ban !bb !bonk !cookie !cooldown !dc !dcall !decrease !discord !extend !ff !kb !keyboard !kick !limit !lock !lockall !mirror !mute !name !one !pads !ping !playtime !rc !restart !rollcall !rpg !sfx !spectate !stopsfx !strip !stripall !swap !triangle !unban !unbanlastip !unmute !verify !warmup /emptyplaytime /emptyqueue /exitqueue /help /ignore /listqueue /nay /poll /queue /randkick /startcooldown /v /version /voteclear /votekick /votequestion /yay")},
+			{"overlord", PermissionGroup("!8ball !ban !bb !bonk !cookie !cooldown !dc !dcall !decrease !discord !extend !ff !guest !kb !keyboard !kick !limit !lock !lockall !mirror !mod !modbutnotmod !mute !name !one !pads !ping !playtime !rc !restart !rollcall !rpg !sfx !spectate !stopsfx !strip !stripall !swap !triangle !unban !unbanlastip !unmod !unmute !unvip !verify !vip !warmup /emptyplaytime /emptyqueue /exitqueue /help /ignore /listqueue /nay /poll /queue /randkick /startcooldown /unnoob /v /version /voteclear /votekick /votequestion /yay")},
+			{"vip", PermissionGroup("!8ball !bb !bonk !cookie !discord !ff !kb !keyboard !mirror !one !pads !ping !playtime !rollcall !rpg !sfx !spectate !stopsfx !swap !triangle /emptyplaytime /emptyqueue /exitqueue /help /ignore /listqueue /nay /poll /queue /startcooldown /v /version /voteclear /votekick /votequestion /yay")},
+			{"host", PermissionGroup("<ALLCOMMANDS>")},
+		};
+		int noobNum = 1600;
 	};
 
 	class Arcade {
 	public:
-		string token = "";
-		string username = "";
 		bool showLogin = true;
 		int countryIndex = 220;
 	};
 
 	class Socket {
 		public:
-		bool enabled = false;
+		bool enabled = true;
 		int port = 9002;
+	};
+
+	class Hotkeys {
+
+		public:
+			bool enabled = true;
+			vector<Hotkey> keys = {};
+	};
+
+	class Developer {
+	public:
+		bool useDevDomain = false;
+		string devDomain = "";
+		bool useStagingDomain = false;
+		string stagingDomain = "";
+		bool skipUpdateCheck = false;
 	};
 
 	General general;
@@ -212,6 +309,8 @@ public:
 	Permissions permissions;
 	Arcade arcade;
 	Socket socket;
+	Hotkeys hotkeys;
+	Developer developer;
 
 	// Supported resolutions
 	struct Resolution {
@@ -278,6 +377,10 @@ public:
 	// Overlay theme names loaded from the themes folder
 	vector<string> overlayThemes = vector<string>();
 
+	bool mapHotkey = false;
+	string pendingHotkeyCommand = "";
+	int pendingHotkey = -1;
+
 	// Constructor
 	Config() {
 
@@ -316,6 +419,10 @@ public:
 		}
 		return originalValue;
 	}
+
+	void SetHotkey();
+	void AddHotkey(string command, int key);
+	void RemoveHotkey(int index);
 private:
 	void static LoadOverlayThemes();
 };

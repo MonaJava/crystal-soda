@@ -5,7 +5,7 @@ Guest::Guest()
 {}
 
 Guest::Guest(string name, uint32_t userID, uint32_t id, Status status, bool fake, bool spectator)
-	: name(name), userID(userID), id(id), status(status), fake(fake), spectator(false)
+	: name(name), userID(userID), id(id), status(status), fake(fake), spectator(spectator)
 {}
 
 Guest::Guest(ParsecGuest guest)

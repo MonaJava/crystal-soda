@@ -1,6 +1,7 @@
 #include "../Modules/WebSocket.h"
 #include "Config.h"
-
+#include "../Hosting.h"
+extern Hosting g_hosting;
 Config Config::cfg;
 
 /// <summary>
@@ -9,7 +10,7 @@ Config Config::cfg;
 void Config::Load() {
 
 	// Get the config path
-	string configPath = PathHelper::GetConfigPath() + "\\config.json";
+	string configPath = PathHelper::GetConfigPath() + "config.json";
 	if (MTY_FileExists(configPath.c_str())) {
 
 		try {
@@ -28,13 +29,15 @@ void Config::Load() {
 			cfg.general.parsecLogs = setValue(cfg.general.parsecLogs, j["General"]["parsecLogs"].get<bool>());
 			cfg.general.hotkeyBB = setValue(cfg.general.hotkeyBB, j["General"]["hotkeyBB"].get<bool>());
 			cfg.general.hotkeyLock = setValue(cfg.general.hotkeyLock, j["General"]["hotkeyLock"].get<bool>());
+			cfg.general.blockVPN = setValue(cfg.general.blockVPN, j["General"]["blockVPN"].get<bool>());
+			cfg.general.devMode = setValue(cfg.general.devMode, j["General"]["devMode"].get<bool>());
 
 			// Set Audio properties
 			cfg.audio.inputDevice = setValue(cfg.audio.inputDevice, j["Audio"]["inputDevice"].get<unsigned int>());
 			cfg.audio.outputDevice = setValue(cfg.audio.outputDevice, j["Audio"]["outputDevice"].get<unsigned int>());
 			cfg.audio.micFrequency = setValue(cfg.audio.micFrequency, j["Audio"]["micFrequency"].get<unsigned int>());
 			cfg.audio.micVolume = setValue(cfg.audio.micVolume, j["Audio"]["micVolume"].get<float>());
-			cfg.audio.micEnabled = setValue(cfg.audio.micEnabled, j["Audio"]["micEnabled"].get<bool>());
+			cfg.audio.micEnabled = setValue(cfg.audio.micEnabled, j["Audio"]["microphoneEnabled"].get<bool>());
 			cfg.audio.speakersFrequency = setValue(cfg.audio.speakersFrequency, j["Audio"]["speakersFrequency"].get<unsigned int>());
 			cfg.audio.speakersVolume = setValue(cfg.audio.speakersVolume, j["Audio"]["speakersVolume"].get<float>());
 			cfg.audio.speakersEnabled = setValue(cfg.audio.speakersEnabled, j["Audio"]["speakersEnabled"].get<bool>());
@@ -75,7 +78,8 @@ void Config::Load() {
 			cfg.room.guestLimit = setValue(cfg.room.guestLimit, j["Room"]["guestLimit"].get<unsigned int>());
 			cfg.room.isValid = setValue(cfg.room.isValid, j["Room"]["isValid"].get<bool>());
 			cfg.room.secret = setValue(cfg.room.secret, j["Room"]["secret"].get<string>());
-
+			cfg.room.streamUrl = setValue(cfg.room.streamUrl, j["Room"]["streamUrl"].get<string>());
+			cfg.room.repThreshold = setValue(cfg.room.repThreshold, j["Room"]["repThreshold"].get<unsigned int>());
 			cfg.room.latencyLimit = setValue(cfg.room.latencyLimit, j["Room"]["latencyLimit"].get<bool>());
 			cfg.room.latencyLimitThreshold = setValue(cfg.room.latencyLimitThreshold, j["Room"]["latencyLimitThreshold"].get<unsigned int>());
 
@@ -89,6 +93,7 @@ void Config::Load() {
 			cfg.chat.welcomeMessage = setValue(cfg.chat.welcomeMessage, j["Chat"]["welcomeMessage"].get<string>());
 			cfg.chat.bonkEnabled = setValue(cfg.chat.bonkEnabled, j["Chat"]["bonkEnabled"].get<bool>());
 			cfg.chat.hostBonkProof = setValue(cfg.chat.hostBonkProof, j["Chat"]["hostBonkProof"].get<bool>());
+			cfg.chat.messageNotification = setValue(cfg.chat.messageNotification, j["Chat"]["messageNotification"].get<bool>());
 
 			// Set Widgets properties
 			cfg.widgets.host = setValue(cfg.widgets.host, j["Widgets"]["host"].get<bool>());
@@ -105,6 +110,7 @@ void Config::Load() {
 			cfg.widgets.video = setValue(cfg.widgets.video, j["Widgets"]["video"].get<bool>());
 			cfg.widgets.overlay = setValue(cfg.widgets.overlay, j["Widgets"]["overlay"].get<bool>());
 			cfg.widgets.keyMapper = setValue(cfg.widgets.keyMapper, j["Widgets"]["keyMapper"].get<bool>());
+			cfg.widgets.devTools = setValue(cfg.widgets.devTools, j["Widgets"]["devTools"].get<bool>());
 
 			// Set Hotseat properties
 			cfg.hotseat.enabled = setValue(cfg.hotseat.enabled, j["Hotseat"]["enabled"].get<bool>());
@@ -112,6 +118,7 @@ void Config::Load() {
 			cfg.hotseat.resetTime = setValue(cfg.hotseat.resetTime, j["Hotseat"]["resetTime"].get<unsigned int>());
 			cfg.hotseat.minResetTime = setValue(cfg.hotseat.minResetTime, j["Hotseat"]["minResetTime"].get<unsigned int>());
 			cfg.hotseat.multiBonus = setValue(cfg.hotseat.multiBonus, j["Hotseat"]["multiBonus"].get<bool>());
+			cfg.hotseat.reminderInterval = setValue(cfg.hotseat.reminderInterval, j["Hotseat"]["reminderInterval"].get<unsigned int>());
 
 			// Set KioskMode properties
 			cfg.kioskMode.enabled = false;
@@ -142,22 +149,67 @@ void Config::Load() {
 			cfg.permissions.guest.useBB = setValue(cfg.permissions.guest.useBB, j["Permissions"]["guest"]["useBB"].get<bool>());
 			cfg.permissions.guest.useSFX = setValue(cfg.permissions.guest.useSFX, j["Permissions"]["guest"]["useSFX"].get<bool>());
 			cfg.permissions.guest.changeControls = setValue(cfg.permissions.guest.changeControls, j["Permissions"]["guest"]["changeControls"].get<bool>());
+			cfg.permissions.guest.kick = setValue(cfg.permissions.guest.kick, j["Permissions"]["guest"]["kick"].get<bool>());
+			cfg.permissions.guest.limit = setValue(cfg.permissions.guest.limit, j["Permissions"]["guest"]["limit"].get<bool>());
 			cfg.permissions.vip.useBB = setValue(cfg.permissions.vip.useBB, j["Permissions"]["vip"]["useBB"].get<bool>());
 			cfg.permissions.vip.useSFX = setValue(cfg.permissions.vip.useSFX, j["Permissions"]["vip"]["useSFX"].get<bool>());
 			cfg.permissions.vip.changeControls = setValue(cfg.permissions.vip.changeControls, j["Permissions"]["vip"]["changeControls"].get<bool>());
+			cfg.permissions.vip.kick = setValue(cfg.permissions.vip.kick, j["Permissions"]["vip"]["kick"].get<bool>());
+			cfg.permissions.vip.limit = setValue(cfg.permissions.vip.limit, j["Permissions"]["vip"]["limit"].get<bool>());
 			cfg.permissions.moderator.useBB = setValue(cfg.permissions.moderator.useBB, j["Permissions"]["moderator"]["useBB"].get<bool>());
 			cfg.permissions.moderator.useSFX = setValue(cfg.permissions.moderator.useSFX, j["Permissions"]["moderator"]["useSFX"].get<bool>());
 			cfg.permissions.moderator.changeControls = setValue(cfg.permissions.moderator.changeControls, j["Permissions"]["moderator"]["changeControls"].get<bool>());
+			cfg.permissions.moderator.kick = setValue(cfg.permissions.moderator.kick, j["Permissions"]["moderator"]["kick"].get<bool>());
+			cfg.permissions.moderator.limit = setValue(cfg.permissions.moderator.limit, j["Permissions"]["moderator"]["limit"].get<bool>());
+			cfg.permissions.noob.useBB = setValue(cfg.permissions.noob.useBB, j["Permissions"]["noob"]["useBB"].get<bool>());
+			cfg.permissions.noob.useSFX = setValue(cfg.permissions.noob.useSFX, j["Permissions"]["noob"]["useSFX"].get<bool>());
+			cfg.permissions.noob.changeControls = setValue(cfg.permissions.noob.changeControls, j["Permissions"]["noob"]["changeControls"].get<bool>());
+			cfg.permissions.noob.kick = setValue(cfg.permissions.noob.kick, j["Permissions"]["noob"]["kick"].get<bool>());
+			cfg.permissions.noob.limit = setValue(cfg.permissions.noob.limit, j["Permissions"]["noob"]["limit"].get<bool>());
+			cfg.permissions.noobNum = setValue(cfg.permissions.noobNum, j["Permissions"]["noobNum"].get<int>());
+
+			json permissions = j["Permissions"]["roles"];
+			for (json::iterator it = permissions.begin(); it != permissions.end(); ++it) {
+				Permissions::PermissionGroup permission;
+				permission.permissions = it.value()["permissions"].get<string>();
+				permission.useBB = it.value()["useBB"].get<bool>();
+				permission.useSFX = it.value()["useSFX"].get<bool>();
+				permission.changeControls = it.value()["changeControls"].get<bool>();
+				permission.kick = it.value()["kick"].get<bool>();
+				permission.limit = it.value()["limit"].get<bool>();
+				permission.extraHotseatTime = it.value()["extraHotseatTime"].get<int>();
+				permission.cooldownShrink = it.value()["cooldownShrink"].get<int>();
+				cfg.permissions.role[it.value()["role"].get<string>()] = permission;
+			}
+			cfg.permissions.noobNum = setValue(cfg.permissions.noobNum, j["Permissions"]["noobNum"].get<int>());
+
 
 			// Set Arcade properties
-			cfg.arcade.token = setValue(cfg.arcade.token, j["Arcade"]["token"].get<string>());
-			cfg.arcade.username = setValue(cfg.arcade.username, j["Arcade"]["username"].get<string>());
 			cfg.arcade.showLogin = setValue(cfg.arcade.showLogin, j["Arcade"]["showLogin"].get<bool>());
 			cfg.arcade.countryIndex = setValue(cfg.arcade.countryIndex, j["Arcade"]["countryIndex"].get<unsigned int>());
 
 			// Socket
 			cfg.socket.enabled = setValue(cfg.socket.enabled, j["Socket"]["enabled"].get<bool>());
 			cfg.socket.port = setValue(cfg.socket.port, j["Socket"]["port"].get<unsigned int>());
+
+			// Hotkeys
+			Keymap keymap = Keymap();
+			cfg.hotkeys.enabled = setValue(cfg.hotkeys.enabled, j["Hotkeys"]["enabled"].get<bool>());
+			json hotkeys = j["Hotkeys"]["keys"];
+			for (json::iterator it = hotkeys.begin(); it != hotkeys.end(); ++it) {
+				Hotkey hotkey;
+				hotkey.command = it.value()["command"].get<string>();
+				hotkey.key = it.value()["key"].get<int>();
+				hotkey.keyName = keymap.findKeyByValue(hotkey.key);
+				cfg.hotkeys.keys.push_back(hotkey);
+			}
+
+			// Developer
+			cfg.developer.useDevDomain = setValue(cfg.developer.useDevDomain, j["Developer"]["useDevDomain"].get<bool>());
+			cfg.developer.devDomain = setValue(cfg.developer.devDomain, j["Developer"]["devDomain"].get<string>());
+			cfg.developer.useStagingDomain = setValue(cfg.developer.useStagingDomain, j["Developer"]["useStagingDomain"].get<bool>());
+			cfg.developer.stagingDomain = setValue(cfg.developer.stagingDomain, j["Developer"]["stagingDomain"].get<string>());
+			cfg.developer.skipUpdateCheck = setValue(cfg.developer.skipUpdateCheck, j["Developer"]["skipUpdateCheck"].get<bool>());
 
 		} catch (json::exception &e) {
 			// Handle exception
@@ -185,7 +237,9 @@ void Config::Save() {
 		{"ipBan", cfg.general.ipBan},
 		{"parsecLogs", cfg.general.parsecLogs},
 		{"hotkeyBB", cfg.general.hotkeyBB},
-		{"hotkeyLock", cfg.general.hotkeyLock}
+		{"hotkeyLock", cfg.general.hotkeyLock},
+		{"blockVPN", cfg.general.blockVPN},
+		{"devMode", cfg.general.devMode}
 	};
 
 	// Audio
@@ -194,7 +248,7 @@ void Config::Save() {
 		{"outputDevice", cfg.audio.outputDevice},
 		{"micFrequency", cfg.audio.micFrequency},
 		{"micVolume", cfg.audio.micVolume},
-		{"micEnabled", cfg.audio.micEnabled},
+		{"microphoneEnabled", cfg.audio.micEnabled},
 		{"speakersFrequency", cfg.audio.speakersFrequency},
 		{"speakersVolume", cfg.audio.speakersVolume},
 		{"speakersEnabled", cfg.audio.speakersEnabled},
@@ -242,7 +296,9 @@ void Config::Save() {
 		{"isValid", cfg.room.isValid},
 		{"secret", cfg.room.secret},
 		{"latencyLimit", cfg.room.latencyLimit},
-		{"latencyLimitThreshold", cfg.room.latencyLimitThreshold}
+		{"latencyLimitThreshold", cfg.room.latencyLimitThreshold},
+		{"streamUrl", cfg.room.streamUrl},
+		{"repThreshold", cfg.room.repThreshold}
 	};
 
 	// Chat
@@ -255,7 +311,8 @@ void Config::Save() {
 		{"autoMuteTime", cfg.chat.autoMuteTime},
 		{"welcomeMessage", cfg.chat.welcomeMessage},
 		{"bonkEnabled", cfg.chat.bonkEnabled},
-		{"hostBonkProof", cfg.chat.hostBonkProof}
+		{"hostBonkProof", cfg.chat.hostBonkProof},
+		{"messageNotification", cfg.chat.messageNotification}
 	};
 
 	// Widgets
@@ -273,7 +330,8 @@ void Config::Save() {
 		{"audio", cfg.widgets.audio},
 		{"video", cfg.widgets.video},
 		{"overlay", cfg.widgets.overlay},
-		{"keyMapper", cfg.widgets.keyMapper}
+		{"keyMapper", cfg.widgets.keyMapper},
+		{"devTools", cfg.widgets.devTools}
 	};
 
 	// Hotseat
@@ -282,7 +340,8 @@ void Config::Save() {
 		{"playTime", cfg.hotseat.playTime},
 		{"resetTime", cfg.hotseat.resetTime},
 		{"minResetTime", cfg.hotseat.minResetTime},
-		{"multiBonus", cfg.hotseat.multiBonus }
+		{"multiBonus", cfg.hotseat.multiBonus },
+		{"reminderInterval", cfg.hotseat.reminderInterval}
 	};
 
 	// KioskMode
@@ -315,28 +374,61 @@ void Config::Save() {
 	};
 
 	// Permissions
-	j["Permissions"] = {
+	map<string, json> permissions;
+	for (auto it = cfg.permissions.role.begin(); it != cfg.permissions.role.end(); ++it)
+	{
+		json permissionJson;
+		permissionJson["role"] = it->first;
+		permissionJson["permissions"] = it->second.permissions;
+		permissionJson["useBB"] = it->second.useBB;
+		permissionJson["useSFX"] = it->second.useSFX;
+		permissionJson["changeControls"] = it->second.changeControls;
+		permissionJson["kick"] = it->second.kick;
+		permissionJson["limit"] = it->second.limit;
+		permissionJson["extraHotseatTime"] = it->second.extraHotseatTime;
+		permissionJson["cooldownShrink"] = it->second.cooldownShrink;
+		permissions[it->first] = permissionJson;
+	}
+
+	j["Permissions"] = { 
+		{ "roles", permissions },
+		
+		//redundant, only leaving in so I don't have to change all the code at onceex
 		{"guest", {
 			{"useBB", cfg.permissions.guest.useBB},
 			{"useSFX", cfg.permissions.guest.useSFX},
-			{"changeControls", cfg.permissions.guest.changeControls}
+			{"changeControls", cfg.permissions.guest.changeControls},
+			{"kick", cfg.permissions.guest.kick },
+			{"limit", cfg.permissions.guest.limit }
 		}},
 		{"vip", {
 			{"useBB", cfg.permissions.vip.useBB},
 			{"useSFX", cfg.permissions.vip.useSFX},
-			{"changeControls", cfg.permissions.vip.changeControls}
+			{"changeControls", cfg.permissions.vip.changeControls},
+			{"kick", cfg.permissions.vip.kick },
+			{"limit", cfg.permissions.vip.limit }
 		}},
 		{"moderator", {
 			{"useBB", cfg.permissions.moderator.useBB},
 			{"useSFX", cfg.permissions.moderator.useSFX},
-			{"changeControls", cfg.permissions.moderator.changeControls}
-		}}
+			{"changeControls", cfg.permissions.moderator.changeControls},
+			{"kick", cfg.permissions.moderator.kick},
+			{"limit", cfg.permissions.moderator.limit }
+		}},
+		{"noob", {
+			{"useBB", cfg.permissions.noob.useBB},
+			{"useSFX", cfg.permissions.noob.useSFX},
+			{"changeControls", cfg.permissions.noob.changeControls},
+			{"kick", cfg.permissions.noob.kick},
+			{"limit", cfg.permissions.noob.limit }
+		}},
+
+		{"noobNum", cfg.permissions.noobNum}
+	
 	};
 
 	// Arcade
 	j["Arcade"] = {
-		{"token", cfg.arcade.token},
-		{"username", cfg.arcade.username},
 		{"showLogin", cfg.arcade.showLogin},
 		{"countryIndex", cfg.arcade.countryIndex}
 	};
@@ -347,12 +439,36 @@ void Config::Save() {
 		{"port", cfg.socket.port}
 	};
 
+	// Hotkeys
+	vector <json> hotkeys;
+	for (Hotkey hotkey : cfg.hotkeys.keys) {
+		json hotkeyJson;
+		hotkeyJson["command"] = hotkey.command;
+		hotkeyJson["key"] = hotkey.key;
+		hotkeyJson["keyName"] = hotkey.keyName;
+		hotkeys.push_back(hotkeyJson);
+	}
+
+	j["Hotkeys"] = {
+		{"enabled", cfg.hotkeys.enabled},
+		{"keys", hotkeys}
+	};
+
+	// Developer
+	j["Developer"] = {
+		{"useDevDomain", cfg.developer.useDevDomain},
+		{"devDomain", cfg.developer.devDomain},
+		{"useStagingDomain", cfg.developer.useStagingDomain},
+		{"stagingDomain", cfg.developer.stagingDomain},
+		{"skipUpdateCheck", cfg.developer.skipUpdateCheck}
+	};
+
 	// Save the file
 	string configPath = PathHelper::GetConfigPath();
 	if (configPath != "") {
 
 		// Filepath
-		string filePath = configPath + "\\config.json";
+		string filePath = configPath + "config.json";
 
 		string configString = j.dump(4);
 		bool success = MTY_WriteTextFile(filePath.c_str(), "%s", configString.c_str());
@@ -386,4 +502,67 @@ void Config::LoadOverlayThemes() {
 		cfg.overlayThemes.push_back(file);
 	}
 
+}
+
+/// <summary>
+/// Map a hotkey to a command.
+/// </summary>
+void Config::SetHotkey() {
+	Config::cfg.mapHotkey = true;
+	auto keyThread = [&]() {
+		while (Config::cfg.mapHotkey) {
+			for (int keyCode = 0; keyCode < 256; ++keyCode) {
+				if (GetAsyncKeyState(keyCode) & 0x8000) {
+
+					// If escape is pressed, cancel the hotkey mapping
+					if (keyCode == VK_ESCAPE) {
+						Config::cfg.pendingHotkeyCommand = "";
+						Config::cfg.mapHotkey = false;
+						break;
+					}
+
+					// Modifier keys not allowed
+					if (keyCode == VK_SHIFT || keyCode == VK_CONTROL || keyCode == VK_MENU) {
+						break;
+					}
+
+					// Mouse buttons not allowed
+					if (keyCode == VK_LBUTTON || keyCode == VK_RBUTTON || keyCode == VK_MBUTTON) {
+						break;
+					}
+
+					Config::cfg.AddHotkey(Config::cfg.pendingHotkeyCommand, keyCode);
+					Config::cfg.mapHotkey = false;
+
+				}
+			}
+			Sleep(100);
+		}
+	};
+	std::thread(keyThread).detach();
+
+}
+
+void Config::AddHotkey(string command, int key) {
+	Hotkey hotkey;
+	hotkey.command = command;
+	hotkey.key = key;
+	
+	Keymap keymap = Keymap();
+	hotkey.keyName = keymap.findKeyByValue(key);
+
+	cfg.hotkeys.keys.push_back(hotkey);
+	RegisterHotKey(g_hosting.mainWindow, cfg.hotkeys.keys.size()-1, MOD_CONTROL|MOD_NOREPEAT, key);
+	Config::cfg.Save();
+}
+
+void Config::RemoveHotkey(int index) {
+	for (int i = 0; i < Config::cfg.hotkeys.keys.size(); i++) {
+		if (i == index) {
+			UnregisterHotKey(g_hosting.mainWindow, i);
+			Config::cfg.hotkeys.keys.erase(Config::cfg.hotkeys.keys.begin() + i);
+			Config::cfg.Save();
+			break;
+		}
+	}
 }

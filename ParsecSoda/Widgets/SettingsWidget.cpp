@@ -4,6 +4,7 @@
 SettingsWidget::SettingsWidget(Hosting& hosting)
     : _hosting(hosting)
 {
+
     _disableGuideButton = Config::cfg.input.disableGuideButton;
     _disableKeyboard = Config::cfg.input.disableKeyboard;
     _latencyLimitEnabled = Config::cfg.room.latencyLimit;
@@ -15,6 +16,10 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
     _hostBonkProof = Config::cfg.chat.hostBonkProof;
     _ipBan = Config::cfg.general.ipBan;
     _parsecLogs = Config::cfg.general.parsecLogs;
+    _blockVPN = Config::cfg.general.blockVPN;
+    _devMode = Config::cfg.general.devMode;
+
+    
 
     _microphoneEnabled = Config::cfg.audio.micEnabled;
 
@@ -25,6 +30,9 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
 
     _hotkeyBB = Config::cfg.general.hotkeyBB;
     _hotkeyLock = Config::cfg.general.hotkeyLock;
+
+
+
 
     _guestSFX = Config::cfg.permissions.guest.useSFX;
     _guestBB = Config::cfg.permissions.guest.useBB;
@@ -37,6 +45,50 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
     _modSFX = Config::cfg.permissions.moderator.useSFX;
     _modBB = Config::cfg.permissions.moderator.useBB;
     _modControls = Config::cfg.permissions.moderator.changeControls;
+
+    _noobNum = Config::cfg.permissions.noobNum;
+    _kickNoob = !Config::cfg.permissions.noob.kick;
+    _limitNoob = !Config::cfg.permissions.noob.limit;
+
+    
+    
+    GuestRoles::instance.loadRoles();
+    Roles::r.list = Roles::r.LoadFromFile();
+    for (map<string, Role>::iterator it = Roles::r.list.begin(); it != Roles::r.list.end(); it++)
+    {
+        bool inVec = false;
+        if (it->second.name == "+Add Role") {
+            inVec = true;
+        }
+        for (auto i : rolelist) {
+            if (i.name == it->second.name) {
+                inVec = true;
+                break;
+            }
+        }
+        if (!inVec)
+        {
+            rolelist.push_back(it->second);
+            if (rolelist.size() == testNum + 1)
+            {  
+                strcpy_s(_roleName, it->second.name.c_str());
+                strcpy_s(_messageStarter, it->second.messageStarter.c_str());
+                strcpy_s(_commandPrefix, it->second.commandPrefix.c_str());
+                _roleCommandPerms = Config::cfg.permissions.role[testWord].permissions;
+                //cfg.permissions.role["guest"]
+                _SFX = Config::cfg.permissions.role[it->first].useSFX;
+                _BB = Config::cfg.permissions.role[it->first].useBB;
+                _controls = Config::cfg.permissions.role[it->first].changeControls;
+                _kick = !Config::cfg.permissions.role[it->first].kick;
+                _limit = !Config::cfg.permissions.role[it->first].limit;
+                _extraHotseatTime = Config::cfg.permissions.role[it->first].extraHotseatTime;
+                _cooldownShrink = Config::cfg.permissions.role[it->first].cooldownShrink;
+                _rank = Config::cfg.permissions.role[it->first].rank;
+            }
+        }
+    }
+    rolelist.push_back(Role("+Add Role"));
+
 
     _prependPingLimit = false;
 
@@ -77,20 +129,15 @@ SettingsWidget::SettingsWidget(Hosting& hosting)
     }
 }
 
-bool SettingsWidget::render()
+bool SettingsWidget::render(bool& showWindow)
 {
     AppStyle::pushTitle();
     ImGui::SetNextWindowSizeConstraints(ImVec2(400, 400), ImVec2(800, 900));
-    ImGui::Begin("Settings", (bool*)0);
+    ImGui::Begin("Settings", &showWindow);
+    if (!showWindow) Config::cfg.widgets.settings = showWindow;
     AppStyle::pushInput();
 
     ImVec2 size = ImGui::GetContentRegionAvail();
-
-    ImGui::BeginChild("Settings List", ImVec2(size.x, size.y));
-
-    ImGui::SetNextItemWidth(size.x - 42);
-    ImGui::SameLine();
-    ImGui::Dummy(ImVec2(0, 5));
 
     if (ImGui::BeginTabBar("Settings Tabs", ImGuiTabBarFlags_None))
     {
@@ -98,23 +145,33 @@ bool SettingsWidget::render()
         AppColors::pushTitle();
         if (ImGui::BeginTabItem("General"))
         {
+            ImGui::BeginChild("innerscroll");
             renderGeneral();
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Chat")) {
+            ImGui::BeginChild("innerscroll");
             renderChatbot();
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Permissions")) {
+        if (ImGui::BeginTabItem("Roles")) {
+            ImGui::BeginChild("innerscroll");
             renderPermissions();
+            ImGui::EndChild();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Hotkeys")) {
+            ImGui::BeginChild("innerscroll");
+            renderHotkeys();
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
         AppColors::pop();
         AppFonts::pop();
         ImGui::EndTabBar();
     }
-
-    ImGui::EndChild();
 
     AppStyle::pop();
     ImGui::End();
@@ -187,12 +244,6 @@ void SettingsWidget::renderGeneral() {
 
     ImGui::Dummy(ImVec2(0, 20.0f));
 
-    if (ImForm::InputCheckbox("Enable Microphone", _microphoneEnabled,
-        "When enabled, the microphone cause audio issues in some games.")) {
-        Config::cfg.audio.micEnabled = _microphoneEnabled;
-		Config::cfg.Save();
-    }
-
     if (ImForm::InputCheckbox("Disable Guide Button", _disableGuideButton,
         "The guide button by default often brings up overlays in software, which can cause issues when hosting.")) {
         Config::cfg.input.disableGuideButton = _disableGuideButton;
@@ -207,7 +258,7 @@ void SettingsWidget::renderGeneral() {
         _hosting._disableKeyboard = _disableKeyboard;
     }
 
-    if (ImForm::InputCheckbox("Enable !bb hotkey (CTRL+B)", _hotkeyBB,
+    /*if (ImForm::InputCheckbox("Enable !bb hotkey (CTRL+B)", _hotkeyBB,
         "Disable this if you have hotkeys that conflict with this.")) {
         Config::cfg.general.hotkeyBB = _hotkeyBB;
         if (_hotkeyBB) {
@@ -227,7 +278,7 @@ void SettingsWidget::renderGeneral() {
             UnregisterHotKey(NULL, 2);
         }
         Config::cfg.Save();
-    }
+    }*/
 
     if (ImForm::InputCheckbox("Auto Index Gamepads", _autoIndex,
         "XInput indices will be identified automatically. Beware, this may cause BSOD crashes for some users!")) {
@@ -256,6 +307,18 @@ void SettingsWidget::renderGeneral() {
     if (ImForm::InputNumber("WebSocket Port", _socketPort, 0, 65535,
         "The port the WebSocket server will run on.")) {
         Config::cfg.socket.port = _socketPort;
+        Config::cfg.Save();
+    }
+
+    if (ImForm::InputCheckbox("Block VPNs", _blockVPN,
+        "It is advisable to only enable this if you are having issues with trolls, as some users use VPNs legitimately.")) {
+        Config::cfg.general.blockVPN = _blockVPN;
+        Config::cfg.Save();
+    }
+
+    if (ImForm::InputCheckbox("Developer Mode", _devMode,
+        "Enables extra developer options for testing Smash Soda. Only for those who know what they are doing!")) {
+        Config::cfg.general.devMode = _devMode;
         Config::cfg.Save();
     }
 
@@ -318,11 +381,11 @@ void SettingsWidget::renderChatbot() {
 	    ImGui::Unindent(10);
 	ImGui::EndGroup();
 
-    // if (ImForm::InputCheckbox("Host can't be bonked", _hostBonkProof,
-    //     "You DARE bonk the host!?")) {
-    //     Config::cfg.chat.hostBonkProof = _hostBonkProof;
-    //     Config::cfg.Save();
-    // }
+     if (ImForm::InputCheckbox("Host can't be bonked", _hostBonkProof,
+         "You DARE bonk the host!?")) {
+         Config::cfg.chat.hostBonkProof = _hostBonkProof;
+         Config::cfg.Save();
+     }
 
 }
 
@@ -333,61 +396,226 @@ void SettingsWidget::renderPermissions() {
 
     ImGui::Dummy(ImVec2(0, 10.0f));
 
+    ImVec2 size = ImGui::GetContentRegionAvail();
+    ImGui::SetNextItemWidth(size.x);
+
+    
+    if (ImGui::BeginCombo("### Role Picker", rolelist[testNum].name.c_str(), ImGuiComboFlags_HeightLarge)) {
+
+        for(size_t i = 0; i < rolelist.size(); ++ i)
+        {
+            bool isSelected = (i == testNum);
+            if (ImGui::Selectable(rolelist[i].name.c_str(), isSelected)) {
+                testNum = i;
+                testWord = rolelist[i].key.c_str();
+                strcpy_s(_roleName, Roles::r.list[testWord].name.c_str());
+                strcpy_s(_messageStarter, Roles::r.list[testWord].messageStarter.c_str());
+                strcpy_s(_commandPrefix, Roles::r.list[testWord].commandPrefix.c_str());
+                _roleCommandPerms = Config::cfg.permissions.role[testWord].permissions;
+
+                _SFX = Config::cfg.permissions.role[testWord].useSFX;
+                _BB = Config::cfg.permissions.role[testWord].useBB;
+                _controls = Config::cfg.permissions.role[testWord].changeControls;
+                _kick = !Config::cfg.permissions.role[testWord].kick;
+                _limit = !Config::cfg.permissions.role[testWord].limit;
+                _extraHotseatTime = Config::cfg.permissions.role[testWord].extraHotseatTime;
+                _cooldownShrink = Config::cfg.permissions.role[testWord].cooldownShrink;
+                _rank = Config::cfg.permissions.role[testWord].rank;
+            }
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        
+        
+        ImGui::EndCombo();
+    }
+    if (testWord == "+add role")
+    {
+
+        if (ImForm::InputText("ROLE NAME", _roleName)) {
+        }
+        ImGui::BeginGroup();
+        AppFonts::pushLarge();
+        AppColors::pushButtonSolid();
+        if (ImGui::Button("ADD ROLE")) {       
+            string key = _roleName;
+            transform(key.begin(), key.end(), key.begin(), ::tolower);
+            if (key != "+add role")
+            {
+                Roles::r.list[key] = Role(_roleName);
+                //Roles::r.list[key].key = key;
+                //Roles::r.list[key].name = _roleName;
+                rolelist.insert(rolelist.end() - 1, Roles::r.list[key]);
+                testWord = key;
+
+                Roles::r.SaveToFile();
+            }
+        }
+        AppColors::popButton();
+        AppFonts::pop();
+        ImGui::EndGroup();
+    }
+    else
+    {
+
+        if (ImForm::InputText("CHAT IDENTIFIER", _messageStarter, "This will come before the username for every post made with the role")) {
+            Roles::r.list[testWord].messageStarter = _messageStarter;
+            Roles::r.SaveToFile();
+        }
+
+        if (ImForm::InputText("COMMAND", _commandPrefix, "The chat command to give someone this role. Must be 4+ characters long!")) {
+            Roles::r.list[testWord].commandPrefix = _commandPrefix;
+            Roles::r.SaveToFile();
+        }
+
+        if (ImForm::InputText("ALLOWED COMMANDS", &_roleCommandPerms,
+            "Commands a user is allowed to use. Separate with single spaces.")) {
+            Config::cfg.permissions.role[testWord].permissions = _roleCommandPerms;
+        }
+        if (ImForm::InputNumber("NUMBER THAT DOES NOTHING", _rank, 1, 9999)) {
+            Config::cfg.permissions.role[testWord].rank = _rank;
+            _rank = Config::cfg.permissions.role[testWord].rank;
+            Config::cfg.Save();
+        }
+
+        /*if (ImForm::InputCheckbox("Can use !sfx command", _SFX)) {
+            Config::cfg.permissions.role[testWord].useSFX = _SFX;
+            Config::cfg.Save();
+        }
+
+        if (ImForm::InputCheckbox("Can use !bb command", _BB)) {
+            Config::cfg.permissions.role[testWord].useBB = _BB;
+            Config::cfg.Save();
+        }*/
+
+        /*if (ImForm::InputCheckbox("Can change keyboard controls", _controls)) {
+            Config::cfg.permissions.role[testWord].changeControls = _controls;
+            Config::cfg.Save();
+        }*/
+
+        if (ImForm::InputCheckbox("Can join room", _kick)) {
+            Config::cfg.permissions.role[testWord].kick = !_kick;
+            Config::cfg.Save();
+        }
+
+        if (ImForm::InputCheckbox("Can grab pads", _limit)) {
+            Config::cfg.permissions.role[testWord].limit = !_limit;
+            Config::cfg.Save();
+        }
+
+        AppStyle::pushTitle();
+        ImGui::Text("HOTSEAT");
+        AppStyle::pop();
+
+        if (ImForm::InputNumber("EXTRA TIME", _extraHotseatTime, 0, 9999,
+            "Additional playtime for users with the role.")) {
+            Config::cfg.permissions.role[testWord].extraHotseatTime = _extraHotseatTime;
+            _extraHotseatTime = Config::cfg.permissions.role[testWord].extraHotseatTime;
+            Config::cfg.Save();
+        }
+
+        if (ImForm::InputNumber("SUBTRACT COOLDOWN", _cooldownShrink, 0, 9999,
+            "Users with the role have this number subtracted from their cooldown.")) {
+            Config::cfg.permissions.role[testWord].cooldownShrink = _cooldownShrink;
+            _cooldownShrink = Config::cfg.permissions.role[testWord].cooldownShrink;
+            Config::cfg.Save();
+        }
+    }
+
     AppStyle::pushTitle();
-    ImGui::Text("Regular Guest");
+    ImGui::Text("MISC");
     AppStyle::pop();
 
-    if (ImForm::InputCheckbox("Can use !sfx command", _guestSFX)) {
-        Config::cfg.permissions.guest.useSFX = _guestSFX;
+    if (ImForm::InputNumber("Noob number (in tens of thousands)", _noobNum, 0, 9999,
+        "Any one with an id higher than this is considered a noob")) {
+        Config::cfg.permissions.noobNum = _noobNum;
+        _noobNum = Config::cfg.permissions.noobNum;
         Config::cfg.Save();
     }
+}
 
-    if (ImForm::InputCheckbox("Can use !bb command", _guestBB)) {
-        Config::cfg.permissions.guest.useBB = _guestBB;
-        Config::cfg.Save();
+/// <summary>
+/// Renders the chatbot options tab.
+/// </summary>
+void SettingsWidget::renderHotkeys() {
+
+    ImGui::Dummy(ImVec2(0, 10.0f));
+
+    // Mapping key
+    if (Config::cfg.mapHotkey) {
+
+        AppStyle::pushTitle();
+        ImGui::TextWrapped("Press a key to map to the command: %s", Config::cfg.pendingHotkeyCommand.c_str());
+        AppStyle::pop();
+
     }
 
-    if (ImForm::InputCheckbox("Can change keyboard controls", _guestControls)) {
-        Config::cfg.permissions.guest.changeControls = _guestControls;
-        Config::cfg.Save();
+    // Show hotkey form
+    else if (_showHotkeyForm) {
+        
+        if (ImForm::InputText("CHAT COMMAND", _hotkeyCommand,
+            "What is the command you would like to map to this key.")) {
+            Config::cfg.pendingHotkeyCommand = _hotkeyCommand;
+        }
+
+        ImGui::BeginGroup();
+        ImGui::Indent(10);
+        AppColors::pushButtonSolid();
+        if (ImGui::Button("Set Key") && Config::cfg.pendingHotkeyCommand != "") {
+            Config::cfg.SetHotkey();
+            _showHotkeyForm = false;
+        }
+        ImGui::PopStyleColor(4);
+        //AppColors::pushButton();
+        ImGui::Unindent(10);
+        ImGui::EndGroup();
+
     }
+    else {
 
-    AppStyle::pushTitle();
-    ImGui::Text("VIPs");
-    AppStyle::pop();
+        ImGui::BeginGroup();
+        ImGui::Indent(10);
+        AppColors::pushButtonSolid();
+        if (ImGui::Button("Add Hotkey")) {
+            _showHotkeyForm = true;
+        }
+        ImGui::PopStyleColor(4);
+        //AppColors::pushButton();
+        ImGui::Unindent(10);
+        ImGui::EndGroup();
 
-    if (ImForm::InputCheckbox("Can use !sfx command", _vipSFX)) {
-        Config::cfg.permissions.vip.useBB = _vipSFX;
-        Config::cfg.Save();
-    }
+        ImGui::Dummy(ImVec2(0, 10));
+        ImGui::Separator();
+        ImGui::Dummy(ImVec2(0, 10));
 
-    if (ImForm::InputCheckbox("Can use !bb command", _vipBB)) {
-        Config::cfg.permissions.vip.useBB = _vipBB;
-        Config::cfg.Save();
-    }
+        ImGui::BeginChild("hotkeylist");
 
-    if (ImForm::InputCheckbox("Can change keyboard controls", _vipControls)) {
-        Config::cfg.permissions.vip.changeControls = _vipControls;
-        Config::cfg.Save();
-    }
+        // List hotkeys
+        for (int i = 0; i < Config::cfg.hotkeys.keys.size(); i++) {
 
-    AppStyle::pushTitle();
-    ImGui::Text("Moderators");
-    AppStyle::pop();
+            if (IconButton::render(AppIcons::trash, AppColors::primary, ImVec2(30, 30))) {
+                Config::cfg.RemoveHotkey(i);
+            }
 
-    if (ImForm::InputCheckbox("Can use !sfx command", _modSFX)) {
-        Config::cfg.permissions.moderator.useSFX = _modSFX;
-        Config::cfg.Save();
-    }
+            ImGui::SameLine();
+            ImGui::BeginGroup();
+            ImGui::Indent(10);
+            AppStyle::pushInput();
+            ImGui::Text("%s", Config::cfg.hotkeys.keys[i].command.c_str());
+            AppStyle::pop();
+            AppStyle::pushLabel();
+            ImGui::Text("%s", "CTRL + " + Config::cfg.hotkeys.keys[i].keyName);
+            AppStyle::pop();
+            ImGui::Unindent(10);
+            ImGui::EndGroup();
 
-    if (ImForm::InputCheckbox("Can use !bb command", _modBB)) {
-        Config::cfg.permissions.moderator.useBB = _modBB;
-        Config::cfg.Save();
-    }
+            ImGui::Dummy(ImVec2(0, 5));
 
-    if (ImForm::InputCheckbox("Can change keyboard controls", _modControls)) {
-        Config::cfg.permissions.moderator.changeControls = _modControls;
-        Config::cfg.Save();
+        }
+
+        ImGui::EndChild();
+
     }
 
 }

@@ -43,6 +43,7 @@
 #include "Modules/Tournament.h"
 #include "Modules/AutoMod.h"
 #include "Modules/Arcade.h"
+#include "Lists/Roles.h"
 
 #include <nlohmann/json.hpp>
 using namespace std;
@@ -61,7 +62,11 @@ class Hosting
 public:
 	Hosting();
 	void applyHostConfig();
+	bool resizeRoom(uint32_t maxGuests);
 	void broadcastChatMessage(string message);
+	void broadcastChatMessage(string message, uint32_t sender);
+	void broadcastChatMessageAndLogCommand(string message);
+	void broadcastChatMessageAndLogCommand(string message, uint32_t sender);
 	void init();
 	void release();
 	bool isReady();
@@ -92,6 +97,7 @@ public:
 	vector<AGamepad*>& getGamepads();
 	GamepadClient& getGamepadClient();
 	MasterOfPuppets& getMasterOfPuppets();
+	Hotseat& getHotseat();
 
 	const char** getGuestNames();
 	void toggleGamepadLock();
@@ -109,6 +115,7 @@ public:
 	void stripGamepad(int index);
 	void setOwner(AGamepad& gamepad, Guest newOwner, int padId);
 	void logMessage(string message);
+	void messageFromExternalSource(string source, string user, string message);
 
 	bool removeGame(string name);
 
@@ -124,9 +131,12 @@ public:
 	void sendHostMessage(const char* message, bool isHidden = false);
 
 	void addFakeGuests(int count);
+	void removeFakeGuest(int userID);
 
 	bool isHotseatEnabled();
 	void startKioskMode();
+
+	bool isVPN(const std::string& ip);
 
 	AudioIn audioIn;
 	AudioOut audioOut;
@@ -141,7 +151,6 @@ private:
 	bool _kioskModeEnabled = false;
 
 	void initAllModules();
-	void submitSilence();
 	void liveStreamMedia();
 	void mainLoopControl();
 	void pollEvents();
@@ -161,6 +170,9 @@ private:
 	static void LogCallback(ParsecLogLevel level, const char *msg, void *opaque);
 	ImVec2 stickShortToFloat(SHORT lx, SHORT ly, float& distance);
 
+	uint32_t ipToUint(const std::string& ip);
+	bool isIPInRange(const std::string& ip, const std::string& cidr);
+
 	// Attributes
 	AudioMix _audioMix;
 	DX11 _dx11;
@@ -178,6 +190,8 @@ private:
 	ParsecStatus _parsecStatus;
 	Guest _host;
 	TierList _tierList;
+	GuestRoles _guestRoles;
+	Roles _roles;
 	Macro _macro;
 	Hotseat _hotseat;
 	Tournament _tournament;

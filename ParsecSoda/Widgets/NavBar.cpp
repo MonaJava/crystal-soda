@@ -18,7 +18,8 @@ void NavBar::render(
 	bool& showOverlay,
 	bool& showHotseat,
 	bool& showTournament,
-	bool& showKeyMap
+	bool& showKeyMap,
+	bool& showDevTools
 )//-- CodeSomnia Moidified -- showKeyMap Added
 {
 	static ImVec2 iconSize = ImVec2(24, 24);
@@ -68,8 +69,10 @@ void NavBar::render(
 
 	//-- CodeSomnia Add Start --
 
-	if (ToggleIconButtonWidget::render(AppIcons::keymap, AppIcons::keymap, showKeyMap, iconSize))
+	if (ToggleIconButtonWidget::render(AppIcons::keymap, AppIcons::keymap, showKeyMap, iconSize)) {
 		showKeyMap = !showKeyMap;
+		Config::cfg.widgets.keyMapper = showKeyMap;
+	}
 	renderNavtooltip("KeyboardMap", showKeyMap);
 
 	//-- CodeSomnia Add End --
@@ -92,7 +95,10 @@ void NavBar::render(
 	}
 	renderNavtooltip("Library", showLibrary);
 
-	if (ToggleIconButtonWidget::render(AppIcons::overlay, AppIcons::overlay, showOverlay, iconSize))	showOverlay = !showOverlay;
+	if (ToggleIconButtonWidget::render(AppIcons::overlay, AppIcons::overlay, showOverlay, iconSize)) {
+		showOverlay = !showOverlay;
+		Config::cfg.widgets.overlay = showOverlay;
+	}
 	renderNavtooltip("Overlay", showOverlay);
 
 	if (ToggleIconButtonWidget::render(AppIcons::hotseat, AppIcons::hotseat, showHotseat, iconSize)) {
@@ -104,7 +110,10 @@ void NavBar::render(
 	/*if (ToggleIconButtonWidget::render(AppIcons::tournament, AppIcons::tournament, showTournament, iconSize))	showTournament = !showTournament;
 	renderNavtooltip("Tournament", showTournament);*/
 
-	if (ToggleIconButtonWidget::render(AppIcons::log, AppIcons::log, showLog, iconSize)) showLog = !showLog;
+	if (ToggleIconButtonWidget::render(AppIcons::log, AppIcons::log, showLog, iconSize)) {
+		showLog = !showLog;
+		Config::cfg.widgets.log = showLog;
+	}
 	renderNavtooltip("Log", showLog);
 
 	if (ToggleIconButtonWidget::render(AppIcons::speakersOn, AppIcons::speakersOn, showAudio, iconSize)) {
@@ -125,8 +134,19 @@ void NavBar::render(
 	}
 	renderNavtooltip("Settings", showSettings);
 
-	if (ToggleIconButtonWidget::render(AppIcons::info, AppIcons::info, showInfo, iconSize)) showInfo = !showInfo;
-	renderNavtooltip("About", showInfo);
+	if (Config::cfg.general.devMode) {
+		if (ToggleIconButtonWidget::render(AppIcons::developer, AppIcons::developer, showDevTools, iconSize)) {
+			showDevTools = !showDevTools;
+			Config::cfg.widgets.devTools = showDevTools;
+		}
+		renderNavtooltip("Developer Tools", showDevTools);
+	}
+	else {
+
+		if (ToggleIconButtonWidget::render(AppIcons::info, AppIcons::info, showInfo, iconSize)) showInfo = !showInfo;
+		renderNavtooltip("About", showInfo);
+
+	}
 
 
 	if (IconButton::render(AppIcons::logoff, AppColors::primary, iconSize))

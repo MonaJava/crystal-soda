@@ -10,13 +10,15 @@ HotseatWidget::HotseatWidget(Hosting& hosting)
 	_resetTime = Config::cfg.hotseat.resetTime;
     _minResetTime = Config::cfg.hotseat.minResetTime;
     _multiBonus = Config::cfg.hotseat.multiBonus;
+    _reminderInterval = Config::cfg.hotseat.reminderInterval;
 }
 
-bool HotseatWidget::render() {
+bool HotseatWidget::render(bool& showWindow) {
 
     AppStyle::pushTitle();
     ImGui::SetNextWindowSizeConstraints(ImVec2(400, 400), ImVec2(800, 900));
-    ImGui::Begin("Hotseat", (bool*)0);
+    ImGui::Begin("Hotseat", &showWindow);
+    if (!showWindow) Config::cfg.widgets.hotseat = showWindow;
     AppStyle::pushInput();
 
     ImVec2 size = ImGui::GetContentRegionAvail();
@@ -100,13 +102,24 @@ void HotseatWidget::renderOverview() {
             //ImGui::Text(user.status.c_str());
 
             // Get the time remaining for the user (in minutes)
-            if (user.stopwatch->isRunning()) {
+            if (user.stopwatch->isRunning() && !user.cooldown) {
+                AppColors::pushLabel();
+                ImGui::Text("REMAINING ");
+                AppColors::pop();
+                ImGui::SameLine();
+                AppColors::pushInput();
 				ImGui::Text(user.stopwatch->getRemainingTime().c_str());
+                AppColors::pop();
 			}
 			else {
-                int cooldownTime = Hotseat::instance.getCoolDownTime(user.userId);
-                if (cooldownTime > 0) {
-					ImGui::Text("%d minute(s) to wait", cooldownTime);
+                if (user.cooldown) {
+                    AppColors::pushPrimary();
+                    ImGui::Text("COOLDOWN ");
+                    AppColors::pop();
+                    ImGui::SameLine();
+                    AppColors::pushInput();
+                    ImGui::Text(Hotseat::instance.getCooldownRemaining(user.userId).c_str());
+                    AppColors::pop();
 				}
 				else {
                     ImGui::Text(user.stopwatch->getRemainingTime().c_str());
@@ -171,6 +184,12 @@ void HotseatWidget::renderSettings() {
             _minResetTime = Config::cfg.hotseat.minResetTime;
             Config::cfg.Save();
         }
+    }
+    if (ImForm::InputNumber("REMINDER INTERVAL", _reminderInterval, 0, _playTime - 1,
+        "Print remaining hotseat time in chat every (x) minutes. 0 for no reminders.")) {
+        Config::cfg.hotseat.reminderInterval = _reminderInterval;
+        _reminderInterval = Config::cfg.hotseat.reminderInterval;
+        Config::cfg.Save();
     }
 
     if (ImForm::InputCheckbox("Award extra time for multiplayer", _multiBonus)) {

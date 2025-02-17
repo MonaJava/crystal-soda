@@ -9,18 +9,21 @@
 #include "../globals/AppFonts.h"
 #include "../globals/AppColors.h"
 #include "../globals/AppStyle.h"
+#include "../Lists/Roles.h"
 #include "TitleTooltipWidget.h"
 #include "TooltipWidget.h"
 #include "IntRangeWidget.h"
+#include "../Helpers/Keymap.h"
 
 class SettingsWidget
 {
 public:
 	SettingsWidget(Hosting& hosting);
-	bool render();
+	bool render(bool& showWindow);
 	void renderGeneral();
 	void renderChatbot();
 	void renderPermissions();
+	void renderHotkeys();
 
 private:
 	// Dependency injection
@@ -41,11 +44,14 @@ private:
 	bool _parsecLogs = false;
 	bool _ipBan = true;
 	bool _socketEnabled = true;
+	bool _blockVPN = false;
+	bool _devMode = false;
 	unsigned int _latencyLimitThreshold = 0;
 	unsigned int _theme = 0;
+	char _hotkeyCommand[128] = "";
 	char _discord[HOST_NAME_LEN] = "";
 	char _chatbot[HOST_NAME_LEN] = "";
-	char _welcomeMessage[256] = "";
+	char _welcomeMessage[512] = "";
 
 	char _prependRegion[128] = "";
 
@@ -56,6 +62,7 @@ private:
 	bool _saveChat;
 	bool _hotkeyBB;
 	bool _hotkeyLock;
+	bool _showHotkeyForm;
 
 	bool _guestBB = false;
 	bool _vipBB = false;
@@ -69,6 +76,29 @@ private:
 	bool _vipControls = false;
 	bool _modControls = false;
 
+	int _noobNum = 160;
+	bool _kickNoob = false; //redundant
+	bool _limitNoob = true;
+
+	std::string _roleCommandPerms = "";
+	bool _BB = false;
+	bool _SFX = false;
+	bool _controls = false;
+	bool _kick = false;
+	bool _limit = false;
+	int _extraHotseatTime = 0;
+	int _cooldownShrink = 0;
+	int _rank = 0;
+
 	string themes[5] = { "Midnight", "Parsec Soda", "Parsec Soda V", "Mini", "Arcade" };
+	vector<Role> rolelist = vector<Role>();
+	Role _displayRole = Role();
+	char _roleName[128] = "";
+	char _messageStarter[128] = "";
+	char _commandPrefix[128] = "";
 	Countries _countries;
+	Keymap _keymap = Keymap();
+
+	int testNum = 1;
+	string testWord = "noob";
 };

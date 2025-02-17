@@ -507,6 +507,98 @@ bool MetadataCache::saveGuestTiers(vector<GuestTier> guestTiers)
     return false;
 }
 
+vector<GuestRole> MetadataCache::loadGuestRoles()
+{
+    vector<GuestRole> result;
+
+    string dirPath = getUserDir();
+    if (!dirPath.empty())
+    {
+        string filepath = dirPath + "guestroles.json";
+
+        if (MTY_FileExists(filepath.c_str()))
+        {
+            MTY_JSON* json = MTY_JSONReadFile(filepath.c_str());
+            uint32_t size = MTY_JSONGetLength(json);
+
+            for (size_t i = 0; i < size; i++)
+            {
+                const MTY_JSON* guest = MTY_JSONArrayGetItem(json, (uint32_t)i);
+
+                char name[128] = "";
+                uint32_t userID, tier, extraHotseatTime, cooldownShrink, rank = 0;
+                char key[128] = "";
+                char rolename[128] = "";
+                char messageStarter[128] = "";
+                char command[128] = "";
+
+                bool keySuccess = MTY_JSONObjGetString(guest, "key", key, 128);
+                bool rolenameSuccess = MTY_JSONObjGetString(guest, "name", rolename, 128);
+                bool messageStarterSuccess = MTY_JSONObjGetString(guest, "message starter", messageStarter, 128);
+                bool commandSuccess = MTY_JSONObjGetString(guest, "command", command, 128);
+                bool extraHotseatTimeSuccess = MTY_JSONObjGetUInt(guest, "extraHotseatTime", &extraHotseatTime);
+                bool cooldownShrinkSuccess = MTY_JSONObjGetUInt(guest, "cooldownShrink", &cooldownShrink);
+                bool userIDSuccess = MTY_JSONObjGetUInt(guest, "userID", &userID);
+                bool rankSuccess = MTY_JSONObjGetUInt(guest, "userID", &rank);
+
+
+                if (keySuccess && userIDSuccess)
+                {
+                    Role r = Role(name, messageStarter, command, key);
+                    r.extraHotseatTime = extraHotseatTime;
+                    r.cooldownShrink = cooldownShrink;
+                    r.rank = rank;
+                    result.push_back(GuestRole(userID, Role(name, messageStarter, command, key)));
+                }
+            }
+
+            std::sort(result.begin(), result.end(), [](const GuestRole a, const GuestRole b) {
+                return a.userID < b.userID;
+                });
+
+            MTY_JSONDestroy(&json);
+        }
+    }
+
+    return result;
+}
+
+
+bool MetadataCache::saveGuestRoles(vector<GuestRole> guestRoles)
+{
+    string dirPath = getUserDir();
+
+    if (!dirPath.empty())
+    {
+        string filepath = dirPath + "guestroles.json";
+
+        MTY_JSON* json = MTY_JSONArrayCreate();
+
+        vector<GuestRole>::iterator gi = guestRoles.begin();
+        for (; gi != guestRoles.end(); ++gi)
+        {
+            //I really should just do it by role name here
+            MTY_JSON* guest = MTY_JSONObjCreate();
+            MTY_JSONObjSetString(guest, "name", (*gi).role.name.c_str());
+            MTY_JSONObjSetString(guest, "key", (*gi).role.key.c_str());
+            MTY_JSONObjSetString(guest, "message starter", (*gi).role.messageStarter.c_str());
+            MTY_JSONObjSetString(guest, "command", (*gi).role.commandPrefix.c_str());
+            MTY_JSONObjSetUInt(guest, "extraHotseatTime", (*gi).role.extraHotseatTime);
+            MTY_JSONObjSetUInt(guest, "cooldownShrink", (*gi).role.cooldownShrink);
+            MTY_JSONObjSetUInt(guest, "rank", (*gi).role.rank);
+            MTY_JSONObjSetUInt(guest, "userID", (*gi).userID);
+            MTY_JSONArrayAppendItem(json, guest);
+        }
+
+        MTY_JSONWriteFile(filepath.c_str(), json);
+        MTY_JSONDestroy(&json);
+
+        return true;
+    }
+
+    return false;
+}
+
 bool MetadataCache::saveTheme(int theme) {
 
     return true;
@@ -606,5 +698,88 @@ bool MetadataCache::removeActiveGuest(Guest guest) {
             return true;
         }
     }
+}
 
+bool MetadataCache::giveGuestQueueNum(uint32_t guestID, int padIndex)
+{
+    if (MetadataCache::preferences.activeGuests.empty() == false) {
+        for (int i = MetadataCache::preferences.activeGuests.size() - 1; i >= 0; i--) {
+            if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
+                preferences.activeGuests[i].queuedPad = padIndex;
+            }
+        }
+    }
+    return true;
+}
+
+int MetadataCache::getGuestQueueNum(uint32_t guestID)
+{
+    if (MetadataCache::preferences.activeGuests.empty() == false) {
+        for (int i = MetadataCache::preferences.activeGuests.size() - 1; i >= 0; i--) {
+            if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
+                return MetadataCache::preferences.activeGuests[i].queuedPad;
+            }
+        }
+    }
+    return 0;
+}
+
+bool MetadataCache::addToIgnored(uint32_t guestID, uint32_t ignoredID)
+{
+    if (MetadataCache::preferences.activeGuests.empty() == false) {
+        for (int i = MetadataCache::preferences.activeGuests.size() - 1; i >= 0; i--) {
+            if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
+                preferences.activeGuests[i].ignoredUsers.push_back(ignoredID);
+            }
+        }
+    }
+    return true;
+}
+
+bool MetadataCache::removeFromIgnored(uint32_t guestID, uint32_t ignoredID) {
+
+    for (int i = MetadataCache::preferences.activeGuests.size() - 1; i >= 0; i--) {
+        if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
+            for (int j = MetadataCache::preferences.activeGuests[i].ignoredUsers.size() - 1; j >= 0; j--) {
+                if (MetadataCache::preferences.activeGuests[i].ignoredUsers.at(j) == ignoredID) {
+                    MetadataCache::preferences.activeGuests[i].ignoredUsers.erase(MetadataCache::preferences.activeGuests[i].ignoredUsers.begin() + j);
+                    MetadataCache::preferences.activeGuests[i].ignoredUsers.shrink_to_fit();
+                }
+            }
+            return true;
+        }
+    }
+}
+
+
+vector<int> MetadataCache::getIgnored(uint32_t guestID)
+{
+    if (MetadataCache::preferences.activeGuests.empty() == false) {
+        for (int i = MetadataCache::preferences.activeGuests.size() - 1; i >= 0; i--) {
+            if (MetadataCache::preferences.activeGuests[i].ignoredUsers.empty() == false) {
+                if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
+                    return MetadataCache::preferences.activeGuests[i].ignoredUsers;
+                }
+            }
+        }
+    }
+    return { 0 };
+}
+
+bool MetadataCache::isIgnored(uint32_t guestID, uint32_t ignoredID)
+{
+    if (MetadataCache::preferences.activeGuests.empty() == false) {
+        for (int i = MetadataCache::preferences.activeGuests.size() - 1; i >= 0; i--) {
+            if (MetadataCache::preferences.activeGuests.at(i).userID == guestID) {
+                if (MetadataCache::preferences.activeGuests[i].ignoredUsers.empty() == false) {
+                    for (int j = MetadataCache::preferences.activeGuests[i].ignoredUsers.size() - 1; j >= 0; j--) {
+                        if (MetadataCache::preferences.activeGuests[i].ignoredUsers.at(j) == ignoredID) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
