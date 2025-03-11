@@ -11,7 +11,6 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 
 	// Is this a Soda Cop, laying down the law?
 	if (!isHost && Cache::cache.isSodaCop(sender.userID)) {
-
 		if (isCommand(msg, CommandKick::prefixes())) {
 			return new CommandKick(msg, sender, _parsec, _guests, isHost);
 		}
@@ -23,12 +22,11 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 		/*if (msgIsEqual(msg, CommandVersion::prefixes()))		return new CommandVersion(sender);*/
 	}
 
-
 	// Split the message by spaces
-	
 	vector<string> tokens = split(msg, ' ');
 	bool allowedCommand = false;
 	string p = "test";
+
 	// Does the first token match any of the patterns?
 	if (Config::cfg.permissions.role[role.key].permissions.length() > 0)
 	{
@@ -41,11 +39,13 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 		}
 		p = permissions[0];
 	}
+
 	if (!allowedCommand and !isHost and p != "<ALLCOMMANDS>")
 	{
 		this->setLastUserId(previous);
 		return new CommandDefaultMessage(msg, sender, previous, tier, isHost);
 	}
+
 	/*
 	REGULAR USER COMMANDS
 	Any user can use these commands. All commands require msg and sender
@@ -137,113 +137,107 @@ ACommand* ChatBot::identifyUserDataMessage(const char* msg, Guest& sender, bool 
 	The host and moderators can use these commands. Moderators have the
 	"MOD" tier. The host has the "GOD" tier.
 	*/
-	//if (tier >= Tier::MOD || isHost) {
-
-		if (isCommand(msg, CommandBan::prefixes())) {
-			return new CommandBan(msg, sender, _parsec, _guests, _guestHistory);
-		}
-		if (isCommand(msg, CommandDC::prefixes())) {
-			return new CommandDC(msg, sender, _gamepadClient);
-		}
-		if (isCommand(msg, CommandDecrease::prefixes())) {
-			return new CommandDecrease(msg, sender, _guests, _host);
-		}
-		if (isCommand(msg, CommandExtend::prefixes())) {
-			return new CommandExtend(msg, sender, _guests, _host);
-		}
-		if (isCommand(msg, CommandWarmup::prefixes())) {
-			return new CommandWarmup(msg, sender, _guests, _host);
-		}
-		if (isCommand(msg, CommandCooldown::prefixes())) {
-			return new CommandCooldown(msg, sender, _guests, _host);
-		}
-		if (isCommand(msg, CommandKick::prefixes())) {
-			return new CommandKick(msg, sender, _parsec, _guests, isHost);
-		}
-		if (isCommand(msg, CommandLock::prefixes())) {
-			return new CommandLock(msg, sender, _gamepadClient);
-		}
-		if (isCommand(msg, CommandLockAll::prefixes())) {
-			return new CommandLockAll(msg, sender, _gamepadClient);
-		}
-		if (isCommand(msg, CommandLimit::prefixes())) {
-			return new CommandLimit(msg, sender, _guests, _gamepadClient);
-		}
-		if (isCommand(msg, CommandMute::prefixes())) {
-			return new CommandMute(msg, sender, _guests, _host);
-		}
-		if (isCommand(msg, CommandRC::prefixes())) {
-			return new CommandRC(msg, sender, _gamepadClient);
-		}
-		if (isCommand(msg, CommandRestart::prefixes())) {
-			return new CommandRestart(msg, sender);
-		}
-		if (isCommand(msg, CommandStrip::prefixes())) {
-			return new CommandStrip(msg, sender, _gamepadClient, _guests);
-		}
-		if (isCommand(msg, CommandStripAll::prefixes())) {
-			return new CommandStripAll(msg, sender, _gamepadClient);
-		}
-		if (isCommand(msg, CommandUnban::prefixes())) {
-			return new CommandUnban(msg, sender, _parsec, _guests, _guestHistory);
-		}
-		if (isCommand(msg, CommandUnbanLastIP::prefixes())) {
-			return new CommandUnbanLastIP(msg, sender);
-		}
-		if (isCommand(msg, CommandUnmute::prefixes())) {
-			return new CommandUnmute(msg, sender, _guests, _host);
-		}
-		if (isCommand(msg, CommandVerify::prefixes())) {
-			return new CommandVerify(msg, sender, _guests, _guestHistory);
-		}
-		if (isCommand(msg, CommandDCAll::prefixes())) {
-			return new CommandDCAll(msg, sender, _gamepadClient);
-		}
-		if (isCommand(msg, CommandName::prefixes())) {
-			return new CommandName(msg, sender, _hostConfig);
-		}
-		if (isCommand(msg, CommandHotseat::prefixes())) {
-			return new CommandHotseat(msg, sender, _hotseat, _gamepadClient);
-		}
-	//}
+	if (isCommand(msg, CommandBan::prefixes())) {
+		return new CommandBan(msg, sender, _parsec, _guests, _guestHistory);
+	}
+	if (isCommand(msg, CommandDC::prefixes())) {
+		return new CommandDC(msg, sender, _gamepadClient);
+	}
+	if (isCommand(msg, CommandDecrease::prefixes())) {
+		return new CommandDecrease(msg, sender, _guests, _host);
+	}
+	if (isCommand(msg, CommandExtend::prefixes())) {
+		return new CommandExtend(msg, sender, _guests, _host);
+	}
+	if (isCommand(msg, CommandWarmup::prefixes())) {
+		return new CommandWarmup(msg, sender, _guests, _host);
+	}
+	if (isCommand(msg, CommandCooldown::prefixes())) {
+		return new CommandCooldown(msg, sender, _guests, _host);
+	}
+	if (isCommand(msg, CommandKick::prefixes())) {
+		return new CommandKick(msg, sender, _parsec, _guests, isHost);
+	}
+	if (isCommand(msg, CommandLock::prefixes())) {
+		return new CommandLock(msg, sender, _gamepadClient);
+	}
+	if (isCommand(msg, CommandLockAll::prefixes())) {
+		return new CommandLockAll(msg, sender, _gamepadClient);
+	}
+	if (isCommand(msg, CommandLimit::prefixes())) {
+		return new CommandLimit(msg, sender, _guests, _gamepadClient);
+	}
+	if (isCommand(msg, CommandMute::prefixes())) {
+		return new CommandMute(msg, sender, _guests, _host);
+	}
+	if (isCommand(msg, CommandRC::prefixes())) {
+		return new CommandRC(msg, sender, _gamepadClient);
+	}
+	if (isCommand(msg, CommandRestart::prefixes())) {
+		return new CommandRestart(msg, sender);
+	}
+	if (isCommand(msg, CommandStrip::prefixes())) {
+		return new CommandStrip(msg, sender, _gamepadClient, _guests);
+	}
+	if (isCommand(msg, CommandStripAll::prefixes())) {
+		return new CommandStripAll(msg, sender, _gamepadClient);
+	}
+	if (isCommand(msg, CommandUnban::prefixes())) {
+		return new CommandUnban(msg, sender, _parsec, _guests, _guestHistory);
+	}
+	if (isCommand(msg, CommandUnbanLastIP::prefixes())) {
+		return new CommandUnbanLastIP(msg, sender);
+	}
+	if (isCommand(msg, CommandUnmute::prefixes())) {
+		return new CommandUnmute(msg, sender, _guests, _host);
+	}
+	if (isCommand(msg, CommandVerify::prefixes())) {
+		return new CommandVerify(msg, sender, _guests, _guestHistory);
+	}
+	if (isCommand(msg, CommandDCAll::prefixes())) {
+		return new CommandDCAll(msg, sender, _gamepadClient);
+	}
+	if (isCommand(msg, CommandName::prefixes())) {
+		return new CommandName(msg, sender, _hostConfig);
+	}
+	if (isCommand(msg, CommandHotseat::prefixes())) {
+		return new CommandHotseat(msg, sender, _hotseat, _gamepadClient);
+	}
 
 	/*
 	HOST COMMANDS
 	Only the host can use these commands. The host has the "GOD" tier.
 	*/
-	//if (tier >= Tier::GOD || isHost) {
-
-		if (isCommand(msg, CommandAddXbox::prefixes())) {
-			return new CommandAddXbox(msg, sender, _gamepadClient);
-		}
-		if (isCommand(msg, CommandAddPS::prefixes())) {
-			return new CommandAddPS(msg, sender, _gamepadClient);
-		}
-		if (isCommand(msg, CommandPrivate::prefixes())) {
-			return new CommandPrivate(msg, sender, _hostConfig);
-		}
-		if (isCommand(msg, CommandPublic::prefixes())) {
-			return new CommandPublic(msg, sender, _hostConfig);
-		}
-		if (isCommand(msg, CommandSpeakers::prefixes())) {
-			return new CommandSpeakers(msg, sender, _audioOut);
-		}
-		if (isCommand(msg, CommandQuit::prefixes())) {
-			return new CommandQuit(msg, sender, _hostingLoopController);
-		}
-		if (isCommand(msg, CommandMod::prefixes())) {
-			return new CommandMod(msg, sender, _guests, _guestHistory);
-		}
-		if (isCommand(msg, CommandUnmod::prefixes())) {
-			return new CommandUnmod(msg, sender, _guests, _guestHistory);
-		}
-		if (isCommand(msg, CommandUnVIP::prefixes())) {
-			return new CommandUnVIP(msg, sender, _guests, _guestHistory);
-		}
-		if (isCommand(msg, CommandVIP::prefixes())) {
-			return new CommandVIP(msg, sender, _guests, _guestHistory);
-		}
-	//}
+	if (isCommand(msg, CommandAddXbox::prefixes())) {
+		return new CommandAddXbox(msg, sender, _gamepadClient);
+	}
+	if (isCommand(msg, CommandAddPS::prefixes())) {
+		return new CommandAddPS(msg, sender, _gamepadClient);
+	}
+	if (isCommand(msg, CommandPrivate::prefixes())) {
+		return new CommandPrivate(msg, sender, _hostConfig);
+	}
+	if (isCommand(msg, CommandPublic::prefixes())) {
+		return new CommandPublic(msg, sender, _hostConfig);
+	}
+	if (isCommand(msg, CommandSpeakers::prefixes())) {
+		return new CommandSpeakers(msg, sender, _audioOut);
+	}
+	if (isCommand(msg, CommandQuit::prefixes())) {
+		return new CommandQuit(msg, sender, _hostingLoopController);
+	}
+	if (isCommand(msg, CommandMod::prefixes())) {
+		return new CommandMod(msg, sender, _guests, _guestHistory);
+	}
+	if (isCommand(msg, CommandUnmod::prefixes())) {
+		return new CommandUnmod(msg, sender, _guests, _guestHistory);
+	}
+	if (isCommand(msg, CommandUnVIP::prefixes())) {
+		return new CommandUnVIP(msg, sender, _guests, _guestHistory);
+	}
+	if (isCommand(msg, CommandVIP::prefixes())) {
+		return new CommandVIP(msg, sender, _guests, _guestHistory);
+	}
 
 	// Is this a custom command?
 	ACommand* custom = _chatBotCustom->isCustomCommand(msg, sender, isHost, tier, previous);

@@ -301,6 +301,7 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="ButtonLock.h" />
     <ClInclude Include="Chatbot\ChatBotCustom.h" />
     <ClInclude Include="Chatbot\Commands\CommandBotMessage.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\GivePad.h" />
     <ClInclude Include="Chatbot\Commands\Custom\Ignore.h" />
     <ClInclude Include="Chatbot\Commands\Custom\KickRandom.h" />
     <ClInclude Include="Chatbot\Commands\Custom\VoteKick.h" />

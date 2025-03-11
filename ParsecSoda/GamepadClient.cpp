@@ -552,7 +552,23 @@ const GamepadClient::PICK_REQUEST GamepadClient::pick(Guest guest, int gamepadIn
 		return PICK_REQUEST::OK;
 	}
 
-	return PICK_REQUEST::EMPTY_HANDS;
+	{
+		if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
+
+			if (Config::cfg.hotseat.enabled) {
+
+				if (pad->owner.guest.isValid()) {
+					Hotseat::instance.pauseUser(pad->owner.guest.userID);
+				}
+
+				Hotseat::instance.seatUser(guest.userID, guest.name);
+			}
+
+			pad->owner.guest.copy(guest);
+		}
+		
+		return PICK_REQUEST::EMPTY_HANDS;
+	}
 }
 
 

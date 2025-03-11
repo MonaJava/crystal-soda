@@ -25,6 +25,7 @@
 #include "Commands/Custom/VoteKick.h"
 #include "Commands/Custom/VoteQuestion.h"
 #include "Commands/Custom/Ignore.h"
+#include "Commands/Custom/GivePad.h"
 
 /**
 * This function is where you check to see if the
@@ -35,7 +36,7 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	return new YourCommandClass(msg, sender, _parsec, _guests, _guestHistory);
 }*/
 
-	string role = "guest";
+	/*string role = "guest";
 	switch (tier)
 	{
 		case Tier::NOOB:
@@ -52,25 +53,8 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	}
 
 	Role r = GuestRoles::instance.getRole(sender.userID);
-	role = r.key;
+	role = r.key;*/
 
-
-	// Split the message by spaces
-	/*vector<string> permissions = split(Config::cfg.permissions.role[role].permissions, ' ');
-	vector<string> tokens = split(msg, ' ');
-	bool allowedCommand = false;
-
-	// Does the first token match any of the patterns?
-	vector<string>::iterator pi = permissions.begin();
-	for (; pi != permissions.end(); ++pi) {
-		if (tokens[0] == *pi) {
-			allowedCommand = true;
-		}
-	}
-	if (!allowedCommand and !isHost and permissions[0] != "<ALLCOMMANDS>")
-	{
-		return new CommandDefaultMessage(msg, sender, previous, tier, isHost);
-	}*/
 	if (isCommand(msg, CommandPlayTime::prefixes()))	return new CommandPlayTime(msg, sender, _guests);
 	
 	if (isCommand(msg, EmptyTime::prefixes()))			return new EmptyTime(msg, sender);
@@ -86,50 +70,27 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	if (isCommand(msg, NayVote::prefixes()))			return new NayVote(msg, sender);
 	if (isCommand(msg, Ignore::prefixes()))				return new Ignore(msg, sender, _guests, _host, _guests);
 
-	/*
-	ADMIN COMMANDS
-	The host and moderators can use these commands. Moderators have the
-	"ADMIN" tier. The host has the "GOD" tier.
-	*/
-	
-	//if (tier >= Tier::ADMIN || isHost) {
-		if (isCommand(msg, KickRandom::prefixes()))		return new KickRandom(msg, sender, _parsec, _guests, isHost);
-		if (isCommand(msg, EmptyQueue::prefixes()))		return new EmptyQueue(msg, sender, _gamepadClient);
-		if (isCommand(msg, Pleb::prefixes()))			return new Pleb(msg, sender, _parsec, _guests, _guestHistory, _gamepadClient);
-		if (isCommand(msg, ClearVote::prefixes()))		return new ClearVote(msg, sender);
+	if (isCommand(msg, KickRandom::prefixes()))		return new KickRandom(msg, sender, _parsec, _guests, isHost);
+	if (isCommand(msg, EmptyQueue::prefixes()))		return new EmptyQueue(msg, sender, _gamepadClient);
+	//if (isCommand(msg, Pleb::prefixes()))			return new Pleb(msg, sender, _parsec, _guests, _guestHistory, _gamepadClient);
+	if (isCommand(msg, ClearVote::prefixes()))		return new ClearVote(msg, sender);
+	if (isCommand(msg, GivePad::prefixes()))		return new GivePad(msg, sender, _guests, _host, _gamepadClient);
 
-	//}
+	map<string, Role>::iterator it;
 
-	/*
-	HOST COMMANDS
-	Only the host can use these commands. The host has the "GOD" tier.
-	*/
-	
-	//if (tier >= Tier::ADMIN || isHost) {
-
-		map<string, Role>::iterator it;
-
-		for (it = Roles::r.list.begin(); it != Roles::r.list.end(); it++)
+	for (it = Roles::r.list.begin(); it != Roles::r.list.end(); it++)
+	{
+		vector<const char*> roleprefix = { it->second.commandPrefix.c_str() };
+		int len = it->second.commandPrefix.length();
+		if (!roleprefix.empty() && len >= 4)
 		{
-			vector<const char*> roleprefix = { it->second.commandPrefix.c_str() };
-			int len = it->second.commandPrefix.length();
-			if (!roleprefix.empty() && len >= 4)
-			{
-				if (isCommand(msg, roleprefix)) {
-					return new SetRole(msg, sender, _parsec, _guests, _guestHistory, it->second);
-				}
+			if (isCommand(msg, roleprefix)) {
+				return new SetRole(msg, sender, _parsec, _guests, _guestHistory, it->second);
 			}
 		}
-	//}
-
-
-	/*
-	PERMISSION COMMANDS
-	*/
-	if (Config::cfg.permissions.role[role].useSFX)
-	{
-		if (msgStartsWith(msg, TTS::prefixes()))		return new TTS(msg, sender);
 	}
+
+	if (msgStartsWith(msg, TTS::prefixes()))		return new TTS(msg, sender);
 
 	// Returns a default message if no custom command is found, so the bot can still respond.
 	return new CommandDefaultMessage(msg, sender, previous, tier, isHost);

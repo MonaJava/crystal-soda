@@ -962,6 +962,9 @@
     <ClInclude Include="Chatbot\Commands\Custom\Ignore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\GivePad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">

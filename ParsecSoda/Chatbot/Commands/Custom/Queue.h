@@ -95,8 +95,7 @@ public:
 				break;
 			case GamepadClient::PICK_REQUEST::EMPTY_HANDS:
 				reply
-					<< Config::cfg.chatbotName << _sender.name << ", you don't need to queue for an available pad.\n"
-					<< "\t\tPress any face button (A, B, X, Y) to receive a random gamepad (if available).\n"
+					<< Config::cfg.chatbotName + "Gamepad " << _intArg << " was given to " << _sender.name << "\t(#" << _sender.userID << ")\n"
 					<< "\t\tType !pads to see the gamepad list.\0";
 				break;
 			case GamepadClient::PICK_REQUEST::LIMIT_BLOCK:
