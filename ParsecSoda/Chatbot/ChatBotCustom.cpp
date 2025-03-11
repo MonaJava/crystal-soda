@@ -63,6 +63,7 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	if (isCommand(msg, ExitQueue::prefixes()))			return new ExitQueue(msg, sender, _gamepadClient);
 	if (isCommand(msg, DioHelp::prefixes()))			return new DioHelp(msg, sender);
 	if (isCommand(msg, DioVersion::prefixes()))			return new DioVersion(msg, sender);
+	if (msgStartsWith(msg, TTS::prefixes()))		return new TTS(msg, sender);
 
 	if (isCommand(msg, VoteQuestion::prefixes()))		return new VoteQuestion(msg, sender);
 	if (isCommand(msg, VoteKick::prefixes()))			return new VoteKick(msg, sender, _parsec, _guests, isHost);
@@ -75,6 +76,7 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 	//if (isCommand(msg, Pleb::prefixes()))			return new Pleb(msg, sender, _parsec, _guests, _guestHistory, _gamepadClient);
 	if (isCommand(msg, ClearVote::prefixes()))		return new ClearVote(msg, sender);
 	if (isCommand(msg, GivePad::prefixes()))		return new GivePad(msg, sender, _guests, _host, _gamepadClient);
+	
 
 	map<string, Role>::iterator it;
 
@@ -90,7 +92,7 @@ ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool is
 		}
 	}
 
-	if (msgStartsWith(msg, TTS::prefixes()))		return new TTS(msg, sender);
+	
 
 	// Returns a default message if no custom command is found, so the bot can still respond.
 	return new CommandDefaultMessage(msg, sender, previous, tier, isHost);
