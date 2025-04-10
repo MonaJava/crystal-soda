@@ -857,9 +857,9 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 						int time = 5;
 						gamepad->reserveTime->start(time);
 						g_hosting.logMessage("[QUEUE] Pad #" + to_string(i + 1) + " is currently reserved for " + gamepad->getReserveOwner().name +
-						".\nThe reservation will last for " + to_string(time) + " before the pad is free to be claim by anyone.");
+						".\nThe reservation will last for " + to_string(time) + " minutes before the pad is free to be claimed by anyone.");
 						g_hosting.broadcastChatMessage("[QUEUE] Pad #" + to_string(i + 1) + " is currently reserved for " + gamepad->getReserveOwner().name +
-							".\nThe reservation will last for " + to_string(time) + " before the pad is free to be claim by anyone.");
+							".\nThe reservation will last for " + to_string(time) + " minutes before the pad is free to be claimed by anyone.");
 					}
 				}
 			

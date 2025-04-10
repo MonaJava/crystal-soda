@@ -126,8 +126,8 @@ public:
 
 					Hotseat::instance.seatUser(target.userID, target.name);
 				}
-
 				pad->owner.guest.copy(target);
+				pad->reserveTime->stop();
 			}
 			reply
 				<< "\t\tType !pads to see the gamepad list.\0";
