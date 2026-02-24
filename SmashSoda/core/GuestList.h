@@ -1,4 +1,4 @@
-﻿#pragma once
+﻿/*#pragma once
 
 #include <vector>
 #include <sstream>
@@ -51,6 +51,6 @@ private:
 	map<uint32_t, MyMetrics> _metrics;
 	map<uint32_t, ParsecPermissions> _inputPermissions;
 };
-
+*/
 
 

@@ -293,7 +293,6 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClCompile Include="GamepadClient.cpp" />
     <ClCompile Include="Guest.cpp" />
     <ClCompile Include="Models\GuestData.cpp" />
-    <ClCompile Include="GuestList.cpp" />
     <ClCompile Include="Hosting.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Widgets\HostSettingsWidget.cpp" />
@@ -376,7 +375,7 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="GameData.h" />
     <ClInclude Include="Helpers\Countries.h" />
     <ClInclude Include="Helpers\Keymap.h" />
-    /<ClInclude Include="ImGui\imgui_stdlib.h" />
+    <ClInclude Include="ImGui\imgui_stdlib.h" />
     <ClInclude Include="ImGui\implot.h" />
     <ClInclude Include="ImGui\implot_internal.h" />
     <ClInclude Include="Lists\GameDataList.h" />
@@ -486,7 +485,6 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="Widgets\TooltipWidget.h" />
     <ClInclude Include="Widgets\ChatWidget.h" />
     <ClInclude Include="Guest.h" />
-    <ClInclude Include="GuestList.h" />
     <ClInclude Include="Hosting.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Widgets\HostSettingsWidget.h" />
