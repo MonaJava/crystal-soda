@@ -496,6 +496,31 @@ const GamepadClient::PICK_REQUEST GamepadClient::pick(Guest guest, int gamepadIn
 		return PICK_REQUEST::SAME_USER;
 	}
 
+
+
+	GuestPreferences prefs = GuestPreferences(guest.userID);
+	int limit = 1;
+	bool found = findPreferences(guest.userID, [&limit](GuestPreferences& prefs) {
+		limit = prefs.padLimit;
+		});
+
+
+	Role role = GuestRoles::instance.getRole(guest.userID);
+	if (Config::cfg.permissions.role[role.key].limit)
+	{
+		return PICK_REQUEST::ROLE_BLOCK;
+	};
+
+	if (limit <= 0)
+	{
+		return PICK_REQUEST::LIMIT_BLOCK;
+	}
+
+	if (pad->isReserved && guest.userID != pad->getReserveOwner().userID)
+	{
+		return PICK_REQUEST::RESERVED;
+	}
+
 	if (pad->isOwned())
 	{
 		return PICK_REQUEST::TAKEN;
@@ -506,17 +531,6 @@ const GamepadClient::PICK_REQUEST GamepadClient::pick(Guest guest, int gamepadIn
 		return PICK_REQUEST::PUPPET;
 	}
 
-	GuestPreferences prefs = GuestPreferences(guest.userID);
-	int limit = 1;
-	bool found = findPreferences(guest.userID, [&limit](GuestPreferences& prefs) {
-		limit = prefs.padLimit;
-	});
-
-	if (limit <= 0)
-	{
-		return PICK_REQUEST::LIMIT_BLOCK;
-	}
-
 	bool success = reduceUntilFirst([&](AGamepad* gamepad) {
 		if (gamepad->owner.guest.userID == guest.userID) {
 			if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
@@ -525,6 +539,11 @@ const GamepadClient::PICK_REQUEST GamepadClient::pick(Guest guest, int gamepadIn
 				gamepad->clearOwner();
 				if (Config::cfg.hotseat.enabled) {
 					Hotseat::instance.seatUser(guest.userID, guest.name);
+				}
+				if (pad->isReserved)
+				{
+					pad->removeFirstInQueue();
+					if (pad->getQueue().size() <= 0)	pad->isReserved == false;
 				}
 			}
 			return true;
@@ -538,7 +557,23 @@ const GamepadClient::PICK_REQUEST GamepadClient::pick(Guest guest, int gamepadIn
 		return PICK_REQUEST::OK;
 	}
 
-	return PICK_REQUEST::EMPTY_HANDS;
+	{
+		if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
+
+			if (Config::cfg.hotseat.enabled) {
+
+				if (pad->owner.guest.isValid()) {
+					Hotseat::instance.pauseUser(pad->owner.guest.userID);
+				}
+
+				Hotseat::instance.seatUser(guest.userID, guest.name);
+			}
+
+			pad->owner.guest.copy(guest);
+		}
+		
+		return PICK_REQUEST::EMPTY_HANDS;
+	}
 }
 
 
@@ -559,6 +594,7 @@ bool GamepadClient::sendMessage(Guest guest, ParsecMessage message)
 	findPreferences(guest.userID, [&guestPrefs](GuestPreferences& prefs) {
 		guestPrefs = prefs;
 	});
+
 
 	switch (message.type)
 	{
@@ -775,16 +811,63 @@ bool GamepadClient::tryAssignGamepad(Guest guest, uint32_t deviceID, int current
 	if (currentSlots >= prefs.padLimit) {
 		return false;
 	}
+
+	Role role = GuestRoles::instance.getRole(guest.userID);
+	if (Config::cfg.permissions.role[role.key].limit)
+	{
+		return false;
+	};
 	
 	int i = 0;
 	return reduceUntilFirst([&](AGamepad* gamepad) {
 		if (!(isPuppetMaster && gamepad->isPuppet) && (!gamepad->isLocked() && gamepad->isAttached() && !gamepad->owner.guest.isValid())) {
-			if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
-				if (Config::cfg.hotseat.enabled) {
-					Hotseat::instance.seatUser(guest.userID, guest.name);
+			
+				if (!gamepad->isReserved || guest.userID == gamepad->getReserveOwner().userID)
+				{
+					if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
+						gamepad->setOwner(guest, deviceID, isKeyboard);
+						if (Config::cfg.hotseat.enabled) {
+							Hotseat::instance.seatUser(guest.userID, guest.name);
+						}
+						if (gamepad->isReserved)
+						{
+							gamepad->removeFirstInQueue();
+							gamepad->reserveTime->stop();
+							if (gamepad->getQueue().size() <= 0)	gamepad->isReserved = false;
+
+						}
+					}
 				}
-				gamepad->setOwner(guest, deviceID, isKeyboard);
-			}
+				else
+				{
+					
+					if (gamepad->reserveTime->isRunning())
+					{
+						gamepad->reserveTime->getRemainingMs();
+						if (gamepad->reserveTime->isFinished())
+						{
+							if (!Config::cfg.hotseat.enabled || Hotseat::instance.checkUser(guest.userID, guest.name)) {
+								if (Config::cfg.hotseat.enabled) {
+									Hotseat::instance.seatUser(guest.userID, guest.name);
+								}
+								gamepad->setOwner(guest, deviceID, isKeyboard);
+								gamepad->removeFirstInQueue();
+								gamepad->reserveTime->stop();
+								if (gamepad->getQueue().size() <= 0)	gamepad->isReserved = false;
+							}
+						}
+					}
+					else if (!gamepad->reserveTime->isRunning())
+					{
+						int time = 5;
+						gamepad->reserveTime->start(time);
+						g_hosting.logMessage("[QUEUE] Pad #" + to_string(i + 1) + " is currently reserved for " + gamepad->getReserveOwner().name +
+						".\nThe reservation will last for " + to_string(time) + " minutes before the pad is free to be claimed by anyone.");
+						g_hosting.broadcastChatMessage("[QUEUE] Pad #" + to_string(i + 1) + " is currently reserved for " + gamepad->getReserveOwner().name +
+							".\nThe reservation will last for " + to_string(time) + " minutes before the pad is free to be claimed by anyone.");
+					}
+				}
+			
 			return true;
 		}
 		++i;

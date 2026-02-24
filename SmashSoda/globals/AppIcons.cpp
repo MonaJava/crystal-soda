@@ -85,6 +85,8 @@ ID3D11ShaderResourceView* AppIcons::mouse;
 
 ID3D11ShaderResourceView* AppIcons::developer;
 
+ID3D11ShaderResourceView* AppIcons::developer;
+
 ID3D11ShaderResourceView* AppIcons::sodaArcadeLogo;
 
 ID3D11ShaderResourceView* AppIcons::arcadeIcon;
@@ -279,6 +281,9 @@ void AppIcons::init(ID3D11Device* pd3dDevice)
     _hammerIcon.loadFromFile(pd3dDevice, "./icons/hammer.png");
 	_stream.loadFromFile(pd3dDevice, "./icons/stream.png");
 
+    _arcadeIcon.loadFromFile(pd3dDevice, "./Icons/arcade.png");
+    _parsecIcon.loadFromFile(pd3dDevice, "./Icons/parsec.png");
+
     play = _play.texture;
     stop = _stop.texture;
     
@@ -360,6 +365,8 @@ void AppIcons::init(ID3D11Device* pd3dDevice)
 	star = _star.texture;
 	eye = _eye.texture;
     mouse = _mouse.texture;
+
+	developer = _developer.texture;
 
 	developer = _developer.texture;
 

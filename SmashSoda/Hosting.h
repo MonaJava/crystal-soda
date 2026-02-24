@@ -42,6 +42,7 @@
 #include "services/AutoMod.h"
 #include "services/Arcade.h"
 #include "services/ScreenshotService.h"
+#include "Lists/Roles.h"
 
 #include <nlohmann/json.hpp>
 using namespace std;
@@ -62,7 +63,9 @@ public:
 	void applyHostConfig();
 	bool resizeRoom(uint32_t maxGuests);
 	void broadcastChatMessage(string message);
+	void broadcastChatMessage(string message, uint32_t sender);
 	void broadcastChatMessageAndLogCommand(string message);
+	void broadcastChatMessageAndLogCommand(string message, uint32_t sender);
 	void init();
 	void release();
 	bool isReady();
@@ -90,6 +93,7 @@ public:
 	MyMetrics getMetrics(uint32_t id);
 	vector<AGamepad*>& getGamepads();
 	GamepadClient& getGamepadClient();
+	//MasterOfPuppets& getMasterOfPuppets();
 	Hotseat& getHotseat();
 
 	const char** getGuestNames();
@@ -185,6 +189,8 @@ private:
 	ParsecStatus _parsecStatus;
 	Guest _host;
 	TierList _tierList;
+	GuestRoles _guestRoles;
+	Roles _roles;
 	Macro _macro;
 	Hotseat _hotseat;
 

@@ -41,6 +41,7 @@
 #include "Commands/Mod/CommandLock.h"
 #include "Commands/Mod/CommandLockAll.h"
 #include "Commands/Mod/CommandOne.h"
+#include "Commands/Mod/CommandLimit.h"
 #include "Commands/Mod/CommandName.h"
 #include "Commands/Mod/CommandRC.h"
 #include "Commands/Mod/CommandRestart.h"

@@ -1,74 +1,79 @@
-﻿#include "ModList.h"
-#include "Stringer.h"
-#include "../Core/Cache.h"
-#include "../Tier.h"
+#include "NoobExemptList.h"
+#include "../Helpers/Stringer.h"
 
-ModList::ModList() {}
-
-ModList::ModList(std::vector<GuestData> moddedUsers)
-	: GuestDataList(moddedUsers)
-{
+/**
+ * @brief Construct a new NoobExemptList List:: NoobExemptList List object
+ */
+NoobExemptList::NoobExemptList() {
 }
 
-bool ModList::mod(GuestData user) {
+/**
+ * @brief Construct a new NoobExemptList List:: NoobExemptList List object
+ * 
+ * @param verifiedUsers 
+ */
+NoobExemptList::NoobExemptList(std::vector<GuestData> verifiedUsers)
+	: GuestDataList(verifiedUsers) { }
+
+/**
+ * @brief Add a user to the list
+ * 
+ * @param user 
+ * @return true 
+ * @return false 
+ */
+bool NoobExemptList::Add(GuestData user) {
 	bool added = GuestDataList::add(user);
-    Cache::cache.tierList.setTier(user.userID, Tier::MOD);
 	if (added) {
 		SaveToFile();
 	}
 	return added;
 }
 
-const bool ModList::unmod(const uint32_t userID) {
-    
-    vector<GuestData>::iterator gi = _guests.begin();
-    for (; gi != _guests.end(); ++gi) {
-        if ((*gi).userID == userID) {
-            Cache::cache.tierList.setTier((*gi).userID, Tier::GUEST);
-            _guests.erase(gi);
-            SaveToFile();
-            return true;
-        }
-    }
-
-    return false;
-
+/**
+ * @brief Remove a user from the list
+ * 
+ * @param userID 
+ * @param callback 
+ * @return true 
+ * @return false 
+ */
+const bool NoobExemptList::Remove(const uint32_t userID, function<void(GuestData&)> callback) {
+	bool found = GuestDataList::pop(userID, callback);
+	if (found) {
+		SaveToFile();
+	}
+	return found;
 }
 
-const bool ModList::unmod(string guestName) {
-
-    vector<GuestData>::iterator gi = _guests.begin();
-    for (; gi != _guests.end(); ++gi) {
-        if ((*gi).name == guestName) {
-            Cache::cache.tierList.setTier((*gi).userID, Tier::GUEST);
-            _guests.erase(gi);
-            SaveToFile();
-            return true;
-        }
-    }
-
-    return false;
-
-}
-
-const bool ModList::isModded(const uint32_t userID) {
+/**
+ * @brief Check if a user is in the list
+ * 
+ * @param userID 
+ * @return const bool 
+ */
+const bool NoobExemptList::inList(const uint32_t userID) {
 	return find(userID);
 }
 
-vector<GuestData>& ModList::getGuests()
-{
+/**
+ * @brief Get the list of verified guests
+ * 
+ * @return vector<GuestData>& 
+ */
+vector<GuestData>& NoobExemptList::getGuests() {
 	return GuestDataList::getGuests();
 }
 
 /**
- * @brief Load the modded users list from file
+ * @brief Load the verified users list from file
  */
-vector<GuestData> ModList::LoadFromFile() {
+vector<GuestData> NoobExemptList::LoadFromFile() {
 	vector<GuestData> result;
 
     string dirPath = PathHelper::GetConfigPath();
     if (!dirPath.empty()) {
-        string filepath = dirPath + "mods.json";
+        string filepath = dirPath + "noobexempt.json";
 
         if (MTY_FileExists(filepath.c_str())) {
             MTY_JSON* json = MTY_JSONReadFile(filepath.c_str());
@@ -99,12 +104,12 @@ vector<GuestData> ModList::LoadFromFile() {
 }
 
 /**
- * @brief Save the modded users list to file
+ * @brief Save the verified users list to file
  */
-bool ModList::SaveToFile() {
+bool NoobExemptList::SaveToFile() {
 	string dirPath = PathHelper::GetConfigPath();
     if (!dirPath.empty()) {
-        string filepath = dirPath + "mods.json";
+        string filepath = dirPath + "noobexempt.json";
 
         MTY_JSON* json = MTY_JSONArrayCreate();
 
@@ -125,5 +130,3 @@ bool ModList::SaveToFile() {
 
     return false;
 }
-
-

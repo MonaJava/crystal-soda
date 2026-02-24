@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include "ACommand.h"
+#include "../../ACommand.h"
 #include "../../../Guest.h"
 
 class CommandStopSFX : public ACommand
@@ -27,6 +27,7 @@ public:
 
 		// SFX enabled?
 		if (tier == Tier::GUEST && !Config::cfg.permissions.guest.useSFX ||
+			tier == Tier::NOOB && !Config::cfg.permissions.noob.useSFX ||
 			tier == Tier::MOD && !Config::cfg.permissions.moderator.useSFX ||
 			Cache::cache.vipList.isVIP(_sender.userID) && !Config::cfg.permissions.vip.useSFX) {
 			setReply("Sound effects are disabled.\0");
@@ -50,5 +51,3 @@ protected:
 
 	Guest& _sender;
 };
-
-

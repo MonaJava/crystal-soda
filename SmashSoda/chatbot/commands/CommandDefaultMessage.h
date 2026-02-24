@@ -1,10 +1,14 @@
 ﻿#pragma once
 
-#include "ACommand.h"
+#include "../ACommand.h"
 #include "../../Guest.h"
 #include "../../Tier.h"
 #include "Stringer.h"
+#include "../../Lists/Roles.h"
 #include <sstream>
+#include <chrono>
+#include <ctime>
+
 
 class CommandDefaultMessage : public ACommand
 {
@@ -36,13 +40,17 @@ public:
 		if (_sender.userID != _lastUserID)
 		{
 			static string role = "";
-			if (_isHost || _tier == Tier::GOD) role = "#  ";
-			else if (_tier == Tier::MOD) role = "$  ";
-			else role = ">  ";
+			if (_isHost || _tier == Tier::GOD) role = "HOST  ";
+			else if (_tier == Tier::ADMIN || _tier == Tier::MOD) role = "MOD  ";
+			else if (_tier == Tier::NOOB) role = "NOOB  ";
+			else role = "";
+
+			Role r = GuestRoles::instance.getRole(_sender.userID);
+			role = r.messageStarter;
 
 			if (_sender.isValid())
 			{
-				reply << role << _sender.name << " \t (#" << _sender.userID << ")";
+				reply << role << _sender.name;
 			}
 			else if (_isHost)
 			{
@@ -53,10 +61,25 @@ public:
 				reply << role << "Unkown Guest";
 			}
 
-			reply << ":\n";
-		}
+			struct tm tmp;
+			__int64 ltime;
+			char buf[26];
+			errno_t err;
 
-		reply << "\t\t " << _msg << "\0";
+			_time64(&ltime);
+			err = _gmtime64_s(&tmp, &ltime);
+			if (err)
+			{
+				reply << "[X:XX]: ";
+			}
+			else
+			{
+				reply << " [" << tmp.tm_hour << ":" << tmp.tm_min << "]: ";
+			}
+			
+		}
+		else reply << "\t";
+		reply << _msg << "\0";
 
 		_replyMessage = reply.str();
 		reply.clear();

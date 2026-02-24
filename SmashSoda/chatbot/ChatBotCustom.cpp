@@ -9,16 +9,93 @@
 */
 
 //#include "Commands/Custom/YourCommandClass.h"
+#include "Commands/Custom/EmptyTime.h"
+#include "Commands/Custom/TTS.h"
+#include "Commands/Custom/Queue.h"
+#include "Commands/Custom/ListQueue.h"
+#include "Commands/Custom/EmptyQueue.h"
+#include "Commands/Custom/ExitQueue.h"
+#include "Commands/Custom/Pleb.h"
+#include "Commands/Custom/DioHelp.h"
+#include "Commands/Custom/DioVersion.h"
+#include "Commands/Custom/SetRole.h"
+#include "Commands/Custom/CommandPlayTime.h"
+#include "Commands/Custom/KickRandom.h"
+#include "Commands/Custom/VoteCommands.h"
+#include "Commands/Custom/VoteKick.h"
+#include "Commands/Custom/VoteQuestion.h"
+#include "Commands/Custom/Ignore.h"
+#include "Commands/Custom/GivePad.h"
 
 /**
 * This function is where you check to see if the
 * message matches your command prefixes.
 **/
 ACommand* ChatBotCustom::isCustomCommand(const char* msg, Guest& sender, bool isHost, Tier tier, uint32_t previous) {
+	/*if (isCommand(msg, YourCommandClass::prefixes())) {
+	return new YourCommandClass(msg, sender, _parsec, _guests, _guestHistory);
+}*/
 
 	/*if (isCommand(msg, YourCommandClass::prefixes())) {
 		return new YourCommandClass(msg, sender, _parsec, _guests, _guestHistory);
 	}*/
+	/*string role = "guest";
+	switch (tier)
+	{
+		case Tier::NOOB:
+			role = "noob";
+		case Tier::PLEB:
+			role = "guest";
+		case Tier::MOD:
+			role = "mod";
+		case Tier::GOD:
+		case Tier::ADMIN:
+			role = "host";
+		default:
+			role = "guest";
+	}
+
+	Role r = GuestRoles::instance.getRole(sender.userID);
+	role = r.key;*/
+
+	if (isCommand(msg, CommandPlayTime::prefixes()))	return new CommandPlayTime(msg, sender, _guests);
+	
+	if (isCommand(msg, EmptyTime::prefixes()))			return new EmptyTime(msg, sender);
+	if (isCommand(msg, Queue::prefixes()))				return new Queue(msg, sender, _gamepadClient);
+	if (isCommand(msg, ListQueue::prefixes()))			return new ListQueue(msg, sender, _gamepadClient);
+	if (isCommand(msg, ExitQueue::prefixes()))			return new ExitQueue(msg, sender, _gamepadClient);
+	if (isCommand(msg, DioHelp::prefixes()))			return new DioHelp(msg, sender);
+	if (isCommand(msg, DioVersion::prefixes()))			return new DioVersion(msg, sender);
+	if (msgStartsWith(msg, TTS::prefixes()))		return new TTS(msg, sender);
+
+	if (isCommand(msg, VoteQuestion::prefixes()))		return new VoteQuestion(msg, sender);
+	if (isCommand(msg, VoteKick::prefixes()))			return new VoteKick(msg, sender, _parsec, _guests, isHost);
+	if (isCommand(msg, YayVote::prefixes()))			return new YayVote(msg, sender);
+	if (isCommand(msg, NayVote::prefixes()))			return new NayVote(msg, sender);
+	if (isCommand(msg, Ignore::prefixes()))				return new Ignore(msg, sender, _guests, _host, _guests);
+
+	if (isCommand(msg, KickRandom::prefixes()))		return new KickRandom(msg, sender, _parsec, _guests, isHost);
+	if (isCommand(msg, EmptyQueue::prefixes()))		return new EmptyQueue(msg, sender, _gamepadClient);
+	//if (isCommand(msg, Pleb::prefixes()))			return new Pleb(msg, sender, _parsec, _guests, _guestHistory, _gamepadClient);
+	if (isCommand(msg, ClearVote::prefixes()))		return new ClearVote(msg, sender);
+	if (isCommand(msg, GivePad::prefixes()))		return new GivePad(msg, sender, _guests, _host, _gamepadClient);
+	
+
+	map<string, Role>::iterator it;
+
+	for (it = Roles::r.list.begin(); it != Roles::r.list.end(); it++)
+	{
+		vector<const char*> roleprefix = { it->second.commandPrefix.c_str() };
+		int len = it->second.commandPrefix.length();
+		if (!roleprefix.empty() && len >= 4)
+		{
+			if (isCommand(msg, roleprefix)) {
+				return new SetRole(msg, sender, _parsec, _guests, _guestHistory, it->second);
+			}
+		}
+	}
+
+	
 
 	// Returns a default message if no custom command is found, so the bot can still respond.
 	return new CommandDefaultMessage(msg, sender, previous, tier, isHost);
@@ -30,7 +107,32 @@ Add all the help/descriptions for the commands.
 void ChatBotCustom::addHelp() {
 
 	//addCmdHelp("!yourcommand", "Description", Tier::GUEST);
+	addCmdHelp("/help", "Lists Dio's commands", Tier::GUEST);
+	addCmdHelp("/version", "I'll change this every time theres a significant update", Tier::GUEST);
+	addCmdHelp("/poll", "Begins a vote on a provided question", Tier::GUEST);
+	addCmdHelp("/votekick", "Begins a vote to kick a specified user", Tier::GUEST);
+	addCmdHelp("/yay", "Agrees to a vote", Tier::GUEST);
+	addCmdHelp("/nay", "Disagrees with a vote", Tier::GUEST);
+	addCmdHelp("/ignore", "Prevents another user's chat messages from being sent to you", Tier::GUEST);
+	addCmdHelp("/startcooldown", "Removes all your hotseat playtime", Tier::GUEST);
+	addCmdHelp("/queue", "Reserves a gamepad for you to use when the owner drops", Tier::GUEST);
+	addCmdHelp("/listqueue", "Shows who's in a queue", Tier::GUEST);
+	addCmdHelp("/exitqueue", "Exits the queue", Tier::GUEST);
+	addCmdHelp("/tts", "Text to speech", Tier::GUEST);
+	addCmdHelp("/emptyqueue", "Removes all users from the queue of a gamepad", Tier::GUEST);
+	addCmdHelp("/randkick", "Kicks a random guest", Tier::GUEST);
+	addCmdHelp("/voteclear", "Stops a vote prematurely", Tier::GUEST);
+	map<string, Role>::iterator it;
 
+	for (it = Roles::r.list.begin(); it != Roles::r.list.end(); it++)
+	{
+		string roleprefix =  it->second.commandPrefix;
+		int len = roleprefix.length();
+		if (len >= 4)
+		{
+			addCmdHelp(roleprefix, "Sets a user's role to " + it->second.name, Tier::GOD);
+		}
+	}
 }
 
 /**

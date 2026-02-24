@@ -140,6 +140,8 @@ public:
 		bool enabled = false;
 		int playTime = 15;
 		int resetTime = 30;
+		int minResetTime = 5;
+		bool multiBonus = true;
 		int reminderInterval = 5;
 	};
 	
@@ -187,20 +189,88 @@ public:
 	public:
 		class PermissionGroup {
 		public:
+			string permissions = "";
 			bool useBB = false;
 			bool useSFX = false;
 			bool changeControls = false;
+			bool kick = false;
+			bool limit = false;
+			int extraHotseatTime = 0;
+			int cooldownShrink = 0;
+			int rank = 0;
 
+			PermissionGroup() {
+				this->permissions = "";
+				this->useBB = false;
+				this->useSFX = false;
+				this->changeControls = true;
+				this->kick = false;
+				this->limit = false;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
+			};
+			PermissionGroup(string permissions) {
+				this->permissions = permissions;
+				this->useBB = false;
+				this->useSFX = false;
+				this->changeControls = true;
+				this->kick = false;
+				this->limit = false;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
+			};
+			PermissionGroup(string permissions, bool kick, bool limit) {
+				this->permissions = permissions;
+				this->useBB = false;
+				this->useSFX = false;
+				this->changeControls = true;
+				this->kick = kick;
+				this->limit = limit;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
+			};
 			PermissionGroup(bool useBB, bool useSFX, bool changeControls) {
+				this->permissions = "";
 				this->useBB = useBB;
 				this->useSFX = useSFX;
 				this->changeControls = changeControls;
+				this->kick = false;
+				this->limit = false;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
+			};
+
+			PermissionGroup(bool useBB, bool useSFX, bool changeControls, bool kick, bool limit) {
+				this->permissions = "";
+				this->useBB = useBB;
+				this->useSFX = useSFX;
+				this->changeControls = changeControls;
+				this->kick = kick;
+				this->limit = limit;
+				this->extraHotseatTime = 0;
+				this->cooldownShrink = 0;
+				this->rank = 0;
 			};
 		};
-
-		PermissionGroup guest = PermissionGroup(false, false, true);
+		PermissionGroup guest = PermissionGroup(true, true, true);
 		PermissionGroup vip = PermissionGroup(true, true, true);
 		PermissionGroup moderator = PermissionGroup(true, true, true);
+		PermissionGroup noob = PermissionGroup(true, true, true, false, true);
+		
+		map<string, PermissionGroup> role = { 
+			{"guest", PermissionGroup("!8ball !bonk !cookie !discord !ff !help !kb !keyboard !limit !mirror !one !pads !ping !playtime !rollcall !rpg !spectate !swap !triangle /emptyplaytime /exitqueue /help /ignore /listqueue /nay /poll /queue /startcooldown /v /version /votekick /votequestion /yay") },
+			{"white-listed noob", PermissionGroup("!8ball !bonk !cookie !discord !ff !help !kb !keyboard !limit !mirror !one !pads !ping !playtime !rollcall !rpg !sfx !spectate !swap !triangle /emptyplaytime /exitqueue /help /ignore /listqueue /nay /poll /queue /startcooldown /v /version /votekick /votequestion /yay") },
+			{"noob", PermissionGroup("!8ball !cookie !discord !ff !help !kb !keyboard !limit !mirror !one !pads !ping !playtime !rollcall !rpg !spectate !swap !triangle /emptyplaytime /exitqueue /help /ignore /listqueue /nay /poll /startcooldown /v /version /votequestion /yay")},
+			{"mod 2", PermissionGroup("!8ball !ban !bb !bonk !cookie !cooldown !dc !dcall !decrease !discord !extend !ff !help !kb !keyboard !kick !limit !lock !lockall !mirror !mute !name !one !pads !ping !playtime !rc !restart !rollcall !rpg !sfx !spectate !stopsfx !strip !stripall !swap !triangle !unban !unbanlastip !unmute !verify !warmup /emptyplaytime /emptyqueue /exitqueue /help /ignore /listqueue /nay /poll /queue /randkick /startcooldown /tts /v /version /voteclear /votekick /votequestion /yay")},
+			{"overlord", PermissionGroup("!8ball !ban !bb !bonk !cookie !cooldown !dc !dcall !decrease !discord !extend !ff !help !guest !kb !keyboard !kick !limit !lock !lockall !mirror !mod !modbutnotmod !mute !name !one !pads !ping !playtime !rc !restart !rollcall !rpg !sfx !spectate !stopsfx !strip !stripall !swap !triangle !unban !unbanlastip !unmod !unmute !unvip !verify !vip !warmup /emptyplaytime /emptyqueue /exitqueue /help /ignore /listqueue /nay /poll /queue /randkick /startcooldown /tts /unnoob /v /version /voteclear /votekick /votequestion /yay")},
+			{"vip", PermissionGroup("!8ball !bb !bonk !cookie !discord !ff !help !kb !keyboard !mirror !one !pads !ping !playtime !rollcall !rpg !sfx !spectate !stopsfx !swap !triangle /emptyplaytime /emptyqueue /exitqueue /help /ignore /listqueue /nay /poll /queue /startcooldown /v /version /voteclear /votekick /votequestion /yay")},
+			{"host", PermissionGroup("<ALLCOMMANDS>")},
+		};
+		int noobNum = 1600;
 	};
 
 	class Arcade {
@@ -356,7 +426,6 @@ public:
 	void SetHotkey();
 	void AddHotkey(string command, int key);
 	void RemoveHotkey(int index);
-
 private:
 	void static LoadOverlayThemes();
 };

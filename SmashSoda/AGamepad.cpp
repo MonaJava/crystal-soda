@@ -117,12 +117,78 @@ void AGamepad::setOwner(Guest& guest, uint32_t deviceID, bool isKeyboard)
 	owner.isKeyboard = isKeyboard;
 }
 
+/*void AGamepad::setReserveOwner(int userid)
+{
+	reserveOwnerID = userid;
+	isReserved = true;
+}*/
+
+void AGamepad::addToQueue(Guest& guest, int padIndex)
+{
+	bool notInQueue = true;
+	for (size_t i = 0; i < _queue.size(); ++i)
+	{
+		if (guest.userID == _queue[i].userID) notInQueue = false;
+	}
+	if (guest.isValid() and notInQueue and MetadataCache::getGuestQueueNum(guest.userID) == 0)
+	{
+		MetadataCache::giveGuestQueueNum(guest.userID, padIndex);
+		_queue.push_back(guest);
+		isReserved = true;
+	}
+}
+
+void AGamepad::removeFirstInQueue()
+{
+	MetadataCache::giveGuestQueueNum(_queue.front().userID, 0);
+	_queue.erase(_queue.begin());
+}
+
+void AGamepad::removeFromQueue(Guest& guest)
+{
+	for (size_t i = 0; i < _queue.size(); ++i)
+	{
+		if (guest.userID == _queue[i].userID)
+		{
+			_queue.erase(_queue.begin() + i);
+			MetadataCache::giveGuestQueueNum(guest.userID, 0);
+			if (_queue.size() <= 0) isReserved = false;
+		}
+	}
+	
+}
+
+void AGamepad::eraseQueue()
+{
+	for (size_t i = 0; i < _queue.size(); ++i)
+	{
+		MetadataCache::giveGuestQueueNum(_queue[i].userID, 0);
+	}
+	_queue.clear();
+	isReserved = false;
+}
+
+
+vector<Guest>& AGamepad::getQueue()
+{
+	return _queue;
+}
+
+Guest AGamepad::getReserveOwner()
+{
+	if (isReserved)
+		return _queue.front();
+	else
+		return Guest();
+}
+
 void AGamepad::copyOwner(AGamepad* pad)
 {
 	if (pad != nullptr) owner.copy(pad->owner);
 }
 
 void AGamepad::clearOwner() {
+	Hotseat::instance.pauseUser(owner.guest.userID);
 	owner = GuestDevice();
 }
 

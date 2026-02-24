@@ -121,6 +121,8 @@ void Config::Load() {
 			cfg.hotseat.enabled = setValue(cfg.hotseat.enabled, j["Hotseat"]["enabled"].get<bool>());
 			cfg.hotseat.playTime = setValue(cfg.hotseat.playTime, j["Hotseat"]["playTime"].get<unsigned int>());
 			cfg.hotseat.resetTime = setValue(cfg.hotseat.resetTime, j["Hotseat"]["resetTime"].get<unsigned int>());
+			cfg.hotseat.minResetTime = setValue(cfg.hotseat.minResetTime, j["Hotseat"]["minResetTime"].get<unsigned int>());
+			cfg.hotseat.multiBonus = setValue(cfg.hotseat.multiBonus, j["Hotseat"]["multiBonus"].get<bool>());
 			cfg.hotseat.reminderInterval = setValue(cfg.hotseat.reminderInterval, j["Hotseat"]["reminderInterval"].get<unsigned int>());
 
 			// Set KioskMode properties
@@ -152,12 +154,40 @@ void Config::Load() {
 			cfg.permissions.guest.useBB = setValue(cfg.permissions.guest.useBB, j["Permissions"]["guest"]["useBB"].get<bool>());
 			cfg.permissions.guest.useSFX = setValue(cfg.permissions.guest.useSFX, j["Permissions"]["guest"]["useSFX"].get<bool>());
 			cfg.permissions.guest.changeControls = setValue(cfg.permissions.guest.changeControls, j["Permissions"]["guest"]["changeControls"].get<bool>());
+			cfg.permissions.guest.kick = setValue(cfg.permissions.guest.kick, j["Permissions"]["guest"]["kick"].get<bool>());
+			cfg.permissions.guest.limit = setValue(cfg.permissions.guest.limit, j["Permissions"]["guest"]["limit"].get<bool>());
 			cfg.permissions.vip.useBB = setValue(cfg.permissions.vip.useBB, j["Permissions"]["vip"]["useBB"].get<bool>());
 			cfg.permissions.vip.useSFX = setValue(cfg.permissions.vip.useSFX, j["Permissions"]["vip"]["useSFX"].get<bool>());
 			cfg.permissions.vip.changeControls = setValue(cfg.permissions.vip.changeControls, j["Permissions"]["vip"]["changeControls"].get<bool>());
+			cfg.permissions.vip.kick = setValue(cfg.permissions.vip.kick, j["Permissions"]["vip"]["kick"].get<bool>());
+			cfg.permissions.vip.limit = setValue(cfg.permissions.vip.limit, j["Permissions"]["vip"]["limit"].get<bool>());
 			cfg.permissions.moderator.useBB = setValue(cfg.permissions.moderator.useBB, j["Permissions"]["moderator"]["useBB"].get<bool>());
 			cfg.permissions.moderator.useSFX = setValue(cfg.permissions.moderator.useSFX, j["Permissions"]["moderator"]["useSFX"].get<bool>());
 			cfg.permissions.moderator.changeControls = setValue(cfg.permissions.moderator.changeControls, j["Permissions"]["moderator"]["changeControls"].get<bool>());
+			cfg.permissions.moderator.kick = setValue(cfg.permissions.moderator.kick, j["Permissions"]["moderator"]["kick"].get<bool>());
+			cfg.permissions.moderator.limit = setValue(cfg.permissions.moderator.limit, j["Permissions"]["moderator"]["limit"].get<bool>());
+			cfg.permissions.noob.useBB = setValue(cfg.permissions.noob.useBB, j["Permissions"]["noob"]["useBB"].get<bool>());
+			cfg.permissions.noob.useSFX = setValue(cfg.permissions.noob.useSFX, j["Permissions"]["noob"]["useSFX"].get<bool>());
+			cfg.permissions.noob.changeControls = setValue(cfg.permissions.noob.changeControls, j["Permissions"]["noob"]["changeControls"].get<bool>());
+			cfg.permissions.noob.kick = setValue(cfg.permissions.noob.kick, j["Permissions"]["noob"]["kick"].get<bool>());
+			cfg.permissions.noob.limit = setValue(cfg.permissions.noob.limit, j["Permissions"]["noob"]["limit"].get<bool>());
+			cfg.permissions.noobNum = setValue(cfg.permissions.noobNum, j["Permissions"]["noobNum"].get<int>());
+
+			json permissions = j["Permissions"]["roles"];
+			for (json::iterator it = permissions.begin(); it != permissions.end(); ++it) {
+				Permissions::PermissionGroup permission;
+				permission.permissions = it.value()["permissions"].get<string>();
+				permission.useBB = it.value()["useBB"].get<bool>();
+				permission.useSFX = it.value()["useSFX"].get<bool>();
+				permission.changeControls = it.value()["changeControls"].get<bool>();
+				permission.kick = it.value()["kick"].get<bool>();
+				permission.limit = it.value()["limit"].get<bool>();
+				permission.extraHotseatTime = it.value()["extraHotseatTime"].get<int>();
+				permission.cooldownShrink = it.value()["cooldownShrink"].get<int>();
+				cfg.permissions.role[it.value()["role"].get<string>()] = permission;
+			}
+			cfg.permissions.noobNum = setValue(cfg.permissions.noobNum, j["Permissions"]["noobNum"].get<int>());
+
 
 			// Set Arcade properties
 			cfg.arcade.country = setValue(cfg.arcade.country, j["Arcade"]["country"].get<string>());
@@ -319,6 +349,8 @@ void Config::Save() {
 		{"enabled", cfg.hotseat.enabled},
 		{"playTime", cfg.hotseat.playTime},
 		{"resetTime", cfg.hotseat.resetTime},
+		{"minResetTime", cfg.hotseat.minResetTime},
+		{"multiBonus", cfg.hotseat.multiBonus },
 		{"reminderInterval", cfg.hotseat.reminderInterval}
 	};
 
@@ -352,22 +384,57 @@ void Config::Save() {
 	};
 
 	// Permissions
-	j["Permissions"] = {
+	map<string, json> permissions;
+	for (auto it = cfg.permissions.role.begin(); it != cfg.permissions.role.end(); ++it)
+	{
+		json permissionJson;
+		permissionJson["role"] = it->first;
+		permissionJson["permissions"] = it->second.permissions;
+		permissionJson["useBB"] = it->second.useBB;
+		permissionJson["useSFX"] = it->second.useSFX;
+		permissionJson["changeControls"] = it->second.changeControls;
+		permissionJson["kick"] = it->second.kick;
+		permissionJson["limit"] = it->second.limit;
+		permissionJson["extraHotseatTime"] = it->second.extraHotseatTime;
+		permissionJson["cooldownShrink"] = it->second.cooldownShrink;
+		permissions[it->first] = permissionJson;
+	}
+
+	j["Permissions"] = { 
+		{ "roles", permissions },
+		
+		//redundant, only leaving in so I don't have to change all the code at onceex
 		{"guest", {
 			{"useBB", cfg.permissions.guest.useBB},
 			{"useSFX", cfg.permissions.guest.useSFX},
-			{"changeControls", cfg.permissions.guest.changeControls}
+			{"changeControls", cfg.permissions.guest.changeControls},
+			{"kick", cfg.permissions.guest.kick },
+			{"limit", cfg.permissions.guest.limit }
 		}},
 		{"vip", {
 			{"useBB", cfg.permissions.vip.useBB},
 			{"useSFX", cfg.permissions.vip.useSFX},
-			{"changeControls", cfg.permissions.vip.changeControls}
+			{"changeControls", cfg.permissions.vip.changeControls},
+			{"kick", cfg.permissions.vip.kick },
+			{"limit", cfg.permissions.vip.limit }
 		}},
 		{"moderator", {
 			{"useBB", cfg.permissions.moderator.useBB},
 			{"useSFX", cfg.permissions.moderator.useSFX},
-			{"changeControls", cfg.permissions.moderator.changeControls}
-		}}
+			{"changeControls", cfg.permissions.moderator.changeControls},
+			{"kick", cfg.permissions.moderator.kick},
+			{"limit", cfg.permissions.moderator.limit }
+		}},
+		{"noob", {
+			{"useBB", cfg.permissions.noob.useBB},
+			{"useSFX", cfg.permissions.noob.useSFX},
+			{"changeControls", cfg.permissions.noob.changeControls},
+			{"kick", cfg.permissions.noob.kick},
+			{"limit", cfg.permissions.noob.limit }
+		}},
+
+		{"noobNum", cfg.permissions.noobNum}
+	
 	};
 
 	// Arcade

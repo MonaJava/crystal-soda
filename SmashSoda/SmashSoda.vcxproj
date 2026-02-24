@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -196,6 +196,9 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClCompile Include="AudioSource.cpp" />
     <ClCompile Include="Chatbot\ChatBot.cpp" />
     <ClCompile Include="Chatbot\ChatBotCustom.cpp" />
+    <ClCompile Include="Chatbot\Commands\Custom\EmptyTime.h" />
+    <ClCompile Include="Chatbot\Commands\Custom\VoteCommands.cpp" />
+    <ClCompile Include="Chatbot\Commands\Custom\VoteQuestion.cpp" />
     <ClCompile Include="Chatbot\Commands\Guest\CommandBonk.cpp" />
     <ClCompile Include="controllers\StreamHandler.cpp" />
     <ClCompile Include="Core\Cache.cpp" />
@@ -216,6 +219,11 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClCompile Include="controllers\Hotseat.cpp" />
     <ClCompile Include="controllers\Macro.cpp" />
     <ClCompile Include="controllers\ProcessMan.cpp" />
+    <ClCompile Include="Lists\NoobExemptList.cpp" />
+    <ClCompile Include="Lists\Roles.cpp" />
+    <ClCompile Include="Models\Role.cpp" />
+    <ClCompile Include="Modules\DioStuff.cpp" />
+    <ClCompile Include="Modules\Hotseat.cpp" />
     <ClCompile Include="Lists\VerifiedList.cpp" />
     <ClCompile Include="Lists\VIPList.cpp" />
     <ClCompile Include="controllers\WebSocket.cpp" />
@@ -309,9 +317,25 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="ButtonLock.h" />
     <ClInclude Include="Chatbot\ChatBotCustom.h" />
     <ClInclude Include="Chatbot\Commands\CommandBotMessage.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\GivePad.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\Ignore.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\KickRandom.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\VoteKick.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\VoteQuestion.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\VoteCommands.h" />
     <ClInclude Include="Chatbot\Commands\Guest\Command8Ball.h" />
     <ClInclude Include="Chatbot\Commands\Mod\CommandDC.h" />
     <ClInclude Include="Chatbot\Commands\CommandDefaultMessage.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\DioHelp.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\DioVersion.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\Pleb.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\EmptyQueue.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\ExitQueue.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\ListQueue.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\pm.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\Queue.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\SetRole.h" />
+    <ClInclude Include="Chatbot\Commands\Custom\TTS.h" />
     <ClInclude Include="Chatbot\Commands\God\CommandVersion.h" />
     <ClInclude Include="Chatbot\Commands\God\CommandAddPS.h" />
     <ClInclude Include="Chatbot\Commands\God\CommandAddXbox.h" />
@@ -352,6 +376,7 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="GameData.h" />
     <ClInclude Include="Helpers\Countries.h" />
     <ClInclude Include="Helpers\Keymap.h" />
+    /<ClInclude Include="ImGui\imgui_stdlib.h" />
     <ClInclude Include="ImGui\implot.h" />
     <ClInclude Include="ImGui\implot_internal.h" />
     <ClInclude Include="Lists\GameDataList.h" />
@@ -361,6 +386,10 @@ copy /Y "$(SolutionDir)Dependencies\sdl\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"
     <ClInclude Include="KeyboardMapsUtil.h" />
     <ClInclude Include="Core\Config.h" />
     <ClInclude Include="Models\CommandInfo.h" />
+    <ClInclude Include="Models\Role.h" />
+    <ClInclude Include="Modules\DioStuff.h" />
+    <ClInclude Include="Lists\NoobExemptList.h" />
+    <ClInclude Include="Lists\Roles.h" />
     <ClInclude Include="controllers\Arcade.h" />
     <ClInclude Include="controllers\AutoMod.h" />
     <ClInclude Include="controllers\Hotseat.h" />

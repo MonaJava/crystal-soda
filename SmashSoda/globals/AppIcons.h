@@ -93,6 +93,8 @@ public:
 
 	static ID3D11ShaderResourceView* developer;
 
+	static ID3D11ShaderResourceView* developer;
+
 	static ID3D11ShaderResourceView* sodaArcadeLogo;
 
 	static ID3D11ShaderResourceView* arcadeIcon;
@@ -183,6 +185,8 @@ private:
 	static Texture _star;
 	static Texture _eye;
 	static Texture _mouse;
+
+	static Texture _developer;
 
 	static Texture _developer;
 

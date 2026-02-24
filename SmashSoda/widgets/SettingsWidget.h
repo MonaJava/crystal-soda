@@ -12,6 +12,7 @@
 #include "Keymap.h"
 #include "Widget.h"
 #include "../services/ThemeController.h"
+#include "../Lists/Roles.h"
 
 class SettingsWidget : public Widget
 {
@@ -85,6 +86,31 @@ private:
 	};
 	Countries _countries;
 	Keymap _keymap = Keymap();
+
+
+
+	int _noobNum = 160;
+	bool _kickNoob = false; //redundant
+	bool _limitNoob = true;
+
+	std::string _roleCommandPerms = "";
+	bool _BB = false;
+	bool _SFX = false;
+	bool _controls = false;
+	bool _kick = false;
+	bool _limit = false;
+	int _extraHotseatTime = 0;
+	int _cooldownShrink = 0;
+	int _rank = 0;
+
+	vector<Role> rolelist = vector<Role>();
+	Role _displayRole = Role();
+	char _roleName[128] = "";
+	char _messageStarter[128] = "";
+	char _commandPrefix[128] = "";
+	Countries _countries;
+	Keymap _keymap = Keymap();
+
+	int testNum = 1;
+	string testWord = "noob";
 };
-
-

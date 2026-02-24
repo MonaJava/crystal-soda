@@ -1,7 +1,7 @@
 ﻿#pragma once
-
 #include "ACommand.h"
 #include "../../../core/GamepadClient.h"
+
 
 class CommandOne : public ACommand
 {

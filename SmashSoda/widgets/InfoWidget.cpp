@@ -51,7 +51,7 @@ bool InfoWidget::render(bool& showWindow)
     ImGui::BeginGroup();
     renderSugoiButton("Donate", L"https://github.com/FlavioFS/ParsecSoda#donate");
     ImGui::SetCursorPosX(25);
-    ImGui::TextWrapped("If you love Smash Soda then you should support Flávio by donating to him with the links below!");
+    ImGui::TextWrapped("If you love Smash Soda then you should support Flï¿½vio by donating to him with the links below!");
 
     ImGui::Dummy(ImVec2(0, 10));
     

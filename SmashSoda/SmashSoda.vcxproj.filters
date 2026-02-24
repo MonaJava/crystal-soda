@@ -343,6 +343,28 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="controllers\StreamHandler.cpp">
+    <ClCompile Include="Chatbot\Commands\Custom\EmptyTime.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Lists\NoobExemptList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Lists\Roles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Models\Role.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\DioStuff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Chatbot\Commands\Custom\VoteCommands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Chatbot\Commands\Custom\VoteQuestion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_stdlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -402,6 +424,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Chatbot\Commands\Guest\CommandBonk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Mod\CommandKick.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Chatbot\Commands\Mod\CommandName.h">
@@ -566,7 +591,7 @@
     <ClInclude Include="Widgets\AudioSettingsWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Chatbot\Commands\Mod\CommandOne.h">
+    <ClInclude Include="Chatbot\Commands\Guest\CommandOne.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GuestDataList.h">
@@ -678,9 +703,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Chatbot\Commands\God\CommandUnmod.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Chatbot\Commands\Guest\CommandSpectate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Chatbot\Commands\Mod\CommandRestart.h">
@@ -833,6 +855,48 @@
     <ClInclude Include="Chatbot\Commands\Mod\CommandUnbanLastIP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\ListQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\Queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\TTS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\ExitQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\pm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\EmptyQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Guest\CommandSpectate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Lists\NoobExemptList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\Pleb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\DioHelp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\DioVersion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Lists\Roles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\SetRole.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\Role.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="AudioSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -882,6 +946,28 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="controllers\StreamHandler.h">
+    <ClInclude Include="Chatbot\Commands\Custom\KickRandom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\VoteCommands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\VoteQuestion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\DioStuff.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\VoteKick.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_stdlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\Ignore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chatbot\Commands\Custom\GivePad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

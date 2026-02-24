@@ -37,7 +37,9 @@ public:
 		EMPTY_HANDS,
 		LIMIT_BLOCK,
 		OUT_OF_RANGE,
-		PUPPET
+		PUPPET,
+		RESERVED,
+		ROLE_BLOCK
 	};
 
 	class GuestPreferences

@@ -57,6 +57,7 @@ public:
 		
 		bool rv = false;
 		std::ostringstream reply;
+		Role role = Roles::r.list[GuestRoles::instance.getRole(_sender.userID).key];
 
 		switch (result)
 		{
@@ -83,8 +84,7 @@ public:
 			break;
 		case GamepadClient::PICK_REQUEST::EMPTY_HANDS:
 			reply
-				<< Config::cfg.chatbotName << _sender.name << ", you must be holding a gamepad to use !swap command.\n"
-				<< "\t\tPress any face button (A, B, X, Y) to receive a random gamepad (if available).\n"
+				<< Config::cfg.chatbotName + "Gamepad " << slot << " was given to " << _sender.name << "\t(#" << _sender.userID << ")\n"
 				<< "\t\tType !pads to see the gamepad list.\0";
 			break;
 		case GamepadClient::PICK_REQUEST::LIMIT_BLOCK:
@@ -99,6 +99,16 @@ public:
 		case GamepadClient::PICK_REQUEST::PUPPET:
 			reply
 				<< Config::cfg.chatbotName << _sender.name << ", puppet master is handling that gamepad.\n"
+				<< "\t\tType !pads to see the gamepad list.\0";
+			break;
+		case GamepadClient::PICK_REQUEST::RESERVED:
+			reply
+				<< Config::cfg.chatbotName << _sender.name << ", That gamepad is reserved by someone else.\n"
+				<< "\t\tType !pads to see the gamepad list.\0";
+			break;
+		case GamepadClient::PICK_REQUEST::ROLE_BLOCK:
+			reply
+				<< Config::cfg.chatbotName << role.name << "s aren't allowed to receive gamepads.\n"
 				<< "\t\tType !pads to see the gamepad list.\0";
 			break;
 		default:

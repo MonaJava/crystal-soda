@@ -4,6 +4,7 @@
 #include "../ImGui/imgui.h"
 #include "../Hosting.h"
 #include "../globals/AppIcons.h"
+//#include "../globals/AppStyle.h"
 #include "IconButton.h"
 #include "TitleTooltipWidget.h"
 #include "ConfirmPopupWidget.h"
